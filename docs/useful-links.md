@@ -16,7 +16,6 @@ in a year.
 | **Claude Pro or higher** | <https://claude.ai/upgrade> | Required for Claude Code |
 | **ChatGPT Desktop** (for Codex) | <https://openai.com/chatgpt/download/> | Alternative to Claude Code. Toggle to **Codex**, top left |
 | **ChatGPT Plus or higher** | <https://chatgpt.com/#pricing> | Required for Codex |
-| **GitHub account** | <https://github.com/signup> | To clone this repo |
 | **Xcode Command Line Tools** | run `xcode-select --install` | Gives you `git`. 5–10 min download, no URL needed |
 | **Homebrew** | <https://brew.sh> | Only if you need `ffmpeg` |
 
@@ -28,14 +27,14 @@ Python is already on macOS. This repo needs no Python packages.
 
 ### engine-outreach
 
-Nothing to sign up for. You need a **Gmail account** connected to your agent
-with permission to create drafts — no Google Cloud project, no API key.
+**Gmail** connected to your agent with permission to create drafts — no Google
+Cloud project, no API key.
 
 - Gmail — <https://mail.google.com>
 
 ### engine-seo
 
-Nothing required. Reddit needs no account to read.
+Reddit needs no account to read.
 
 Useful if you have them:
 

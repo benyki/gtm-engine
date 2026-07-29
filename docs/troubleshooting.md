@@ -15,8 +15,8 @@ Five to ten minutes. Everything needs this.
 Do it by hand:
 ```bash
 git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py .
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows
+python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
 ```
 
 **`install_skills.sh` says "a real directory is already there"**
@@ -25,7 +25,7 @@ Something else owns that skill name — usually a hand-made skill from before.
 Move it, then re-run:
 ```bash
 mv ~/.claude/skills/engine-loop ~/.claude/skills/engine-loop.backup
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
 ```
 
 **Still seeing `engine-linkedin-content` after an update**
@@ -37,7 +37,7 @@ rm -f ~/.agents/skills/engine-linkedin-content \
       ~/.codex/skills/engine-linkedin-content \
       ~/.cursor/skills/engine-linkedin-content \
       ./workflows/skills/engine-linkedin-content
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow linkedin
 ```
 
 **The agent can't see the workflows after installing**
@@ -53,7 +53,8 @@ You should see symlinks pointing at `~/.agents/skills` (which points into your c
 **`scaffold_workspace.py` refuses to run**
 
 It won't overwrite an existing `workflows/` folder, because that folder holds
-your runs. Use `--merge` to add only what's missing, or `--name workflows2`.
+your runs. Use `--merge --workflow <pathway>` to add another pathway, or
+`--name workflows2` for a second workspace.
 
 ---
 

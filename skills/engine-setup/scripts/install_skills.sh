@@ -17,8 +17,12 @@
 # Only add an agent directory below if a vendor doc says that agent needs one.
 #
 # Usage:
-#   ./install_skills.sh [--dry-run] [--workspace PATH]
+#   ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
+#   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
+#   ./install_skills.sh --workflow all --workspace ./workflows
 #
+#   --workflow NAME    required: seo | linkedin | video | outreach | all
+#                      (comma-separated). Always also installs engine-setup + engine-loop.
 #   --workspace PATH   project workflows/ folder (creates PATH/skills/)
 #   --dry-run          print what would happen, write nothing
 #   --help             show this usage
@@ -27,13 +31,18 @@ set -euo pipefail
 
 DRY_RUN=0
 WORKSPACE=""
+WORKFLOW=""
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+SKILLS_SRC="$REPO_ROOT/skills"
+PATHWAYS_PY="$SCRIPT_DIR/pathways.py"
 
 usage() {
   cat <<'EOF'
-Install the gtm-engine workflows so your AI agent can find them.
+Install gtm-engine skills for the pathways you actually run.
 
-Everything is symlinked back into this clone, so git pull updates every
-workflow at once and there is never a reinstall step.
+Always installs engine-setup + engine-loop, plus one skill per --workflow.
 
 Path chain:
   <repo>/skills/<name>
@@ -44,8 +53,11 @@ Path chain:
 Codex and Cursor read ~/.agents/skills directly and are skipped on purpose.
 
 Usage:
-  ./install_skills.sh [--dry-run] [--workspace PATH]
+  ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
+  ./install_skills.sh --workflow seo,outreach --workspace ./workflows
+  ./install_skills.sh --workflow all --workspace ./workflows
 
+  --workflow NAME    required: seo | linkedin | video | outreach | all
   --workspace PATH   project workflows/ folder (creates PATH/skills/)
   --dry-run          print what would happen, write nothing
   --help             show this usage
@@ -58,6 +70,9 @@ while [[ $# -gt 0 ]]; do
     --workspace)
       [[ $# -ge 2 ]] || { echo "error: --workspace needs a path" >&2; exit 1; }
       WORKSPACE="$2"; shift 2 ;;
+    --workflow|-w)
+      [[ $# -ge 2 ]] || { echo "error: --workflow needs a value" >&2; exit 1; }
+      WORKFLOW="$2"; shift 2 ;;
     --help|-h) usage; exit 0 ;;
     *)
       echo "error: unknown arg: $1 (try --help)" >&2
@@ -66,8 +81,22 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../.." && pwd)"
-SKILLS_SRC="$REPO_ROOT/skills"
+if [[ -z "$WORKFLOW" ]]; then
+  # Infer from an existing workspace marker when possible.
+  if [[ -n "$WORKSPACE" && -f "${WORKSPACE%/}/config/pathways.json" ]]; then
+    WORKFLOW="$(python3 -c "import json,sys; print(','.join(json.load(open(sys.argv[1]))['workflows']))" "${WORKSPACE%/}/config/pathways.json")"
+  elif [[ -n "$WORKSPACE" && -f "${WORKSPACE%/}/workflows/config/pathways.json" ]]; then
+    WORKFLOW="$(python3 -c "import json,sys; print(','.join(json.load(open(sys.argv[1]))['workflows']))" "${WORKSPACE%/}/workflows/config/pathways.json")"
+  else
+    echo "error: --workflow is required (seo | linkedin | video | outreach | all)" >&2
+    echo "       or pass --workspace pointing at a scaffolded workflows/ with config/pathways.json" >&2
+    exit 1
+  fi
+fi
+
+SKILL_LIST="$(python3 "$PATHWAYS_PY" skills "$WORKFLOW")" || exit 1
+# shellcheck disable=SC2206
+SKILLS=($SKILL_LIST)
 
 # Canonical store. Workspace + agent dirs point here (which point at the clone).
 CANON="$HOME/.agents/skills"
@@ -98,13 +127,14 @@ link() { # link <target> <linkname>
   ok "$name"
 }
 
-link_all_into() { # link_all_into <dest_dir> <target_root>
-  # Each skill name in dest → target_root/<name>
-  local dest="$1" target_root="$2" dir name
+link_selected_into() { # link_selected_into <dest_dir> <target_root>
+  local dest="$1" target_root="$2" name
   (( DRY_RUN )) || mkdir -p "$dest"
-  for dir in "$SKILLS_SRC"/*/; do
-    [[ -f "${dir}SKILL.md" ]] || continue
-    name="$(basename "${dir%/}")"
+  for name in "${SKILLS[@]}"; do
+    if [[ ! -f "$SKILLS_SRC/$name/SKILL.md" ]]; then
+      warn "$name — not found under $SKILLS_SRC"
+      continue
+    fi
     link "$target_root/$name" "$dest/$name"
   done
 }
@@ -128,15 +158,20 @@ resolve_workspace() {
 say ""
 say "gtm-engine — installing workflows"
 say "  from: $REPO_ROOT"
+say "  pathways: $WORKFLOW"
+say "  skills: ${SKILLS[*]}"
 (( DRY_RUN )) && say "  (dry run — nothing will be written)"
 say ""
 
-# 1. Canonical store: clone → ~/.agents/skills
+# 1. Canonical store: clone → ~/.agents/skills (selected skills only)
 (( DRY_RUN )) || mkdir -p "$CANON"
 say "Canonical store: ${CANON/#$HOME/~}"
-for dir in "$SKILLS_SRC"/*/; do
-  [[ -f "${dir}SKILL.md" ]] || continue
-  link "${dir%/}" "$CANON/$(basename "$dir")"
+for name in "${SKILLS[@]}"; do
+  if [[ ! -f "$SKILLS_SRC/$name/SKILL.md" ]]; then
+    warn "$name — not found under $SKILLS_SRC"
+    continue
+  fi
+  link "$SKILLS_SRC/$name" "$CANON/$name"
 done
 
 # 2. Project workspace: ~/.agents/skills → <workspace>/skills
@@ -147,14 +182,10 @@ if [[ -n "$WORKSPACE" ]]; then
   }
   say ""
   say "Workspace: ${WS/#$HOME/~}/skills"
-  link_all_into "$WS/skills" "$CANON"
+  link_selected_into "$WS/skills" "$CANON"
 fi
 
 # 3. Mirror into the agents that don't read the canonical store (if present).
-#    Claude Code — https://code.claude.com/docs/en/skills — reads only its own dirs.
-#    OpenClaw    — own layout, no public doc; verified by the directory being there.
-#    Codex and Cursor are deliberately absent: both read ~/.agents/skills natively,
-#    and ~/.codex/skills isn't scanned at all, so a link there would be dead.
 AGENT_DIRS=(
   "$HOME/.claude/skills"
   "$HOME/.openclaw/skills"
@@ -168,24 +199,41 @@ for AGENT_DIR in "${AGENT_DIRS[@]}"; do
 
   say ""
   say "Agent: ${AGENT_DIR/#$HOME/~}"
-  link_all_into "$AGENT_DIR" "$CANON"
+  link_selected_into "$AGENT_DIR" "$CANON"
 done
 
 # 4. Report links an older version of this script left where nothing reads them.
-#    Reported, never deleted — it's their home directory, not ours.
-report_legacy() { # report_legacy <dir> <note>
-  local dir="$1" note="$2" dir_name found=() name
+report_legacy() {
+  local dir="$1" note="$2" found=() name
   [[ -d "$dir" ]] || return 0
-  for dir_name in "$SKILLS_SRC"/*/; do
-    [[ -f "${dir_name}SKILL.md" ]] || continue
-    name="$(basename "${dir_name%/}")"
+  for name in "${SKILLS[@]}"; do
     [[ -L "$dir/$name" ]] && found+=("$name")
   done
+  # Also flag any other engine-* links from a fuller prior install.
+  local extra
+  for extra in "$dir"/engine-*; do
+    [[ -L "$extra" ]] || continue
+    name="$(basename "$extra")"
+    local known=0 s
+    for s in "${SKILLS[@]}"; do
+      [[ "$s" == "$name" ]] && known=1 && break
+    done
+    (( known )) || found+=("$name")
+  done
   (( ${#found[@]} )) || return 0
+  # dedupe
+  local uniq=() f u seen
+  for f in "${found[@]}"; do
+    seen=0
+    for u in "${uniq[@]+"${uniq[@]}"}"; do
+      [[ "$u" == "$f" ]] && seen=1 && break
+    done
+    (( seen )) || uniq+=("$f")
+  done
   say ""
   say "Legacy: ${dir/#$HOME/~}"
-  warn "${#found[@]} link(s) from an older install — $note"
-  warn "    Safe to delete:  rm ${dir/#$HOME/~}/{$(IFS=,; echo "${found[*]}")}"
+  warn "${#uniq[@]} link(s) from an older install — $note"
+  warn "    Safe to delete:  rm ${dir/#$HOME/~}/{$(IFS=,; echo "${uniq[*]}")}"
 }
 
 report_legacy "$HOME/.codex/skills" "Codex doesn't scan this path; it reads ~/.agents/skills"

@@ -3,25 +3,27 @@
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
 
+Only set up the pathway you're actually running. Downloads and signup links:
+[useful-links.md](useful-links.md).
+
 ---
 
 ## 1. Machine
 
 | Check | How | If not |
 |---|---|---|
-| **Apple Silicon Mac** (M1 or newer) |  → About This Mac → "Chip" says Apple M-something | Intel works for text workflows; video rendering will be slow. Linux mostly works. Windows needs adapting — ask us |
+| **Apple Silicon Mac** (M1 or newer) | → About This Mac → "Chip" says Apple M-something | Intel works for text workflows; video rendering will be slow. Linux mostly works. Windows needs adapting — ask us |
 | **macOS 13+** | same screen | Update first — it's a long download |
 | **You can install apps** | try installing anything | Managed work laptops often block this. You need admin access. Sort it before you start |
-| **10 GB free disk** | Storage settings | Only strictly needed for the video pathway |
+| **10 GB free disk** | Storage settings | Only needed for the video pathway |
 | **Developer tools** | `xcode-select --install` in Terminal | 5–10 minutes. This is what gives you `git` |
-| **Python 3.9+** | `python3 --version` | Already on macOS. No packages needed — the scripts use the standard library only |
+| **Python 3.9+** | `python3 --version` | Already on macOS. Scripts use the standard library only |
 
 Bring your charger.
 
 ## 2. An AI coding agent
 
-Pick one and check you can **sign in** before you start. This is the thing most
-likely to cost you a morning.
+Pick one and check you can **sign in** before you start.
 
 - **Claude Code** — Claude Desktop, sign in, toggle to the **Code** tab (top left). Needs Claude Pro or higher
 - **Codex** — ChatGPT desktop, sign in, toggle to **Codex** (top left). ChatGPT Plus or higher recommended
@@ -36,66 +38,86 @@ create a file called hello.txt with the word hello in it
 
 If the file appears, you're ready. If it asks for permissions, approve them.
 
-## 3. Everyone
+## 3. Everyone brings
 
-Whatever pathway you pick, you need these:
-
-- **A Gmail account** you're happy for an agent to draft in — everyone builds
-  the outreach workflow. No Google Cloud project, no API key, no OAuth consent
-  screen. Drafts only; nothing sends without you reviewing it
-- **A rough idea of who you'd reach** — sales prospects if you're B2B, creators
-  if you're B2C, or investors, journalists, partners. Bring a list or CRM export
-  if you have one
-- **Three examples** of content you'd like your agent's output to resemble,
-  yours or anyone's. These become the templates, so they matter
+- **A Gmail account** for the agent to draft in. Drafts only; nothing sends
+  without you. Managed Workspace accounts sometimes block the connector — a
+  personal Gmail works
+- **Who you'd reach** — prospects, creators, investors, journalists, partners.
+  Bring a list or CRM export if you have one
+- **Three examples** of content you'd like output to resemble
 - **What you sell**, and the promise you make
-- **The one number that matters** — replies, signups, demos. The loop optimises
-  whatever you name, so name it honestly
+- **The one number that matters** — replies, signups, demos
 
 ## 4. Your pathway
 
-Only set up the one you're running. Full detail in
-[prerequisites.md](prerequisites.md); links in [useful-links.md](useful-links.md).
+Only set up the one you're running. Links in [useful-links.md](useful-links.md).
 
-**A. SEO and written content** — nothing technical. Sources are Reddit and
-Google Trends via RSS, no accounts. Everything is generated locally as markdown
-first. To publish live: your CMS login (plus API key if you have one), or
-GitHub access for a code-based site, or nothing at all — we can build you an
-Astro site on Cloudflare Pages. *Recommended:* be able to log in to GA4, Search
-Console, Ahrefs or Semrush. That's what makes the improvement loop useful.
+### A. SEO and written content (`engine-seo`)
 
-**B. Social** — same engine as SEO, publishing to social instead of a blog. Be
-signed in to **LinkedIn and/or X in your browser**; the agent posts through the
-browser. No API keys — neither platform offers a usable posting API. Instagram
-in your plan? You'll want upload-post too, below.
+Reddit needs no account; where there's no API the agent reads the page in your
+browser. Output is local markdown first.
 
-**C. Short-form video** — the heaviest setup, so do it in advance. Four keys,
-all free or free to start, roughly five minutes each:
+Useful if you have them:
 
-| Key | Why | Notes |
-|---|---|---|
-| **upload-post** | publishing | ~10 uploads/month free. Create a Profile and note its name. Connect TikTok/Instagram/YouTube inside it |
-| **Pexels** | B-roll fallback | free, instant |
-| **ElevenLabs** | voiceover | ~10 min free, no commercial licence on the free tier |
-| **fal.ai** | AI-generated clips | pay-per-use, no free tier. **Check your credit balance** — empty means failed requests |
+- **Competitor URLs** — put them in `config/sources.json`
+- **Google Search Console** — metric fetching becomes an API call
+- **Ahrefs or Semrush** — only if you already pay
+- **GA4 login**
 
-Also: `brew install ffmpeg`, 3–5 reference videos, and a few rough content ideas.
+**No website yet?** The workflow builds an Astro site in `workflows/site/`.
+You'll need a **Cloudflare Pages** or **Railway** account to deploy. Or bring
+your CMS login / GitHub access for a code-based site.
 
-**Everyone: the improvement loop** — nothing extra. Reporting stays inside
-Claude Code or Codex. Optionally we can wire alerts to Slack, Discord or
-Telegram; just have the app installed.
+### B. Social (`engine-linkedin`)
 
-**Keys:** treat them like passwords. Don't paste them into a chat window,
-Slack, or anything you'd commit to GitHub. A note on your own machine is fine
-until we show you where they live.
+Be signed in to **LinkedIn and/or X in your browser**. Manual posting is the
+default. No API keys.
 
-## 5. A home for the work
+Instagram? You'll want Upload Post (see video below). Schedulers:
+[posting-options.md](posting-options.md).
 
-Create a `workflows/` folder on this machine. That's where drafts, outputs and
-state live — the place the engine actually runs.
+### C. Short-form video (`engine-video`)
 
-Unsure where? Inside your company or project folder is great:
-`~/code/acme/workflows/` or `~/Desktop/acme/workflows/`.
+Do this in advance:
+
+| | Get it from |
+|---|---|
+| **ffmpeg** | `brew install ffmpeg` |
+| **upload-post** | [upload-post.com](https://www.upload-post.com/) → dashboard → API key. Create a Profile, note its name, connect TikTok/Instagram/YouTube |
+| **Pexels** | [pexels.com/api](https://www.pexels.com/api/) |
+| **ElevenLabs** | [elevenlabs.io](https://elevenlabs.io) → Profile → API key |
+| **fal.ai** *(optional)* | AI-generated clips — **check credit balance** before the session |
+
+Also: **~10 GB free disk**, 3–5 reference videos, a few rough content ideas.
+Keys go in `config/.env` — copy `config/.env.example` and fill it in yourself.
+
+### Outreach (`engine-outreach`)
+
+Covered under §3 — Gmail drafts only. Later: a domain and sending API when
+drafts stop scaling — `skills/engine-outreach/references/advanced.md`.
+
+### The improvement loop (`engine-loop`)
+
+Reads your run data and your browser. Reporting stays inside Claude Code or
+Codex. Optional: Slack, Discord or Telegram alerts; Apify at volume for
+structured analytics.
+
+## 5. Keys
+
+- Paste them into `config/.env` yourself — never into a chat window
+- `.env` is gitignored. Keep it that way
+- If a key leaks, rotate it
+- Your agent reads `.env.example` for variable *names*, never `.env`. If a key
+  is missing it should name the variable and where to get it
+
+## 6. A home for the work
+
+Create a `workflows/` folder on this machine:
+
+`~/code/acme/workflows/` or `~/Desktop/acme/workflows/`
+
+Full layout once scaffolded: [workspace.md](workspace.md).
 
 ---
 
@@ -111,11 +133,10 @@ Give me a PASS / FAIL list with the exact command to fix anything that fails.
 Do not install anything without asking me first.
 ```
 
-Once the starter folder is on your machine, the same check is a script:
+Once the starter folder is on your machine:
 
 ```bash
 python3 ~/code/gtm-engine/skills/engine-setup/scripts/doctor.py
 ```
 
-Run it again after setup — it also checks your workspace, your config and
-whether your keys are set.
+Run it again after setup — it also checks workspace, config, and keys.

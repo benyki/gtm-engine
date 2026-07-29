@@ -1,45 +1,45 @@
 # Your workspace
 
-Scaffolded into your own project by `engine-setup`. Everything in here is
-yours — the engine repo never touches it, so `git pull` can't clobber your data.
+Scaffolded into your own project by `engine-setup`, **scoped to the pathways
+you chose**. Everything in here is yours — the engine repo never touches it, so
+`git pull` can't clobber your data.
 
 ```
 <your-project>/workflows/
-├── skills/                 symlinks to ~/.agents/skills (via install_skills.sh)
+├── skills/                 symlinks for installed pathways only
 ├── config/
 │   ├── brand.md            who you are, who you're for, what you'll never say
+│   ├── pathways.json       which pathways this workspace has
 │   ├── channels.json       active workflow, primary metric, publish mode
-│   ├── sources.json        where content ideas come from
-│   ├── experiments.json    the live A/B tests
-│   ├── .env.example        key NAMES (committed)
+│   ├── sources.json        sources for your installed pathways
+│   ├── experiments.json    live A/B tests for those pathways
+│   ├── .env.example        key NAMES for those pathways (committed)
 │   └── .env                key VALUES (gitignored, never read by your agent)
-├── inputs/
-│   ├── swipe/              content you like
-│   ├── best/               your own best-performing work — voice comes from here
-│   ├── audience/           outreach lists, any format
-│   ├── assets/             logo, fonts, b-roll
-│   └── queue/              next week's ideas, written by engine-loop
+├── inputs/                 only folders your pathways use (+ queue/)
+│   ├── swipe/              content you like          (seo, linkedin)
+│   ├── best/               your best work — voice    (seo, linkedin, video)
+│   ├── audience/           outreach lists            (outreach)
+│   ├── assets/             logo, fonts, b-roll       (video)
+│   └── queue/              next week's ideas         (engine-loop)
 ├── templates/
-│   └── <workflow>/
-│       ├── <base>.txt      the current default arm
-│       ├── <base>-<arm>.txt
-│       └── losers/         retired arms — never read by a run, never deleted
+│   └── <pathway>/          only the pathways you installed
 ├── runs/
 │   ├── index.csv           THE SPINE — one row per thing you ever made
 │   └── <run_id>/
-│       ├── input.json      config snapshot + which arm was used
-│       ├── output/         the artefact
-│       ├── metrics.json    empty at creation, filled when numbers come back
-│       └── notes.md        your verdict, in your words
-├── reports/
-│   ├── latest.json         the handover file — next agent reads this FIRST
-│   ├── index.csv           one row per report ever
-│   └── weekly-*.md         the human-readable one
-├── site/                   only if you didn't have a website: an Astro site
-│                           built from your published markdown
+├── reports/                weekly markdown + latest.json (from engine-loop)
+├── site/                   created on demand by engine-seo — never pre-scaffolded
 └── state/
-    ├── crm.csv             who's been contacted, when, which arm, did they reply
-    └── published.csv       what shipped, where, when
+    ├── published.csv       what shipped, where, when
+    └── crm.csv             outreach only
+```
+
+Add another pathway later without rebuilding:
+
+```bash
+python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
+  --workflow video --merge
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh \
+  --workspace ./workflows --workflow video
 ```
 
 ## The three files that matter
@@ -53,7 +53,7 @@ that compounds: every time you reject something, write down why.
 and the number it earned. Everything `engine-loop` knows, it knows from this
 file. Don't hand-edit it while a run is in progress; use `runlog.py`.
 
-**`templates/<workflow>/`** — the versions competing against each other.
+**`templates/<pathway>/`** — the versions competing against each other.
 Winners stay; losers move to `losers/` and are never deleted, because something
 that lost against one audience often wins against the next.
 

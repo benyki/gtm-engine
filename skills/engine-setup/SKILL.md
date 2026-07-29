@@ -1,11 +1,11 @@
 ---
 name: engine-setup
-description: Install gtm-engine and build the user's workspace. Clones the repo, installs every skill into ~/.agents/skills/, mirrors them into workflows/skills/ and every coding agent present on the machine, scaffolds <project>/workflows/, interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
+description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a pathway-scoped <project>/workflows/, installs only the skills for those pathways into ~/.agents/skills/ (plus mirrors), interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
 ---
 
 # engine-setup
 
-Gets someone from nothing to a working workspace in about fifteen minutes.
+Gets someone from nothing to a working workspace.
 
 Run it once per project. It is also re-runnable — `doctor.py` alone is the health check.
 
@@ -22,9 +22,7 @@ Do these in order. Confirm each one before moving on — a wrong path here is an
 
 ### 1. Ask about starring the repo
 
-Ask the user whether they'd like to star it. **Do not star it without a clear yes** — it's a public action on their GitHub account.
-
-If yes and `gh` is authenticated: `gh repo star benyki/gtm-engine`
+Ask the user whether they'd like to star it. If yes and `gh` is authenticated: `gh repo star benyki/gtm-engine`
 Otherwise give them the link and let them click.
 
 ### 2. Clone
@@ -37,15 +35,28 @@ Confirm the path first — some people keep code elsewhere. If the directory alr
 
 ### 3. Scaffold the workspace
 
-Ask which project they want to grow, then from that directory:
+Ask which project they want to grow, and **which pathway(s)** they're starting
+with (`seo`, `linkedin`, `video`, `outreach` — one is enough). Then from that
+directory:
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py .
+python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
+  --workflow seo
 ```
 
-It refuses to overwrite an existing `workflows/`. That refusal is correct — use `--merge` to fill gaps, or `--name` for a second one.
+Use a comma list for more than one (`--workflow seo,outreach`), or `--workflow all`
+only if they really want every pathway on day one.
 
-If they already created an empty `workflows/` folder during preflight, run with `--merge` so the scaffold fills it without touching what they already have.
+It scaffolds **only** what that pathway needs: shared `config/` + `runs/` +
+`inputs/queue/`, the pathway's `templates/` and inputs, and `state/crm.csv` only
+for outreach. `site/` is never pre-created.
+
+It refuses to overwrite an existing `workflows/`. That refusal is correct — use
+`--merge --workflow <new>` to add another pathway later, or `--name` for a
+second workspace.
+
+If they already created an empty `workflows/` folder during preflight, run with
+`--merge` so the scaffold fills it without touching what they already have.
 
 ### 4. Install the skills
 
@@ -81,24 +92,28 @@ If you're tempted to add a directory to that list, find the vendor doc first. A 
 symlink is worse than none: the installer reports it green and the skill silently
 never triggers.
 
-Run the installer, pointing it at their workspace:
+Run the installer for the **same pathways** (always includes `engine-setup` +
+`engine-loop`):
 
 ```bash
 ~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh \
-  --workspace <project>/workflows
+  --workspace <project>/workflows --workflow seo
 ```
+
+If `config/pathways.json` already exists, you can omit `--workflow` and it
+reads the marker.
 
 What it does (you do **not** do this by hand unless the script is unavailable):
 
 1. **Create** `~/.agents/skills/` if missing
-2. **Symlink every skill** from the clone (`skills/*/SKILL.md`) into `~/.agents/skills/<name>`
-3. **Create** `<workspace>/skills/` and symlink each skill there too
+2. **Symlink only the selected skills** from the clone into `~/.agents/skills/<name>`
+3. **Create** `<workspace>/skills/` and symlink those skills there too
 4. **Mirror into the agents that need it** — only Claude Code (`~/.claude/skills`) and
    OpenClaw (`~/.openclaw/skills`), and only when that agent's home already exists.
    Codex and Cursor are skipped on purpose; see the table above
 5. **Idempotent** — correct links stay; wrong links are relinked; a real directory collision is warned and skipped (never overwrite). Links left in `~/.codex/skills` by an older install are reported, not deleted — removing things from someone's home directory is their call
 
-Because they're symlinks, `git pull` in the engine repo updates every agent at once. There is never a reinstall for content — only re-run the script when adding a new agent or a new workspace.
+Because they're symlinks, `git pull` in the engine repo updates every agent at once. There is never a reinstall for content — only re-run the script when adding a new pathway, agent, or workspace.
 
 If it reports "a real directory is already there", something else owns that name. Tell the user, don't force it.
 
@@ -121,11 +136,12 @@ This is the part that decides whether the output is any good, so don't rush it i
 
 **`config/experiments.json`** — leave the shipped starter experiment as-is for now. It has two arms and no data, which is the right starting state.
 
-Then ask them to drop their material into `inputs/`:
-- `inputs/swipe/` — content they like
-- `inputs/best/` — their own best-performing pieces, which is where voice is actually learned from
-- `inputs/audience/` — the outreach list, any format
-- `inputs/assets/` — logo, fonts, b-roll
+Then ask them to drop material into the inputs that exist for their pathway:
+- `inputs/best/` — their own best-performing pieces (seo / linkedin / video)
+- `inputs/swipe/` — content they like (seo / linkedin)
+- `inputs/audience/` — the outreach list (outreach)
+- `inputs/assets/` — logo, fonts, b-roll (video)
+- `inputs/queue/` — always present; filled later by engine-loop
 
 ### 6. Keys
 
@@ -135,7 +151,7 @@ cp config/.env.example config/.env
 
 Have **them** paste the keys in. Never ask a user to give you a key in chat, and never read `config/.env` — you read `.env.example` for the names only. If a key is missing, name the variable and where to get it; don't work around it.
 
-Which keys they need depends on the workflow — see `docs/prerequisites.md`. For `seo`, `linkedin` and `outreach`, usually none.
+Which keys they need depends on the workflow — see `docs/preflight.md` §4. For `seo`, `linkedin` and `outreach`, usually none.
 
 ### 7. Check
 

@@ -21,7 +21,11 @@ import subprocess
 import sys
 from pathlib import Path
 
-REPO_ROOT = Path(__file__).resolve().parents[3]
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+import pathways as pw  # noqa: E402
+
+REPO_ROOT = _HERE.parents[2]
 
 GREEN, YELLOW, RED, DIM, RESET = "\033[32m", "\033[33m", "\033[31m", "\033[2m", "\033[0m"
 results: list[tuple[str, str, str]] = []   # (level, label, detail)
@@ -71,11 +75,15 @@ def check_machine() -> None:
 
 # --- install ---------------------------------------------------------------
 
-def _skill_names() -> list[str]:
+def _skill_names(ws: Path | None = None) -> list[str]:
+    """Skills we expect to be installed for this machine / workspace."""
+    if ws is not None:
+        return pw.skills_for(pw.read_installed(ws))
     root = REPO_ROOT / "skills"
     if not root.is_dir():
-        return []
-    return sorted(p.name for p in root.iterdir() if (p / "SKILL.md").exists())
+        return list(pw.ALWAYS_SKILLS)
+    # No workspace yet — only require the always-on pair, not every pathway.
+    return list(pw.ALWAYS_SKILLS)
 
 
 def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bool:
@@ -83,34 +91,36 @@ def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bo
     label = f"Installed in {str(d).replace(str(Path.home()), '~')}"
     if not d.is_dir():
         if required:
-            add("fail", label, "missing — run install_skills.sh")
+            add("fail", label, "missing — run install_skills.sh --workflow …")
         return False
     linked = [n for n in names if (d / n).exists()]
     if not linked:
         if required:
-            add("fail", label, "empty — run install_skills.sh")
+            add("fail", label, "empty — run install_skills.sh --workflow …")
         return False
     if len(linked) == len(names):
-        add("pass", label, f"{len(linked)}/{len(names)}")
+        add("pass", label, f"{len(linked)}/{len(names)} ({', '.join(names)})")
     else:
-        add("warn", label, f"only {len(linked)}/{len(names)} — re-run install_skills.sh")
+        missing = [n for n in names if n not in linked]
+        add("warn", label,
+            f"only {len(linked)}/{len(names)} — missing {', '.join(missing)}")
     return True
 
 
 def check_install(ws: Path | None = None) -> None:
-    names = _skill_names()
-    if not names:
+    names = _skill_names(ws)
+    available = sorted(
+        p.name for p in (REPO_ROOT / "skills").iterdir()
+        if (p / "SKILL.md").exists()
+    ) if (REPO_ROOT / "skills").is_dir() else []
+    if not available:
         add("fail", "Engine skills", f"none found under {REPO_ROOT}/skills")
         return
-    add("pass", f"Engine skills present ({len(names)})")
+    add("pass", f"Engine skills present ({len(available)} in repo)")
 
-    # Canonical store is required.
+    # Canonical store is required for the expected set.
     canon_ok = _check_skill_dir(Path.home() / ".agents/skills", names, required=True)
 
-    # Agent mirrors. ~/.agents/skills is the install target — Codex and Cursor read it
-    # natively, so only agents that don't get their own link:
-    #   Claude Code  https://code.claude.com/docs/en/skills
-    #   OpenClaw     own layout, no public doc
     agent_homes = (
         Path.home() / ".claude/skills",
         Path.home() / ".openclaw/skills",
@@ -122,23 +132,23 @@ def check_install(ws: Path | None = None) -> None:
         if _check_skill_dir(d, names):
             found_agent = True
 
-    # Links an older install left where nothing reads them. Informational.
     for d, note in (
         (Path.home() / ".codex/skills", "Codex reads ~/.agents/skills — these do nothing"),
         (Path.home() / ".cursor/skills", "redundant; Cursor reads ~/.agents/skills"),
     ):
-        stale = [n for n in names if (d / n).is_symlink()]
+        stale = [n for n in available if (d / n).is_symlink()]
         if stale:
             add("warn", f"Legacy links in {str(d).replace(str(Path.home()), '~')}",
                 f"{len(stale)} from an older install — {note}")
 
-    # Project workspace skills/ when we know where the workspace is.
     if ws is not None:
         _check_skill_dir(ws / "skills", names, required=True)
+        installed = pw.read_installed(ws)
+        add("pass", f"  pathways: {', '.join(installed)}")
 
     if not canon_ok and not found_agent:
         add("fail", "Workflows not installed",
-            "run: skills/engine-setup/scripts/install_skills.sh --workspace <project>/workflows")
+            "run: install_skills.sh --workflow <pathway> --workspace <project>/workflows")
 
 
 # --- optional tools --------------------------------------------------------
@@ -176,7 +186,16 @@ def check_workspace(ws: Path | None) -> str:
 
     for rel in ("config", "inputs", "runs", "reports", "state", "templates"):
         add("pass" if (ws / rel).is_dir() else "fail", f"  {rel}/")
-    # skills/ is created by install_skills.sh --workspace (symlinks), not the scaffold.
+
+    installed = pw.read_installed(ws)
+    for wf in installed:
+        tdir = ws / "templates" / wf
+        add("pass" if tdir.is_dir() else "fail", f"  templates/{wf}/",
+            "" if tdir.is_dir() else "re-run scaffold with --workflow " + wf)
+    if "outreach" in installed:
+        crm = ws / "state" / "crm.csv"
+        add("pass" if crm.is_file() else "fail", "  state/crm.csv",
+            "" if crm.is_file() else "needed for outreach")
 
     # brand.md filled in?
     brand = ws / "config" / "brand.md"
