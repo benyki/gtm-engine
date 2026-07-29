@@ -1,0 +1,18 @@
+# hypothesis: A low-commitment ask converts better cold, because the reply
+# costs them nothing. This is the baseline arm — beat it.
+#
+# Placeholders: {{FIRST_NAME}} {{COMPANY}} {{OBSERVATION}} {{OFFER}} {{SIGNOFF}}
+# {{OBSERVATION}} must be one real, recent, specific thing. If you can't fill
+# it honestly, they're the wrong target — skip them.
+
+Subject: {{SUBJECT}}
+
+Hi {{FIRST_NAME}},
+
+{{OBSERVATION}}
+
+{{OFFER}}
+
+Worth a look?
+
+{{SIGNOFF}}

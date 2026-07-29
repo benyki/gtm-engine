@@ -1,0 +1,4 @@
+id,name,company,email,linkedin,source,notes
+1,Ana Sørensen,Kitewave,ana@kitewave.example,https://linkedin.com/in/example-1,demo,shipped v2 last month
+2,Marcus Bell,Tinderbox Labs,marcus@tinderbox.example,https://linkedin.com/in/example-2,demo,hiring first marketer
+3,Priya Raman,Northsound,priya@northsound.example,https://linkedin.com/in/example-3,demo,wrote about churn recently

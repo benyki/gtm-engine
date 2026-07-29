@@ -1,0 +1,14 @@
+# hypothesis: Leading with the result earns the first 1.5 seconds, which is
+# the only part that matters. Baseline arm — beat it.
+#
+# Placeholders: {{PAYOFF}} {{BODY}} {{CLOSE}}
+# 30-45 seconds is roughly 75-110 words. Read it aloud before rendering.
+
+[0:00] {{PAYOFF}}
+
+[0:03] {{BODY}}
+
+[0:28] {{CLOSE}}
+
+# Written for the ear: short sentences, contractions, no clauses that need
+# punctuation to parse. One idea only.

@@ -1,0 +1,33 @@
+{
+  "_comment": "Set active_workflow and primary_metric before your first run. engine-setup fills this in with you.",
+
+  "active_workflow": "",
+  "_active_workflow_options": ["seo", "linkedin", "video", "outreach"],
+
+  "primary_metric": "",
+  "_primary_metric_guidance": "The one number the loop optimises. Use something real: replies, signups, demos, clicks, watch_through_rate. Not 'engagement'.",
+
+  "channels": {
+    "blog": { "enabled": false, "publish": "manual", "base_url": "" },
+    "linkedin": { "enabled": false, "publish": "manual", "handle": "" },
+    "x": { "enabled": false, "publish": "manual", "handle": "" },
+    "tiktok": { "enabled": false, "publish": "manual", "handle": "" },
+    "instagram": { "enabled": false, "publish": "manual", "handle": "" },
+    "youtube": { "enabled": false, "publish": "manual", "handle": "" },
+    "email": { "enabled": false, "publish": "draft_only", "from": "" }
+  },
+  "_publish_options": ["manual", "uploadpost", "buffer", "draft_only"],
+
+  "video": {
+    "elevenlabs_voice_id": "",
+    "resolution": "1080x1920",
+    "target_seconds": 35
+  },
+
+  "cadence": {
+    "fetch_metrics": "daily",
+    "score_and_challenge": "weekly",
+    "generate_inputs": "weekly",
+    "report": "weekly"
+  }
+}
