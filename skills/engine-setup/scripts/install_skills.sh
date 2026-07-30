@@ -14,16 +14,23 @@
 # (https://developers.openai.com/codex/skills) and so does Cursor
 # (https://cursor.com/help/customization/skills) — neither gets a link in its own
 # folder, and ~/.codex/skills is not scanned by Codex at all, so a link there is dead.
-# Only add an agent directory below if a vendor doc says that agent needs one.
+# (Vendor behaviour verified as of 2026-07 — vendors change this; re-check the doc
+# before trusting it, and only add an agent directory if a vendor doc says so.)
+#
+# Extra agent directories WITHOUT editing this script: set GTM_AGENT_DIRS to a
+# colon-separated list of skill dirs (e.g. ~/.windsurf/skills) and each existing
+# parent gets the same symlinks as the built-in mirrors.
 #
 # Usage:
 #   ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
 #   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
 #   ./install_skills.sh --workflow all --workspace ./workflows
 #
-#   --workflow NAME    required: seo | linkedin | video | outreach | all
-#                      (comma-separated). Always also installs engine-setup + engine-loop.
-#   --workspace PATH   project workflows/ folder (creates PATH/skills/)
+#   --workflow NAME    required (comma-separated). Built-ins: seo | linkedin |
+#                      video | outreach | all. Custom workflow names are accepted
+#                      too — they install just engine-setup + engine-loop, which
+#                      is all a custom workflow needs.
+#   --workspace PATH   project workspace folder (creates PATH/skills/)
 #   --dry-run          print what would happen, write nothing
 #   --help             show this usage
 
@@ -40,7 +47,7 @@ PATHWAYS_PY="$SCRIPT_DIR/pathways.py"
 
 usage() {
   cat <<'EOF'
-Install gtm-engine skills for the pathways you actually run.
+Install gtm-engine skills for the workflows you actually run.
 
 Always installs engine-setup + engine-loop, plus one skill per --workflow.
 
@@ -50,15 +57,21 @@ Path chain:
     → <workspace>/skills/<name>            (optional --workspace)
     → ~/.claude/skills, ~/.openclaw/skills (agents that need their own copy)
 
-Codex and Cursor read ~/.agents/skills directly and are skipped on purpose.
+Codex and Cursor read ~/.agents/skills directly and are skipped on purpose
+(verified as of 2026-07 — re-check the vendor doc before trusting it).
+
+For other agents, set GTM_AGENT_DIRS to a colon-separated list of skill
+directories (e.g. ~/.windsurf/skills:~/.zed/skills) and they get the same
+symlinks as the built-in mirrors.
 
 Usage:
   ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
   ./install_skills.sh --workflow all --workspace ./workflows
 
-  --workflow NAME    required: seo | linkedin | video | outreach | all
-  --workspace PATH   project workflows/ folder (creates PATH/skills/)
+  --workflow NAME    required. Built-ins: seo | linkedin | video | outreach | all.
+                     Custom workflow names accepted (install the core pair only).
+  --workspace PATH   project workspace folder (creates PATH/skills/)
   --dry-run          print what would happen, write nothing
   --help             show this usage
 EOF
@@ -88,8 +101,8 @@ if [[ -z "$WORKFLOW" ]]; then
   elif [[ -n "$WORKSPACE" && -f "${WORKSPACE%/}/workflows/config/pathways.json" ]]; then
     WORKFLOW="$(python3 -c "import json,sys; print(','.join(json.load(open(sys.argv[1]))['workflows']))" "${WORKSPACE%/}/workflows/config/pathways.json")"
   else
-    echo "error: --workflow is required (seo | linkedin | video | outreach | all)" >&2
-    echo "       or pass --workspace pointing at a scaffolded workflows/ with config/pathways.json" >&2
+    echo "error: --workflow is required (built-ins: seo | linkedin | video | outreach | all; custom names ok)" >&2
+    echo "       or pass --workspace pointing at a scaffolded workspace with config/pathways.json" >&2
     exit 1
   fi
 fi
@@ -139,14 +152,16 @@ link_selected_into() { # link_selected_into <dest_dir> <target_root>
   done
 }
 
-# Resolve --workspace to an absolute workflows/ directory.
+# Resolve --workspace to an absolute workspace directory. A workspace is
+# recognised by its marker (config/pathways.json or config/channels.json),
+# not by being named "workflows" — that's only the default name.
 resolve_workspace() {
   local raw="${1%/}"
   if [[ -z "$raw" ]]; then
     return 1
   fi
-  # Allow passing either the project root or the workflows/ folder itself.
-  if [[ "$(basename "$raw")" == "workflows" ]]; then
+  # Allow passing either the workspace itself or the project root above it.
+  if [[ -f "$raw/config/pathways.json" || -f "$raw/config/channels.json" ]]; then
     (cd "$raw" && pwd)
   elif [[ -d "$raw/workflows" ]]; then
     (cd "$raw/workflows" && pwd)
@@ -158,7 +173,7 @@ resolve_workspace() {
 say ""
 say "gtm-engine — installing workflows"
 say "  from: $REPO_ROOT"
-say "  pathways: $WORKFLOW"
+say "  workflows: $WORKFLOW"
 say "  skills: ${SKILLS[*]}"
 (( DRY_RUN )) && say "  (dry run — nothing will be written)"
 say ""
@@ -186,10 +201,18 @@ if [[ -n "$WORKSPACE" ]]; then
 fi
 
 # 3. Mirror into the agents that don't read the canonical store (if present).
+#    GTM_AGENT_DIRS (colon-separated skill dirs) extends this list without
+#    editing the script — for agents this table doesn't know about yet.
 AGENT_DIRS=(
   "$HOME/.claude/skills"
   "$HOME/.openclaw/skills"
 )
+if [[ -n "${GTM_AGENT_DIRS:-}" ]]; then
+  IFS=':' read -r -a EXTRA_DIRS <<< "$GTM_AGENT_DIRS"
+  for EXTRA in "${EXTRA_DIRS[@]}"; do
+    [[ -n "$EXTRA" ]] && AGENT_DIRS+=("${EXTRA/#\~/$HOME}")
+  done
+fi
 
 for AGENT_DIR in "${AGENT_DIRS[@]}"; do
   AGENT_HOME="$(dirname "$AGENT_DIR")"

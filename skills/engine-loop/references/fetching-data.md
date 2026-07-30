@@ -12,13 +12,13 @@ Free, exact, and already connected in a few cases:
 
 | Source | Gives you | Setup |
 |---|---|---|
-| Gmail | replies, opens if tracked | already connected for `engine-outreach` |
+| The user's mailbox (Gmail, Outlook, …) | replies | already connected for `engine-outreach` |
 | Google Search Console | impressions, clicks, position | verify the property once |
 | YouTube Data API | views, watch time, retention | free key |
 
-Use these where they exist. There's no reason to scrape a number a free API will hand you.
+These are examples, not the list — GA4, PostHog, a data warehouse, whatever the user already has all count. Use whichever exists, name it in `--source`, and don't scrape a number a free API will hand you.
 
-Outreach is the clean case: the metric is replies and Gmail is the source. A reply in the thread → `--value 1 --source api`, plus `replied_at` in the CRM. Sequence closed with no reply → `--value 0 --source api` — the zero is a real result, and writing it is what marks the run analysed. A late reply overwrites the zero; later information beats earlier.
+Outreach is the clean case: the metric is replies and the mailbox is the source. A reply in the thread → `--value 1 --source api`, plus `replied_at` in the CRM. Sequence closed with no reply → `--value 0 --source api` — the zero is a real result, and writing it is what marks the run analysed. A late reply overwrites the zero; later information beats earlier.
 
 ## 2. Browser — the normal case
 
@@ -32,7 +32,7 @@ The routine:
 
 Notes that matter in practice:
 
-- **Wait at least 72 hours.** LinkedIn, TikTok, Instagram and X all keep distributing a post for days, and the shape of the curve differs per post. A number read at 24 or 48 hours mostly tells you what time you posted. Below 72 hours, don't record it at all — an empty cell is honest, an early one is wrong and permanent
+- **Respect the channel's window.** `due_metrics.py` enforces it — 72 hours by default, per-channel via `metric_delay_hours` in `config/channels.json`. For social it's a real floor: LinkedIn, TikTok, Instagram and X keep distributing a post for days, and an early number mostly tells you what time you posted. Before the window, don't record at all — an empty cell is honest, an early one is wrong and permanent
 - **Record the same metric every time.** Switching from views to watch-through rate halfway through an experiment invalidates it
 - **Watch-through rate beats views** for video, whenever the platform shows it. Views measure distribution; watch-through measures whether the hook worked
 - If a layout changes, adapt — that's exactly the case where a hard-coded scraper breaks and an agent doesn't
@@ -57,7 +57,7 @@ Paid, structured, precise. Worth it when:
 
 ## What to measure
 
-One primary metric per workspace, set in `config/channels.json`. The loop optimises it, so it has to be something real:
+One primary metric per run, resolved from `config/channels.json`: the channel's own `primary_metric` if set, else the workspace-wide one. The loop optimises it, so it has to be something real. Common choices:
 
 | Workflow | Usually |
 |---|---|
@@ -65,6 +65,8 @@ One primary metric per workspace, set in `config/channels.json`. The loop optimi
 | seo | clicks from Search Console (not impressions) |
 | linkedin | impressions early on; profile visits or signups once there's volume |
 | video | watch-through rate, then views |
+
+Secondary numbers go in the run's `metrics.json` under `secondary` — the spine holds one primary per run, everything else is welcome there.
 
 Prefer the metric closest to the thing you actually want. Followers are easy to grow and easy to fool yourself with.
 

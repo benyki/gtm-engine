@@ -71,6 +71,15 @@ Otherwise: `undecided — partner 9/15`. That's a real answer and reporting it i
 
 With the volumes most people are working at, this is a judgement rule, not statistical significance. It's deliberately a low bar for *noticing* and a high bar for *acting*.
 
+### Which number the arms are compared on
+
+Two optional per-experiment fields shape the comparison:
+
+- **`direction`** — `"up"` (default) or `"down"`. Most metrics are more-is-better; cost per lead, unsubscribe rate and churn are not. With `"down"`, the lower arm leads and the win ratio is computed the right way round.
+- **`aggregate`** — `"mean"` (default) or `"median"`. Social metrics are heavy-tailed: one viral post can hand an arm the verdict single-handedly, which is precisely the "winner out of noise" these rules exist to prevent. `score_arms.py` prints a caution whenever a single run is half or more of an arm's total under a mean — when you see it, look at the run before acting, or switch the experiment to `"median"` and re-score. The median is the safer default once you expect virality; the mean is fine for metrics that arrive in similar-sized pieces (replies, demos).
+
+Whatever you pick, the sanity check before acting on any `decided` verdict is the same: open the winning arm's runs and ask whether the win survives removing its single best run. If it doesn't, it isn't decided yet.
+
 ## After a verdict
 
 1. **Promote** the winner to the base template
@@ -82,10 +91,12 @@ Promoting and stopping means settling at a local maximum. The challenger is what
 
 ## Guardrails
 
-- Two live arms per workflow, maximum
+- Two live arms per **experiment** is the working default — every extra arm multiplies the runs needed before anything is decided. It's volume advice, not law: at real volume, three arms is a choice you can afford
+- Concurrent experiments in one workflow are fine **when they're scoped to different channels** — set `"channel"` on each and pass `--channel` to `assign_arm.py`. What's not fine is two live experiments competing for the same runs: the first one in the file wins and the script warns
+- Don't run more concurrent tests than your volume can decide. Every live experiment divides the same run stream; four half-starved tests decide nothing while one fed test decides something
 - The challenger is written automatically; **promoting it needs a human yes**
 - A template written to fill a gap starts as an ordinary arm — it earns default status by winning, not by being newest
-- One variable at a time. Two variables at once and a verdict tells you nothing about either
+- One variable at a time *per experiment*. Two variables in one test and the verdict tells you nothing about either
 
 ## `experiments.json`
 
@@ -123,3 +134,5 @@ Promoting and stopping means settling at a local maximum. The challenger is what
 ```
 
 `status` is `live`, `paused` or `decided`. Only `live` experiments are assigned or scored.
+
+Optional per-experiment fields: `channel` scopes the experiment to one channel so several can run concurrently in a workflow (see Guardrails); `direction` and `aggregate` shape the comparison (see *Which number the arms are compared on*).

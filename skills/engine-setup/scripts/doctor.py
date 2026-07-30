@@ -48,8 +48,16 @@ def check_machine() -> None:
     else:
         add("fail", f"Python {v.major}.{v.minor}", "3.9+ needed; try `python3 --version`")
 
-    if platform.system() != "Darwin":
-        add("warn", f"OS: {platform.system()}", "built and tested on macOS; most of it still works")
+    system = platform.system()
+    if system == "Linux":
+        add("pass", "OS: Linux", "everything works; install ffmpeg via your "
+            "package manager if you run video")
+    elif system == "Windows":
+        add("warn", "OS: Windows", "use WSL for the bash installer and "
+            "symlinks; the Python scripts themselves are portable")
+    elif system != "Darwin":
+        add("warn", f"OS: {system}", "untested here; the scripts are plain "
+            "Python and should run — tell us what breaks")
     else:
         chip = platform.machine()
         if chip == "arm64":
@@ -82,7 +90,7 @@ def _skill_names(ws: Path | None = None) -> list[str]:
     root = REPO_ROOT / "skills"
     if not root.is_dir():
         return list(pw.ALWAYS_SKILLS)
-    # No workspace yet — only require the always-on pair, not every pathway.
+    # No workspace yet — only require the always-on pair, not every workflow.
     return list(pw.ALWAYS_SKILLS)
 
 
@@ -121,10 +129,14 @@ def check_install(ws: Path | None = None) -> None:
     # Canonical store is required for the expected set.
     canon_ok = _check_skill_dir(Path.home() / ".agents/skills", names, required=True)
 
-    agent_homes = (
+    agent_homes = [
         Path.home() / ".claude/skills",
         Path.home() / ".openclaw/skills",
-    )
+    ]
+    # Same extension point as install_skills.sh — extra agent skill dirs.
+    for extra in (os.environ.get("GTM_AGENT_DIRS") or "").split(":"):
+        if extra.strip():
+            agent_homes.append(Path(extra.strip()).expanduser())
     found_agent = False
     for d in agent_homes:
         if not d.parent.is_dir():
@@ -144,11 +156,11 @@ def check_install(ws: Path | None = None) -> None:
     if ws is not None:
         _check_skill_dir(ws / "skills", names, required=True)
         installed = pw.read_installed(ws)
-        add("pass", f"  pathways: {', '.join(installed)}")
+        add("pass", f"  workflows: {', '.join(installed)}")
 
     if not canon_ok and not found_agent:
         add("fail", "Workflows not installed",
-            "run: install_skills.sh --workflow <pathway> --workspace <project>/workflows")
+            "run: install_skills.sh --workflow <workflow> --workspace <project>/workflows")
 
 
 # --- optional tools --------------------------------------------------------
@@ -156,7 +168,8 @@ def check_install(ws: Path | None = None) -> None:
 def check_tools(active: str) -> None:
     if active == "video":
         add("pass" if have("ffmpeg") else "warn", "ffmpeg",
-            "" if have("ffmpeg") else "needed to render video — brew install ffmpeg")
+            "" if have("ffmpeg") else "needed to render video — brew install "
+            "ffmpeg (macOS) / apt install ffmpeg (Linux)")
         add("pass" if have("node") else "warn", "node",
             "" if have("node") else "only needed for advanced renderers")
 
@@ -164,15 +177,34 @@ def check_tools(active: str) -> None:
 # --- workspace -------------------------------------------------------------
 
 def find_workspace(explicit: str | None) -> Path | None:
+    """Markers (config/pathways.json, config/channels.json) identify a
+    workspace — 'workflows' is only the default folder name."""
     if explicit:
         p = Path(explicit).expanduser().resolve()
         return p if p.is_dir() else None
+    env = (os.environ.get("GTM_WORKSPACE") or "").strip()
+    if env:
+        p = Path(env).expanduser().resolve()
+        return p if p.is_dir() else None
+
+    def marked(p: Path) -> bool:
+        return (p / "config" / "pathways.json").is_file() \
+            or (p / "config" / "channels.json").is_file()
+
     for base in (Path.cwd(), *Path.cwd().parents):
+        if marked(base):
+            return base
         cand = base / "workflows"
-        if (cand / "config").is_dir():
+        if marked(cand) or (cand / "config").is_dir():
             return cand
         if base == Path.home():
             break
+    try:
+        for child in sorted(Path.cwd().iterdir()):
+            if child.is_dir() and marked(child):
+                return child
+    except OSError:
+        pass
     return None
 
 

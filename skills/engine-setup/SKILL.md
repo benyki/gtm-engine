@@ -1,6 +1,6 @@
 ---
 name: engine-setup
-description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a pathway-scoped <project>/workflows/, installs only the skills for those pathways into ~/.agents/skills/ (plus mirrors), interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
+description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a workflow-scoped <project>/workflows/, installs only the skills for those workflows into ~/.agents/skills/ (plus mirrors), interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
 ---
 
 # engine-setup
@@ -35,9 +35,15 @@ Confirm the path first — some people keep code elsewhere. If the directory alr
 
 ### 3. Scaffold the workspace
 
-Ask which project they want to grow, and **which pathway(s)** they're starting
-with (`seo`, `linkedin`, `video`, `outreach` — one is enough). Then from that
-directory:
+Ask which project they want to grow, and **which workflow(s)** they're starting
+with. The built-ins are `seo`, `linkedin`, `video`, `outreach` — one is enough —
+and the set is open: any other name (`newsletter`, `podcast`, `ads`,
+`community`, …) scaffolds a **custom workflow** with an empty `templates/<name>/`
+folder and the shared loop files. A custom workflow has no dedicated skill —
+you supply the craft — but `engine-loop` runs it through the same three traces
+as everything else; register its experiments in `config/experiments.json` and
+add its channel(s) to `config/channels.json` as part of this setup. Then from
+that directory:
 
 ```bash
 python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
@@ -45,15 +51,21 @@ python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
 ```
 
 Use a comma list for more than one (`--workflow seo,outreach`), or `--workflow all`
-only if they really want every pathway on day one.
+only if they really want every built-in workflow on day one.
 
-It scaffolds **only** what that pathway needs: shared `config/` + `runs/` +
-`inputs/queue/`, the pathway's `templates/` and inputs, and `state/crm.csv` only
+It scaffolds **only** what that workflow needs: shared `config/` + `runs/` +
+`inputs/queue/`, the workflow's `templates/` and inputs, and `state/crm.csv` only
 for outreach. `site/` is never pre-created.
 
 It refuses to overwrite an existing `workflows/`. That refusal is correct — use
-`--merge --workflow <new>` to add another pathway later, or `--name` for a
+`--merge --workflow <new>` to add another workflow later, or `--name` for a
 second workspace.
+
+**One workspace per brand / ICP / language is the intended pattern.** Two
+products or two audiences don't share a `brand.md` — scaffold each its own
+workspace (`--name growth-de`, `--name acme-b2b`) and run them independently.
+The scripts find a workspace by its `config/` markers, not its folder name;
+set `GTM_WORKSPACE` or pass `--workspace` when working outside its tree.
 
 If they already created an empty `workflows/` folder during preflight, run with
 `--merge` so the scaffold fills it without touching what they already have.
@@ -92,7 +104,17 @@ If you're tempted to add a directory to that list, find the vendor doc first. A 
 symlink is worse than none: the installer reports it green and the skill silently
 never triggers.
 
-Run the installer for the **same pathways** (always includes `engine-setup` +
+Two caveats that keep this table honest:
+
+- **The vendor claims were verified as of 2026-07** and vendors change scanning
+  behaviour between releases. If a skill isn't triggering in some agent, re-check
+  that agent's current doc before debugging anything else.
+- **The table isn't the whole world.** For an agent it doesn't know (Windsurf,
+  Zed, a company-internal one), find its skills directory in its vendor doc, then
+  set `GTM_AGENT_DIRS` (colon-separated paths) before running the installer —
+  no repo edit needed. `doctor.py` honours the same variable.
+
+Run the installer for the **same workflows** (always includes `engine-setup` +
 `engine-loop`):
 
 ```bash
@@ -113,7 +135,7 @@ What it does (you do **not** do this by hand unless the script is unavailable):
    Codex and Cursor are skipped on purpose; see the table above
 5. **Idempotent** — correct links stay; wrong links are relinked; a real directory collision is warned and skipped (never overwrite). Links left in `~/.codex/skills` by an older install are reported, not deleted — removing things from someone's home directory is their call
 
-Because they're symlinks, `git pull` in the engine repo updates every agent at once. There is never a reinstall for content — only re-run the script when adding a new pathway, agent, or workspace.
+Because they're symlinks, `git pull` in the engine repo updates every agent at once. There is never a reinstall for content — only re-run the script when adding a new workflow, agent, or workspace.
 
 If it reports "a real directory is already there", something else owns that name. Tell the user, don't force it.
 
@@ -130,13 +152,13 @@ This is the part that decides whether the output is any good, so don't rush it i
 - Tone: three words they are, three they aren't
 - Anything they're never allowed to say — claims, competitor names, regulated language
 
-**`config/channels.json`** — `active_workflow` (one of `seo`, `linkedin`, `video`, `outreach`) and `primary_metric`. The metric is what the loop optimises. Make them name a real one: replies, signups, demos. "Engagement" is not a metric.
+**`config/channels.json`** — `active_workflow` (whichever workflow they scaffolded) and `primary_metric`. The metric is what the loop optimises. Make them name a real one: replies, signups, demos. "Engagement" is not a metric. The channel list is an open set — add any channel they actually use (newsletter, threads, reddit, …). If they run workflows with different currencies (seo clicks + outreach replies), set a per-channel `primary_metric` so the report doesn't sum unlike numbers, and set `metric_delay_hours` per channel where the 72h default is wrong (weeks for blog/Search Console, a day or two for email).
 
 **`config/sources.json`** — where content ideas come from. The default is Reddit, which needs nothing. If they have competitor URLs, put them in. Only wire up Ahrefs or Semrush if they already pay for it.
 
-**`config/experiments.json`** — leave the shipped starter experiment as-is for now. It has two arms and no data, which is the right starting state.
+**`config/experiments.json`** — the shipped experiments are **examples of shape, not hypotheses for their business**, and rewriting them is part of this interview. Keep the structure (two arms, one variable, a stated hypothesis each) and replace the content: ask what one variable they'd most like an answer to per workflow, write the two arms' labels and hypotheses in their terms, and size `min_runs_per_arm` to their volume. A B2C app has no use for a "partner revenue split" arm — if it ships, the first run will be assigned to it. Anything they won't run yet, set `status` to `paused`; only `live` experiments are assigned. Several live experiments can coexist in one workflow when each is scoped to its own `channel` — otherwise the first one wins and the script warns.
 
-Then ask them to drop material into the inputs that exist for their pathway:
+Then ask them to drop material into the inputs that exist for their workflow:
 - `inputs/best/` — their own best-performing pieces (seo / linkedin / video)
 - `inputs/swipe/` — content they like (seo / linkedin)
 - `inputs/audience/` — the outreach list (outreach)
@@ -174,7 +196,7 @@ Tell them the one next thing to do — run their chosen content workflow and shi
 - **Install to `~/.agents/skills/`, not to each agent's own folder.** An agent-specific
   directory gets a link only with a vendor doc URL justifying it — today that's Claude
   Code and OpenClaw. Codex and Cursor read the canonical store directly
-- If they're on Windows or an Intel Mac, say what will and won't work rather than pretending it's fine. Text workflows are unaffected; video rendering is slow on Intel and needs adapting on Windows
+- If they're not on Apple Silicon, say what will and won't work rather than pretending it's fine. The workspace scripts are plain stdlib Python and run anywhere; Linux is fully workable. On Windows, run the bash installer and symlinks under WSL — native Windows needs developer mode for symlinks and has no supported installer yet. Video rendering is slow on Intel Macs
 
 ## Going further
 

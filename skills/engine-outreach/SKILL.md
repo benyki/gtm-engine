@@ -1,19 +1,25 @@
 ---
 name: engine-outreach
-description: Personalised cold outreach that ends in Gmail drafts, never sends. Reads the user's audience list, researches each person, writes a genuinely specific email from the assigned A/B template, records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
+description: Personalised cold outreach that ends in mail drafts, never sends. Reads the user's audience list, researches each person, writes a genuinely specific email from the assigned A/B template, records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
 ---
 
 # engine-outreach
 
 Writes outreach worth reading, one person at a time, and stops at the draft.
 
-**It never sends.** Not with permission, not "just this once". Drafts land in Gmail and a human clicks send. Everything downstream — the CRM, the A/B verdicts, the report — assumes that boundary holds.
+**It never sends.** Not with permission, not "just this once". Drafts land in the user's own mail system and a human clicks send. Everything downstream — the CRM, the A/B verdicts, the report — assumes that boundary holds.
 
 ## Setup
 
-The only requirement is a Gmail account connected to the agent, with permission to create drafts. No Google Cloud project, no API keys, no OAuth consent screen. If Gmail isn't connected yet, get that working before anything else.
+The mail contract is provider-neutral, and it's three capabilities, not a vendor:
 
-Managed Workspace accounts sometimes block the connector at the admin level. If so, a personal Gmail is the fallback — it takes two minutes and needs no approval.
+1. **create drafts** in the user's own mail account
+2. **a human sends** from their normal mail client
+3. **replies are readable back** later, to record the metric
+
+**Gmail is the default** because its connector is the least setup — no Google Cloud project, no API keys, no OAuth consent screen. But map the contract onto whatever the user actually has: an Outlook / Microsoft 365 connector satisfies it identically, and much of B2B lives there. If no mail connector is available at all, the degraded mode is honest and workable — write the drafts to `runs/<run_id>/output/` as files the user copies into their mail client, and ask them to report replies; record those with `--source manual`.
+
+If a managed Workspace or tenant blocks the connector at the admin level, that's an IT conversation, not a workaround hunt. Don't steer a company toward routing work mail through a personal account — for an individual using their own address it's a fine fallback, for an organisation it's a data-governance problem. Name the block, offer the file-based degraded mode, and let them take it up with their admin.
 
 ## The run
 
@@ -26,7 +32,7 @@ Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pas
 ### 2. Get the arm
 
 ```bash
-python3 ../engine-loop/scripts/assign_arm.py --workflow outreach --entity someone@example.com
+python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow outreach --entity someone@example.com
 ```
 
 Pass `--entity` every time. It keeps people in the arm they were first assigned, including on follow-ups — otherwise you're measuring noise.
@@ -45,12 +51,12 @@ Pull the voice and the constraints from `config/brand.md` — especially the ban
 
 Render the assigned template with the research. Keep it short. The opening line has to prove you looked, the middle has to be about them and not you, and the ask has to be small enough to say yes to on a phone.
 
-Create it as a **Gmail draft**.
+Create it as a **draft in the user's mail system** (Gmail, Outlook — whatever the connector is).
 
 ### 5. Record
 
 ```bash
-python3 ../engine-loop/scripts/runlog.py new --workflow outreach --channel email \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow outreach --channel email \
   --experiment exp-001 --arm partner --template first-touch-partner.txt
 ```
 
@@ -62,10 +68,10 @@ Show the user ten drafts, not fifty. Ask them to kill the ones that read like a 
 
 ## After they send
 
-Sending happens in Gmail, by the user. When they tell you drafts went out, record the moment for each one — it starts the 72-hour clock:
+Sending happens in the user's mail client, by the user. When they tell you drafts went out, record the moment for each one — it starts the metric clock:
 
 ```bash
-python3 ../engine-loop/scripts/runlog.py publish --run <run_id>
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id>
 ```
 
 No `--url` — an email has none, and `publish` doesn't need one. Update the CRM row at the same time: `status=sent`, `sent_at`, `next_followup_at`.
@@ -81,7 +87,7 @@ Skip this and the run stays `draft` forever: `due_metrics.py` never lists it, no
 
 ## Getting the numbers back
 
-The metric is replies and the source is the same Gmail the drafts came from — no analytics page, no browser reading. On each loop pass, `due_metrics.py` lists the sent runs that are 72h+ old with no number yet. For each one, check the thread:
+The metric is replies and the source is the same mailbox the drafts came from — no analytics page, no browser reading. Replies settle faster than social distribution: if the 72h default feels slow here, set `metric_delay_hours` on the email channel in `config/channels.json` (24–48 is reasonable). On each loop pass, `due_metrics.py` lists the sent runs past that window with no number yet. For each one, check the thread:
 
 - **A reply landed** → `runlog.py metric --run <id> --value 1 --source api`, set `replied_at` in the CRM, stop the follow-ups
 - **No reply, sequence still open** → leave the cell empty. It stays on the due list and gets checked again next pass
@@ -99,4 +105,4 @@ A reply that arrives after a zero was recorded: run `metric` again with `--value
 
 ## Going further
 
-`references/advanced.md` — Cloudflare Email Routing for inbound, Resend for sending from your own domain at volume, and the deliverability rules that decide whether any of it lands.
+`references/advanced.md` — Cloudflare Email Routing for inbound, sending automatically from your own domain via Resend (with the review gate that replaces the human click), and the deliverability rules that decide whether any of it lands.

@@ -1,19 +1,27 @@
 #!/usr/bin/env python3
-"""Create a gtm-engine workspace inside your project — scoped to the pathways
+"""Create a gtm-engine workspace inside your project — scoped to the workflows
 you actually run.
 
 Usage:
     scaffold_workspace.py [project_dir] --workflow seo
     scaffold_workspace.py . --workflow seo,outreach
     scaffold_workspace.py . --workflow all
+    scaffold_workspace.py . --workflow newsletter      # custom workflow
     scaffold_workspace.py . --workflow video --merge
 
     project_dir   where to create it (default: current directory)
-    --workflow    required: seo | linkedin | video | outreach | all
-                  (comma-separated for more than one)
+    --workflow    required. Built-ins (seo, linkedin, video, outreach) come
+                  with a dedicated skill and starter templates; 'all' means
+                  all built-ins. ANY other name is a custom workflow: it gets
+                  templates/<name>/ plus the shared loop files, and
+                  engine-loop runs it through the same three traces —
+                  register its experiments in config/experiments.json and
+                  add its channel to config/channels.json yourself
     --merge       fill in missing files in an existing workspace
                   (never overwrites anything that already exists)
-    --name        workspace folder name (default: workflows)
+    --name        workspace folder name (default: workflows). Use a second
+                  name for a second brand/ICP — one workspace per brand is
+                  the intended pattern
 """
 from __future__ import annotations
 
@@ -88,12 +96,12 @@ def merge_experiments(existing: dict, template: dict, workflows: list[str]) -> d
 
 
 def merge_channels(existing: dict, workflows: list[str]) -> dict:
-    """Enable channels for newly added pathways; keep active_workflow if set."""
+    """Enable channels for newly added workflows; keep active_workflow if set."""
     out = dict(existing)
     channels = dict(out.get("channels") or {})
     wanted = set()
     for wf in workflows:
-        wanted.update(pw.PATHWAY[wf]["channels"])
+        wanted.update(pw.pathway_for(wf)["channels"])
     for name in wanted:
         if name not in channels:
             continue
@@ -119,10 +127,12 @@ def main() -> int:
     ap.add_argument("project_dir", nargs="?", default=".")
     ap.add_argument(
         "--workflow", "-w", required=True,
-        help="seo, linkedin, video, outreach (comma-separated), or all",
+        help="built-ins: seo, linkedin, video, outreach (comma-separated), "
+             "or all — any other name scaffolds a custom workflow",
     )
     ap.add_argument("--name", default="workflows",
-                    help="workspace folder name (default: workflows)")
+                    help="workspace folder name (default: workflows) — "
+                         "use another name for a second brand/ICP")
     ap.add_argument("--merge", action="store_true",
                     help="add missing files to an existing workspace")
     a = ap.parse_args()
@@ -149,12 +159,20 @@ def main() -> int:
         print("That folder holds your runs and your brand config, so this")
         print("script will not touch it. Your options:\n")
         print(f"  --merge --workflow {a.workflow}")
-        print("      add only the files you're missing for these pathways")
+        print("      add only the files you're missing for these workflows")
         print(f"  --name workflows2  scaffold alongside it\n")
         return 1
 
+    custom = [wf for wf in workflows if pw.is_custom(wf)]
+
     print(f"\nCreating workspace: {dest}")
-    print(f"  pathways: {', '.join(workflows)}\n")
+    print(f"  workflows: {', '.join(workflows)}")
+    for wf in custom:
+        print(f"  note: '{wf}' is a custom workflow — templates/{wf}/ is created "
+              f"empty. Write its templates, register its experiments in "
+              f"config/experiments.json, and add its channel(s) to "
+              f"config/channels.json. engine-loop handles the rest.")
+    print()
 
     created = skipped = 0
     special = {
@@ -183,7 +201,7 @@ def main() -> int:
         elif s and not a.merge:
             print(f"  = {rel} (kept yours)")
 
-    # Record pathways first so filtered config covers the full installed set.
+    # Record workflows first so filtered config covers the full installed set.
     before = (
         set(pw.read_installed(dest))
         if (dest / "config/pathways.json").exists()
@@ -195,7 +213,7 @@ def main() -> int:
         created += 1
         print(f"  + config/pathways.json  ({', '.join(installed)})")
 
-    # Config — create fresh, or merge pathway pieces into an existing workspace.
+    # Config — create fresh, or merge workflow pieces into an existing workspace.
     tmpl_channels = json.loads((TEMPLATE / "config/channels.json").read_text())
     tmpl_sources = json.loads((TEMPLATE / "config/sources.json").read_text())
     tmpl_experiments = json.loads((TEMPLATE / "config/experiments.json").read_text())
@@ -204,7 +222,7 @@ def main() -> int:
     if ch_path.exists() and a.merge:
         data = merge_channels(json.loads(ch_path.read_text()), workflows)
         ch_path.write_text(json.dumps(data, indent=2) + "\n")
-        print("  ~ config/channels.json  (enabled new pathway channels)")
+        print("  ~ config/channels.json  (enabled new workflow channels)")
     else:
         c, s = write_json(
             ch_path, pw.patch_channels(tmpl_channels, workflows), merge=False,
@@ -254,7 +272,7 @@ def main() -> int:
         created += 1
         print("  + config/.env.example")
     elif prev != env_text:
-        print("  ~ config/.env.example  (keys for installed pathways)")
+        print("  ~ config/.env.example  (keys for installed workflows)")
 
     gitignore = dest / ".gitignore"
     if not gitignore.exists():
@@ -283,7 +301,7 @@ def main() -> int:
     print(f"\n  {created} files created" + (f", {skipped} left alone" if skipped else ""))
     print(f"""
 Next:
-  1. Install only the skills for these pathways:
+  1. Install only the skills for these workflows:
        {REPO_ROOT}/skills/engine-setup/scripts/install_skills.sh \\
          --workspace {dest} --workflow {','.join(installed)}
      (skills: {', '.join(skills)})

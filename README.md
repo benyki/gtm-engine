@@ -1,32 +1,29 @@
 # gtm-engine
 
 
-Six workflows for Claude Code or Codex that write content, send personalised outreach, and keep score.
+Growth workflows for coding agents — they write content, send personalised outreach, and keep score. Ships with seo, linkedin, video and outreach; add your own workflows freely, and more will land here over time.
 
 Built for indie devs and early-stage startups: you have a product, no users, and no growth team.
 
 Every run is written to disk with the template version it used. When the numbers come back, a weekly job scores the versions against each other, retires the loser, and writes a new one to test against the winner.
 
-This repo is the support layer for coding agents in marketing workshops.
-
 ---
 
 ## Getting started — read the docs
 
-**Start with the docs, not this README.** Before a workshop (or before you install anything yourself), work through these in order:
+**Start with the docs, not this README.** Before you install anything, work through these:
 
 | Doc | Why |
 |---|---|
-| [`docs/preflight.md`](docs/preflight.md) | Machine check + what each pathway needs. Ten minutes, or paste the agent block |
+| [`docs/preflight.md`](docs/preflight.md) | **Pre-workshop section** — using this repo in a workshop? This is the checklist: machine check + what each workflow needs, in order |
 | [`docs/useful-links.md`](docs/useful-links.md) | Every download and signup link, plus which key maps to which env var |
 | [`docs/workspace.md`](docs/workspace.md) | Where your brand, runs, and numbers live — and what never mixes with the repo |
 
-Later, when you need them:
+Later, when you need it:
 
 | Doc | Why |
 |---|---|
-| [`docs/posting-options.md`](docs/posting-options.md) | Manual vs Upload Post vs Buffer |
-| [`docs/troubleshooting.md`](docs/troubleshooting.md) | Common failures and exact fixes |
+| [`docs/posting-options.md`](docs/posting-options.md) | Choosing between manual, Upload Post and Buffer |
 
 Then install (below) and tell your agent: `run engine-setup`.
 
@@ -53,7 +50,7 @@ Paste this into Claude Code or Codex:
 
 ```
 Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
-When that passes, pick a pathway, follow the setup instructions in the README,
+When that passes, pick a workflow, follow the setup instructions in the README,
 and run engine-setup.
 ```
 
@@ -65,7 +62,7 @@ python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --
 ~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
 ```
 
-Replace `seo` with `linkedin`, `video`, `outreach`, a comma list, or `all`.
+Replace `seo` with `linkedin`, `video`, `outreach`, a comma list, `all` — or any name of your own for a custom workflow (the loop treats it like the built-ins; you supply the templates).
 
 Then tell your agent: `run engine-setup` — it fills in your brand config, picks your workflow, and runs the checks.
 
@@ -93,7 +90,7 @@ Four jobs you schedule once:
 
 | Job | Cadence | What happens |
 |---|---|---|
-| `due_metrics` → record | daily | Lists published runs that are **72+ hours old** and still have no number |
+| `due_metrics` → record | daily | Lists published runs **past their channel's metric window** (72h default) with no number yet |
 | `score_arms` + challenge | weekly | Promotes a winner, retires the loser, writes a fresh challenger |
 | `generate-inputs` | weekly | Queues next week's ideas from what performed |
 | `render_report` | weekly | Six sections, ending in a config change you approve or reject |

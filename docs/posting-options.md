@@ -1,9 +1,18 @@
 # Posting: manual, Upload Post, or Buffer
 
-Start manual. Add a scheduler once you know the workflow is worth automating —
-which you won't know for a few weeks.
+Choose one per channel and set `publish` in `config/channels.json`. The
+comparison below is the decision; each option's details follow.
 
-| | **Manual** *(default)* | **Upload Post** | **Buffer** |
+These are the three documented options, not a closed list — the `publish`
+field in `channels.json` is advisory, and any scheduler you already use fits
+as long as the contract holds: a human approves before anything goes live,
+and the URL gets recorded. Platforms with an open posting API (e.g. Bluesky —
+see `engine-linkedin`) can skip the scheduler entirely. And for platforms
+whose APIs won't post what you need at all, there's device posting via
+mobilerun — see `skills/engine-video/references/advanced.md`, account-risk
+section first.
+
+| | **Manual** | **Upload Post** | **Buffer** |
 |---|---|---|---|
 | Cost | free | free to 10 posts/month, then **$24/mo** | free tier available |
 | Setup | none | account + API key | account + connect each channel |
@@ -15,11 +24,11 @@ which you won't know for a few weeks.
 
 ---
 
-## Why manual is the default
+## Manual
 
-You ship something real on day one with no accounts and no keys. That matters
-more than it sounds: most people who never launch a growth system stall during
-setup, not during the work.
+Zero accounts, zero keys: you ship something real on day one. That matters
+more than it sounds — most people who never launch a growth system stall
+during setup, not during the work.
 
 Manual also costs you nothing in the loop. The metric still gets recorded —
 you read it off the platform's own analytics screen and run:

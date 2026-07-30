@@ -30,7 +30,7 @@ One question, phrased the way a human would ask it. Show the user the shortlist 
 ### 2. Get the arm
 
 ```bash
-python3 ../engine-loop/scripts/assign_arm.py --workflow seo
+python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow seo
 ```
 
 For articles the variants are usually structural — how it opens, whether it leads with the answer or the context, how long it runs. If it returns `write_template`, write that template from the hypothesis and use it.
@@ -52,7 +52,7 @@ Voice comes from `inputs/best/` — their own best-performing pieces — not fro
 ### 5. Log it
 
 ```bash
-python3 ../engine-loop/scripts/runlog.py new --workflow seo --channel blog \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow seo --channel blog \
   --experiment exp-002 --arm default --template article-default.md
 ```
 
@@ -70,7 +70,7 @@ Generate locally, they paste it into their CMS. Don't try to automate WordPress,
 
 Then building one is part of this workflow, because thirty good articles in a folder are worth nothing.
 
-**Astro + local markdown + a simple host.** The whole point is that it stays plain files an agent can read and fix:
+The **contract** is: content stays in plain markdown files an agent can read and fix, publishing is a git push, and each page carries its `run_id` back to the spine. Any stack that satisfies it works — if they already have a Next.js site or a company-standard host, publish into that rather than building a parallel one. The **default**, when starting from nothing, is Astro + local markdown + a simple host:
 
 1. Scaffold an Astro site once, into `workflows/site/`
 2. Define a content collection with the `glob` loader pointing at your articles:
@@ -93,7 +93,7 @@ Then building one is part of this workflow, because thirty good articles in a fo
    export const collections = { blog };
    ```
 3. On publish, copy the finished article into `site/src/content/blog/<slug>.md` with that frontmatter
-4. Deploy — **Cloudflare Pages** or **Railway**. Both are free at this size and deploy on git push
+4. Deploy — **Cloudflare Pages** or **Railway** by default; both are free at this size and deploy on git push. Any host that deploys from git is equivalent here
 
 Then the standard SEO set, which Astro gives you cheaply: sitemap (`@astrojs/sitemap`), canonical URLs, per-page meta and Open Graph tags, JSON-LD, RSS. **Check the current Astro docs when you set this up** — the content APIs changed in Astro 5 and older tutorials will send you wrong.
 
@@ -102,10 +102,12 @@ Keeping the content as markdown files is deliberate: when something breaks, an a
 ### Either way
 
 ```bash
-python3 ../engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
 ```
 
 The URL matters — `engine-loop` needs it to fetch Search Console numbers later.
+
+One timing note: search is slow. The 72-hour default window in `due_metrics.py` is a social-media number; Search Console data on a new article takes weeks to mean anything. Set `metric_delay_hours` on the blog channel in `config/channels.json` (336 = two weeks is a sane floor) so the loop doesn't ask for numbers that don't exist yet.
 
 ## Rules
 

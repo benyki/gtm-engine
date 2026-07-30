@@ -1,5 +1,9 @@
 {
-  "_comment": "One live experiment per workflow, two arms each. The second arm ships with no template on purpose — the first time it's assigned, the agent writes it from the hypothesis. That's R4 working as intended, not an error.",
+  "_comment": "Ships with one live experiment per workflow, two arms each — a starting shape, not a ceiling (see _optional_fields for channel-scoped concurrent experiments). The second arm ships with no template on purpose — the first time it's assigned, the agent writes it from the hypothesis. That's R4 working as intended, not an error.",
+
+  "_starter_note": "These arms and hypotheses are EXAMPLES of shape, not recommendations for your business. Rewriting them is part of engine-setup: keep the structure, replace each arm's label/hypothesis/min_runs with ones that fit your audience (a B2C app has no use for a 'partner offer' arm). Anything you won't run, set status to 'paused' — assign_arm only reads 'live', and it uses the FIRST live experiment per workflow (it warns if there's more than one).",
+
+  "_optional_fields": "Per experiment: channel (scopes the experiment to one channel, so several experiments can run concurrently in the same workflow — pass --channel to assign_arm.py); direction ('up' default, 'down' for lower-is-better metrics like cost per lead); aggregate ('mean' default, 'median' for heavy-tailed social metrics where one viral run would decide the test). See engine-loop/references/ab-testing.md.",
 
   "active_metric": "",
 

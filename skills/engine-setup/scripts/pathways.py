@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
-"""Shared pathway → workspace / skill maps for scaffold + install + doctor.
+"""Shared workflow → workspace / skill maps for scaffold + install + doctor.
+
+(The filename and the config/pathways.json marker keep the historical
+"pathways" name for compatibility; everywhere else these are workflows.)
+
+The four built-in workflows ship with a dedicated skill and templates. The set
+is NOT closed: any other name (newsletter, podcast, ads, community, …) gets a
+generic scaffold — a templates/<name>/ folder plus the shared loop files —
+and engine-loop runs it through the same three traces as everything else.
+There is just no dedicated skill for it; the agent supplies the judgement.
 
 Usage (CLI helper for install_skills.sh):
     pathways.py skills seo,outreach
@@ -8,10 +17,15 @@ Usage (CLI helper for install_skills.sh):
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
+# Built-in workflows with a dedicated skill. Other names are welcome too —
+# they get GENERIC treatment below.
 WORKFLOWS = ("seo", "linkedin", "video", "outreach")
+
+NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
 ALWAYS_SKILLS = ("engine-setup", "engine-loop")
 
@@ -28,7 +42,7 @@ ALWAYS_PATHS = (
     "state/published.csv",
 )
 
-# Per-pathway extras (dirs are copied recursively; files as-is).
+# Per-workflow extras (dirs are copied recursively; files as-is).
 PATHWAY = {
     "seo": {
         "skill": "engine-seo",
@@ -48,7 +62,7 @@ PATHWAY = {
             "inputs/best/.gitkeep",
             "inputs/swipe/.gitkeep",
         ),
-        "env": ("posting", "analytics"),
+        "env": ("bluesky", "posting", "analytics"),
         "sources_keys": ("linkedin",),
         "channels": ("linkedin", "x"),
     },
@@ -82,10 +96,17 @@ ENV_HEADER = """\
 # .env is gitignored. Your agent reads THIS file for the key names and never
 # reads .env itself — so paste keys in yourself, and never into a chat window.
 #
-# Only the keys for your installed pathways are listed below.
+# Only the keys for your installed workflows are listed below.
 """
 
 ENV_BLOCKS = {
+    "bluesky": """\
+# --- bluesky (optional; only if you post there) -----------------------------
+# App password, NOT your account password:
+# bsky.app → Settings → Privacy and Security → App Passwords
+BSKY_HANDLE=
+BSKY_APP_PASSWORD=
+""",
     "video": """\
 # --- video ------------------------------------------------------------------
 # https://www.pexels.com/api/
@@ -95,7 +116,7 @@ PEXELS_API_KEY=
 ELEVENLABS_API_KEY=
 """,
     "posting": """\
-# --- posting (optional; manual posting needs nothing) -----------------------
+# --- posting (only needed for Upload Post or Buffer; manual needs nothing) --
 # https://www.upload-post.com/
 UPLOADPOST_API_KEY=
 
@@ -116,8 +137,27 @@ APIFY_API_TOKEN=
 }
 
 
+def pathway_for(name: str) -> dict:
+    """Config for a workflow. Built-ins get their full entry; anything else
+    gets a generic one: a templates/<name>/ folder and nothing pre-decided."""
+    if name in PATHWAY:
+        return PATHWAY[name]
+    return {
+        "skill": None,
+        "paths": (f"templates/{name}/.gitkeep",),
+        "env": (),
+        "sources_keys": (name,),
+        "channels": (),
+    }
+
+
+def is_custom(name: str) -> bool:
+    return name not in PATHWAY
+
+
 def parse_workflows(raw: str | None) -> list[str]:
-    """Parse 'seo,outreach' or 'all'. Empty / None → all (explicit opt-in via 'all')."""
+    """Parse 'seo,outreach' or 'all'. Names outside the built-in set are
+    accepted (custom workflows); 'all' means all built-ins."""
     if raw is None or raw.strip() == "":
         raise ValueError("pass --workflow <name>[,name...] or --workflow all")
     text = raw.strip().lower()
@@ -128,9 +168,10 @@ def parse_workflows(raw: str | None) -> list[str]:
         name = part.strip()
         if not name:
             continue
-        if name not in PATHWAY:
+        if not NAME_RE.match(name):
             raise ValueError(
-                f"unknown workflow {name!r} — choose from: {', '.join(WORKFLOWS)}, all"
+                f"invalid workflow name {name!r} — lowercase letters, digits, "
+                f"- and _ only (built-ins: {', '.join(WORKFLOWS)})"
             )
         if name not in out:
             out.append(name)
@@ -142,8 +183,8 @@ def parse_workflows(raw: str | None) -> list[str]:
 def skills_for(workflows: list[str]) -> list[str]:
     names = list(ALWAYS_SKILLS)
     for wf in workflows:
-        skill = PATHWAY[wf]["skill"]
-        if skill not in names:
+        skill = pathway_for(wf)["skill"]
+        if skill and skill not in names:
             names.append(skill)
     return names
 
@@ -156,7 +197,7 @@ def paths_for(workflows: list[str]) -> list[str]:
             seen.add(rel)
             out.append(rel)
     for wf in workflows:
-        for rel in PATHWAY[wf]["paths"]:
+        for rel in pathway_for(wf)["paths"]:
             if rel not in seen:
                 seen.add(rel)
                 out.append(rel)
@@ -167,7 +208,7 @@ def env_sections_for(workflows: list[str]) -> list[str]:
     seen: set[str] = set()
     out: list[str] = []
     for wf in workflows:
-        for sec in PATHWAY[wf]["env"]:
+        for sec in pathway_for(wf)["env"]:
             if sec not in seen:
                 seen.add(sec)
                 out.append(sec)
@@ -179,7 +220,7 @@ def render_env_example(workflows: list[str]) -> str:
     parts = [ENV_HEADER]
     if not sections:
         parts.append(
-            "\n# No API keys required for your pathways "
+            "\n# No API keys required for your workflows "
             f"({', '.join(workflows)}).\n"
         )
         return "".join(parts)
@@ -201,7 +242,7 @@ def filter_experiments(data: dict, workflows: list[str]) -> dict:
 def filter_sources(data: dict, workflows: list[str]) -> dict:
     keep = {"_comment"}
     for wf in workflows:
-        keep.update(PATHWAY[wf]["sources_keys"])
+        keep.update(pathway_for(wf)["sources_keys"])
     return {k: v for k, v in data.items() if k in keep}
 
 
@@ -211,7 +252,7 @@ def patch_channels(data: dict, workflows: list[str]) -> dict:
     channels = dict(out.get("channels") or {})
     wanted = set()
     for wf in workflows:
-        wanted.update(PATHWAY[wf]["channels"])
+        wanted.update(pathway_for(wf)["channels"])
     for name, cfg in channels.items():
         if not isinstance(cfg, dict):
             continue
@@ -230,7 +271,10 @@ def read_installed(ws: Path) -> list[str]:
     if marker.is_file():
         try:
             data = json.loads(marker.read_text())
-            got = [w for w in data.get("workflows", []) if w in PATHWAY]
+            # Custom workflow names are kept — the marker is the record of
+            # what this workspace runs, not a filter to the built-ins.
+            got = [w for w in data.get("workflows", [])
+                   if isinstance(w, str) and NAME_RE.match(w)]
             if got:
                 return got
         except (json.JSONDecodeError, OSError):
@@ -252,7 +296,7 @@ def write_installed(ws: Path, workflows: list[str]) -> None:
         try:
             existing = [
                 w for w in json.loads(marker.read_text()).get("workflows", [])
-                if w in PATHWAY
+                if isinstance(w, str) and NAME_RE.match(w)
             ]
         except (json.JSONDecodeError, OSError):
             existing = []

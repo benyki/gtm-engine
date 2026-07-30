@@ -14,11 +14,23 @@ Usage:
 
 `--source` is required when recording a metric, and it is not decoration:
 a report that can't tell a measured number from a typed-in one is worse
-than no report.
+than no report. Name the actual system that produced the number —
+`browser`, `api`, `search_console`, `ga4`, `apify`, `manual`, whatever it
+was. Any value is accepted; the point is provenance, not a fixed list.
 
 `--url` is optional on publish: an outreach email has no URL. `publish`
-still records the moment it went out, which is what starts the 72-hour
+still records the moment it went out, which is what starts the metric
 clock in due_metrics.py.
+
+Extra columns are a supported extension point: add `segment`, `language`,
+`campaign` or anything else to runs/index.csv and this script preserves
+them on every rewrite. Only the columns listed below are ever written by
+the script itself.
+
+One writer at a time: every update rewrites the whole CSV, so two agents
+or machines logging concurrently will silently lose rows. If you need
+concurrent writers, move the spine to a database first (see
+engine-loop/references/advanced.md).
 """
 from __future__ import annotations
 
@@ -29,60 +41,63 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from wsfind import find_workspace  # noqa: E402
+
 COLUMNS = ["run_id", "created_at", "skill", "channel", "experiment_id", "arm",
            "template_used", "status", "published_at", "url", "primary_metric",
            "metric_value", "metric_source", "metrics_fetched_at", "human_verdict"]
 
-SOURCES = ("api", "browser", "apify", "manual")
+# Suggested values, not a closed set — name the system the number came from.
+SUGGESTED_SOURCES = ("api", "browser", "apify", "manual")
 
 
 def now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-def find_workspace(explicit: str | None) -> Path:
-    if explicit:
-        p = Path(explicit).expanduser().resolve()
-        if (p / "config").is_dir():
-            return p
-        sys.exit(f"error: no config/ in {p}")
-    for base in (Path.cwd(), *Path.cwd().parents):
-        if (base / "workflows" / "config").is_dir():
-            return base / "workflows"
-        if base == Path.home():
-            break
-    sys.exit("error: no workspace found — pass --workspace")
-
-
-def read_rows(idx: Path) -> list[dict]:
+def read_rows(idx: Path) -> tuple[list[dict], list[str]]:
+    """Rows plus the header as found — user-added columns included."""
     if not idx.is_file():
-        return []
+        return [], list(COLUMNS)
     with idx.open(newline="") as f:
-        return list(csv.DictReader(f))
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        header = list(reader.fieldnames or [])
+    fields = list(COLUMNS) + [c for c in header if c and c not in COLUMNS]
+    return rows, fields
 
 
-def write_rows(idx: Path, rows: list[dict]) -> None:
+def write_rows(idx: Path, rows: list[dict], fields: list[str]) -> None:
     idx.parent.mkdir(parents=True, exist_ok=True)
     with idx.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=COLUMNS)
+        w = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         w.writeheader()
         for r in rows:
-            w.writerow({c: r.get(c, "") for c in COLUMNS})
+            w.writerow({c: r.get(c, "") for c in fields})
 
 
-def primary_metric(ws: Path) -> str:
+def primary_metric(ws: Path, channel: str = "") -> str:
+    """The metric for this run: the channel's own if set, else the global one."""
     ch = ws / "config" / "channels.json"
-    if ch.is_file():
-        try:
-            return (json.loads(ch.read_text()).get("primary_metric") or "").strip()
-        except json.JSONDecodeError:
-            pass
-    return ""
+    if not ch.is_file():
+        return ""
+    try:
+        data = json.loads(ch.read_text())
+    except json.JSONDecodeError:
+        return ""
+    if channel:
+        cfg = (data.get("channels") or {}).get(channel)
+        if isinstance(cfg, dict):
+            per = (cfg.get("primary_metric") or "").strip()
+            if per:
+                return per
+    return (data.get("primary_metric") or "").strip()
 
 
 def cmd_new(ws: Path, a) -> int:
     idx = ws / "runs" / "index.csv"
-    rows = read_rows(idx)
+    rows, fields = read_rows(idx)
     today = datetime.now().strftime("%Y-%m-%d")
     seq = sum(1 for r in rows if r.get("run_id", "").startswith(today)) + 1
     run_id = f"{today}-{seq:03d}-{a.workflow}"
@@ -94,21 +109,29 @@ def cmd_new(ws: Path, a) -> int:
         "channel": a.channel, "experiment_id": a.experiment, "arm": a.arm,
         "template_used": a.template, "notes": a.notes,
     }, indent=2) + "\n")
+    # metrics.json is the open half of the record: index.csv keeps ONE primary
+    # number; secondary metrics (watch-through rate, comments, positions) and
+    # every re-read go here. Add keys freely — the script only manages
+    # value/source/fetched_at/history.
     (folder / "metrics.json").write_text(json.dumps({
-        "run_id": run_id, "metric": primary_metric(ws),
+        "run_id": run_id, "metric": primary_metric(ws, a.channel),
         "value": None, "source": None, "fetched_at": None,
+        "history": [], "secondary": {},
     }, indent=2) + "\n")
     (folder / "notes.md").write_text(
         f"# {run_id}\n\n## What I was going for\n\n\n## Verdict\n\n"
-        f"<!-- one word in index.csv: good | meh | bad -->\n")
+        f"<!-- one word in index.csv — e.g. good | meh | bad; any scale "
+        f"works if you keep it consistent -->\n")
 
     rows.append({
-        "run_id": run_id, "created_at": now(), "skill": f"engine-{a.workflow}",
+        # The column is named "skill" for historical compatibility; it records
+        # the workflow name itself, whether or not a dedicated skill exists.
+        "run_id": run_id, "created_at": now(), "skill": a.workflow,
         "channel": a.channel, "experiment_id": a.experiment, "arm": a.arm,
         "template_used": a.template, "status": "draft",
-        "primary_metric": primary_metric(ws),
+        "primary_metric": primary_metric(ws, a.channel),
     })
-    write_rows(idx, rows)
+    write_rows(idx, rows, fields)
 
     print(run_id)
     print(f"{folder}", file=sys.stderr)
@@ -117,26 +140,30 @@ def cmd_new(ws: Path, a) -> int:
 
 def update(ws: Path, run_id: str, changes: dict) -> dict:
     idx = ws / "runs" / "index.csv"
-    rows = read_rows(idx)
+    rows, fields = read_rows(idx)
     for r in rows:
         if r.get("run_id") == run_id:
             r.update(changes)
-            write_rows(idx, rows)
+            write_rows(idx, rows, fields)
             return r
     sys.exit(f"error: no run {run_id} in runs/index.csv")
 
 
 def cmd_metric(ws: Path, a) -> int:
-    if a.source not in SOURCES:
-        sys.exit(f"error: --source must be one of {', '.join(SOURCES)}")
-    row = update(ws, a.run, {"metric_value": a.value, "metric_source": a.source,
+    source = a.source.strip()
+    if not source:
+        sys.exit("error: --source can't be empty — name where the number came from")
+    row = update(ws, a.run, {"metric_value": a.value, "metric_source": source,
                              "metrics_fetched_at": now()})
     mfile = ws / "runs" / a.run / "metrics.json"
     if mfile.is_file():
         data = json.loads(mfile.read_text())
-        data.update({"value": a.value, "source": a.source, "fetched_at": now()})
+        entry = {"value": a.value, "source": source, "fetched_at": now()}
+        data.update(entry)
+        # Every read is appended, so a later re-read never erases the curve.
+        data.setdefault("history", []).append(entry)
         mfile.write_text(json.dumps(data, indent=2) + "\n")
-    print(f"{a.run}: {row.get('primary_metric') or 'metric'} = {a.value} ({a.source})")
+    print(f"{a.run}: {row.get('primary_metric') or 'metric'} = {a.value} ({source})")
     return 0
 
 
@@ -156,10 +183,13 @@ def cmd_publish(ws: Path, a) -> int:
 
 
 def cmd_verdict(ws: Path, a) -> int:
-    if a.verdict not in ("good", "meh", "bad"):
-        sys.exit("error: --verdict must be good, meh or bad")
-    update(ws, a.run, {"human_verdict": a.verdict})
-    print(f"{a.run}: {a.verdict}")
+    verdict = a.verdict.strip()
+    if not verdict:
+        sys.exit("error: --verdict can't be empty")
+    # good | meh | bad is the suggested scale, not a rule — use whatever
+    # taxonomy you'll actually keep consistent (keep/kill, 1-5, ...).
+    update(ws, a.run, {"human_verdict": verdict})
+    print(f"{a.run}: {verdict}")
     return 0
 
 
@@ -180,7 +210,10 @@ def main() -> int:
     m = sub.add_parser("metric", help="record what it earned")
     m.add_argument("--run", required=True)
     m.add_argument("--value", required=True)
-    m.add_argument("--source", required=True, help="|".join(SOURCES))
+    m.add_argument("--source", required=True,
+                   help="where the number came from — e.g. "
+                        + ", ".join(SUGGESTED_SOURCES)
+                        + ", search_console, ga4 (free text)")
 
     p = sub.add_parser("publish", help="mark it live (posted, deployed, or sent)")
     p.add_argument("--run", required=True)
@@ -192,7 +225,8 @@ def main() -> int:
 
     v = sub.add_parser("verdict", help="your one-word call")
     v.add_argument("--run", required=True)
-    v.add_argument("--verdict", required=True, help="good | meh | bad")
+    v.add_argument("--verdict", required=True,
+                   help="free text — good | meh | bad is the suggested scale")
 
     a = ap.parse_args()
     ws = find_workspace(a.workspace)

@@ -1,5 +1,5 @@
 {
-  "_comment": "Where content ideas come from. Defaults need no accounts. Where there's no API, the agent reads it in the browser — that's the normal path, not a workaround.",
+  "_comment": "Where content ideas come from. Defaults need no accounts. Where there's no API, the agent reads it in the browser — that's the normal path, not a workaround. Keys mirror your workflows and the set is open: scaffolding a custom workflow? Add a block for it here with whatever fields it needs.",
 
   "seo": {
     "primary": "reddit",

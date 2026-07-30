@@ -1,16 +1,21 @@
 #!/usr/bin/env python3
 """Which published runs are ready to have their numbers read?
 
-Enforces the 72-hour rule in code rather than trusting anyone to remember it.
-LinkedIn, TikTok, Instagram and X all keep distributing a post for days, so a
-number read at 24 or 48 hours mostly records what time you posted. Once it's
-in index.csv it affects every verdict from then on, and nothing flags it as
-early — so the rule has to bite before the number is written, not after.
+Every channel has a window before its numbers mean anything, and this script
+enforces it in code rather than trusting anyone to remember. The default is
+72 hours — right for social channels (LinkedIn, TikTok, Instagram and X all
+keep distributing a post for days, so an early read mostly records what time
+you posted). It is NOT a universal law: SEO articles need weeks before
+Search Console numbers settle, and outreach replies settle faster. Set
+`metric_delay_hours` per channel in config/channels.json and this script
+honours it; a channel without one gets the 72h default. Once a number is in
+index.csv it affects every verdict from then on and nothing flags it as
+early — so the window has to bite before the number is written, not after.
 
 Usage:
     due_metrics.py            # what to read now, and what's still too young
     due_metrics.py --json     # same, machine-readable
-    due_metrics.py --hours 96 # be stricter
+    due_metrics.py --hours 96 # override every channel's window for this call
 """
 from __future__ import annotations
 
@@ -21,22 +26,30 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-MIN_HOURS = 72
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from wsfind import find_workspace  # noqa: E402
+
+DEFAULT_HOURS = 72
 DIM, GREEN, YELLOW, RESET = "\033[2m", "\033[32m", "\033[33m", "\033[0m"
 
 
-def find_workspace(explicit: str | None) -> Path:
-    if explicit:
-        p = Path(explicit).expanduser().resolve()
-        if (p / "config").is_dir():
-            return p
-        sys.exit(f"error: no config/ in {p}")
-    for base in (Path.cwd(), *Path.cwd().parents):
-        if (base / "workflows" / "config").is_dir():
-            return base / "workflows"
-        if base == Path.home():
-            break
-    sys.exit("error: no workspace found — pass --workspace")
+def channel_delays(ws: Path) -> dict[str, float]:
+    """Per-channel metric_delay_hours from config/channels.json."""
+    ch = ws / "config" / "channels.json"
+    if not ch.is_file():
+        return {}
+    try:
+        data = json.loads(ch.read_text())
+    except json.JSONDecodeError:
+        return {}
+    out: dict[str, float] = {}
+    for name, cfg in (data.get("channels") or {}).items():
+        if isinstance(cfg, dict) and cfg.get("metric_delay_hours") is not None:
+            try:
+                out[name] = float(cfg["metric_delay_hours"])
+            except (TypeError, ValueError):
+                pass
+    return out
 
 
 def parse_ts(v: str) -> datetime | None:
@@ -54,7 +67,8 @@ def parse_ts(v: str) -> datetime | None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workspace")
-    ap.add_argument("--hours", type=int, default=MIN_HOURS)
+    ap.add_argument("--hours", type=float, default=None,
+                    help="override every channel's window for this call")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
 
@@ -63,6 +77,7 @@ def main() -> int:
     if not idx.is_file():
         sys.exit("error: runs/index.csv not found")
 
+    delays = channel_delays(ws)
     now = datetime.now(timezone.utc)
     due, early, unpublished = [], [], []
 
@@ -75,10 +90,14 @@ def main() -> int:
                     unpublished.append(r.get("run_id", ""))
                 continue
 
+            channel = r.get("channel", "")
+            threshold = a.hours if a.hours is not None \
+                else delays.get(channel, DEFAULT_HOURS)
             ts = parse_ts(r.get("published_at", ""))
-            item = {"run_id": r.get("run_id", ""), "channel": r.get("channel", ""),
+            item = {"run_id": r.get("run_id", ""), "channel": channel,
                     "url": r.get("url", ""), "arm": r.get("arm", ""),
                     "metric": r.get("primary_metric", ""),
+                    "threshold_hours": threshold,
                     "published_at": r.get("published_at", "")}
             if ts is None:
                 item["age_hours"] = None
@@ -87,17 +106,19 @@ def main() -> int:
 
             age = (now - ts).total_seconds() / 3600
             item["age_hours"] = round(age, 1)
-            (due if age >= a.hours else early).append(item)
+            (due if age >= threshold else early).append(item)
 
     early.sort(key=lambda x: -(x["age_hours"] or 0))
 
     if a.json:
-        print(json.dumps({"threshold_hours": a.hours, "due": due,
-                          "too_early": early, "not_published": unpublished}, indent=2))
+        print(json.dumps({"default_hours": DEFAULT_HOURS,
+                          "channel_delays": delays, "due": due,
+                          "too_early": early, "not_published": unpublished},
+                         indent=2))
         return 0
 
     print(f"\n{GREEN}Ready to read ({len(due)}){RESET}"
-          f"{DIM} — published {a.hours}h+ ago, no number yet{RESET}")
+          f"{DIM} — past their channel's window, no number yet{RESET}")
     for d in due or []:
         age = f"{d['age_hours']}h" if d["age_hours"] is not None else "age unknown"
         print(f"  {d['run_id']:<30} {d['channel']:<12} {DIM}{age}{RESET}  {d['url']}")
@@ -108,9 +129,10 @@ def main() -> int:
         print(f"\n{YELLOW}Too early ({len(early)}){RESET}"
               f"{DIM} — leave these empty, they'll come round{RESET}")
         for d in early:
-            wait = a.hours - (d["age_hours"] or 0)
+            wait = d["threshold_hours"] - (d["age_hours"] or 0)
             print(f"  {d['run_id']:<30} {d['channel']:<12} "
-                  f"{DIM}{d['age_hours']}h — {wait:.0f}h to go{RESET}")
+                  f"{DIM}{d['age_hours']}h — {wait:.0f}h to go "
+                  f"(window {d['threshold_hours']:.0f}h){RESET}")
 
     if unpublished:
         print(f"\n{DIM}Not published yet ({len(unpublished)}): "

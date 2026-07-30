@@ -17,6 +17,11 @@ TODO — pick one and delete the other:
 *Workflows branch on this. It changes the outreach angle, the content format
 and which metric the loop optimises.*
 
+*One brand, one ICP, one voice per workspace — that's the intended shape.
+Two products, two audiences, or two languages? Scaffold a second workspace
+(`scaffold_workspace.py --name growth-de`) and give each its own brand.md,
+rather than blending them here. A blended brief produces blended output.*
+
 ## Who, specifically
 
 TODO

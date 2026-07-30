@@ -1,5 +1,10 @@
 # Preflight — is this machine ready?
 
+**This is the workshop checklist** — deliberately rigid and ordered so a room
+full of different machines reaches the same working state. Do the steps in
+sequence; pick one pathway and set up only that one. (Everywhere else in this
+repo, instructions are defaults you may adapt — here they're steps to follow.)
+
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
 
@@ -45,7 +50,8 @@ If the file appears, you're ready. If it asks for permissions, approve them.
   personal Gmail works
 - **Who you'd reach** — prospects, creators, investors, journalists, partners.
   Bring a list or CRM export if you have one
-- **Three examples** of content you'd like output to resemble
+- **Three examples** of content you'd like output to resemble — inspiration
+  material for finding ideas on the day; the workflows don't ingest them
 - **What you sell**, and the promise you make
 - **The one number that matters** — replies, signups, demos
 
@@ -66,16 +72,20 @@ Useful if you have them:
 - **GA4 login**
 
 **No website yet?** The workflow builds an Astro site in `workflows/site/`.
-You'll need a **Cloudflare Pages** or **Railway** account to deploy. Or bring
+You can use a **Cloudflare Pages** or **Railway** account to deploy. Or bring
 your CMS login / GitHub access for a code-based site.
 
 ### B. Social (`engine-linkedin`)
 
-Be signed in to **LinkedIn and/or X in your browser**. Manual posting is the
-default. No API keys.
+Be signed in to **LinkedIn and/or X in your browser** — no API keys needed
+for those.
 
-Instagram? You'll want Upload Post (see video below). Schedulers:
-[posting-options.md](posting-options.md).
+**Bluesky?** Create an **app password** before the session — bsky.app →
+Settings → Privacy and Security → App Passwords (format `xxxx-xxxx-xxxx-xxxx`).
+Never use your account password. It goes in `config/.env` as `BSKY_HANDLE`
+and `BSKY_APP_PASSWORD`.
+
+Posting mode — manual, Upload Post, or Buffer: [posting-options.md](posting-options.md).
 
 ### C. Short-form video (`engine-video`)
 

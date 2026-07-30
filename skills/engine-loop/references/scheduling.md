@@ -12,7 +12,7 @@ Be clear about this before wiring anything up, because it decides which kind of 
 |---|---|---|
 | Score experiments | **yes** | reads `runs/index.csv`, pure arithmetic |
 | Render the report | **yes** | same |
-| List what's owed a number | **yes** | `due_metrics.py` checks the 72h rule |
+| List what's owed a number | **yes** | `due_metrics.py` checks each channel's window (72h default) |
 | **Read numbers off TikTok / LinkedIn / Instagram / X** | **no** | needs a logged-in browser, which needs an agent |
 | Write a challenger template | **no** | needs judgement |
 | Generate next week's inputs | **no** | same |
@@ -64,7 +64,7 @@ launchctl start com.gtm-engine.weekly     # test it now
 tail /tmp/gtm-engine-weekly.log
 ```
 
-Absolute paths only — launchd has almost no environment.
+Absolute paths only — launchd has almost no environment, so `~` won't expand. Replace `/Users/YOU/...` with the output of `echo $HOME` plus your real paths before loading.
 
 ### Linux: cron
 
@@ -78,7 +78,7 @@ Absolute paths only — launchd has almost no environment.
 
 This is the one that actually closes the loop, because it can open a browser and read the numbers.
 
-Claude Code runs headlessly with `-p`:
+The contract: **any coding agent that can run headlessly on a schedule, read the installed skills, and drive a logged-in browser.** Claude Code's headless mode (`claude -p`) is the worked example below; other agents have equivalents — swap the invocation, keep the prompt:
 
 ```bash
 cd /path/to/your-project && claude -p "$(cat <<'EOF'
@@ -88,7 +88,7 @@ Run the engine-loop weekly cycle for this workspace.
 2. For each run it lists as READY: fetch its number the way its channel
    allows — analytics in the browser for social posts, the Gmail thread for
    outreach — and record it with runlog.py metric and the right --source.
-   Skip anything under 72 hours — leave those for next week.
+   Skip anything due_metrics lists as too early — leave those for next week.
 3. python3 ~/code/gtm-engine/skills/engine-loop/scripts/score_arms.py
 4. For any DECIDED experiment: move the losing template to
    templates/<workflow>/losers/, write a challenger with its hypothesis as a
@@ -122,7 +122,7 @@ Schedule that the same way as shape 1 — same plist, different `ProgramArgument
 
 Order matters: fetch before score, score before report. Reporting on stale numbers produces confident, wrong verdicts.
 
-Daily metric collection isn't about speed — it's that 72-hour-old posts come due on a rolling basis, and a weekly-only job will always have a few that aged past their window and got read late.
+Daily metric collection isn't about speed — it's that runs come due on a rolling basis as they clear their channel's window, and a weekly-only job will always have a few that aged past it and got read late.
 
 ---
 

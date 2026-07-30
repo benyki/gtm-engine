@@ -1,28 +1,28 @@
 # Your workspace
 
-Scaffolded into your own project by `engine-setup`, **scoped to the pathways
+Scaffolded into your own project by `engine-setup`, **scoped to the workflows
 you chose**. Everything in here is yours — the engine repo never touches it, so
 `git pull` can't clobber your data.
 
 ```
 <your-project>/workflows/
-├── skills/                 symlinks for installed pathways only
+├── skills/                 symlinks for installed workflows only
 ├── config/
 │   ├── brand.md            who you are, who you're for, what you'll never say
-│   ├── pathways.json       which pathways this workspace has
+│   ├── pathways.json       which workflows this workspace runs
 │   ├── channels.json       active workflow, primary metric, publish mode
-│   ├── sources.json        sources for your installed pathways
-│   ├── experiments.json    live A/B tests for those pathways
-│   ├── .env.example        key NAMES for those pathways (committed)
+│   ├── sources.json        sources for your installed workflows
+│   ├── experiments.json    live A/B tests for those workflows
+│   ├── .env.example        key NAMES for those workflows (committed)
 │   └── .env                key VALUES (gitignored, never read by your agent)
-├── inputs/                 only folders your pathways use (+ queue/)
+├── inputs/                 only folders your workflows use (+ queue/)
 │   ├── swipe/              content you like          (seo, linkedin)
 │   ├── best/               your best work — voice    (seo, linkedin, video)
 │   ├── audience/           outreach lists            (outreach)
 │   ├── assets/             logo, fonts, b-roll       (video)
 │   └── queue/              next week's ideas         (engine-loop)
 ├── templates/
-│   └── <pathway>/          only the pathways you installed
+│   └── <workflow>/         one folder per installed workflow — add your own freely
 ├── runs/
 │   ├── index.csv           THE SPINE — one row per thing you ever made
 │   └── <run_id>/
@@ -33,7 +33,7 @@ you chose**. Everything in here is yours — the engine repo never touches it, s
     └── crm.csv             outreach only
 ```
 
-Add another pathway later without rebuilding:
+Add another workflow later without rebuilding:
 
 ```bash
 python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
@@ -53,7 +53,7 @@ that compounds: every time you reject something, write down why.
 and the number it earned. Everything `engine-loop` knows, it knows from this
 file. Don't hand-edit it while a run is in progress; use `runlog.py`.
 
-**`templates/<pathway>/`** — the versions competing against each other.
+**`templates/<workflow>/`** — the versions competing against each other.
 Winners stay; losers move to `losers/` and are never deleted, because something
 that lost against one audience often wins against the next.
 

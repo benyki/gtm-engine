@@ -32,35 +32,38 @@ import sys
 from collections import Counter
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from wsfind import find_workspace  # noqa: E402
+
 NORMALISE_TO_BASE = {"", "default", "none", "null"}
 
 
-def find_workspace(explicit: str | None) -> Path:
-    if explicit:
-        p = Path(explicit).expanduser().resolve()
-        if (p / "config").is_dir():
-            return p
-        sys.exit(f"error: no config/ in {p}")
-    for base in (Path.cwd(), *Path.cwd().parents):
-        if (base / "workflows" / "config").is_dir():
-            return base / "workflows"
-        if base == Path.home():
-            break
-    sys.exit("error: no workspace found — pass --workspace")
+def load_experiment(ws: Path, workflow: str,
+                    channel: str = "") -> tuple[dict | None, list[str]]:
+    """The live experiment for this workflow (and channel, when either side
+    names one), plus the ids of any other live candidates that were skipped —
+    silence there would hide a config mistake.
 
-
-def load_experiment(ws: Path, workflow: str) -> dict | None:
+    An experiment may carry an optional "channel" field. That makes concurrent
+    experiments in one workflow legitimate as long as their channels differ —
+    video hooks on tiktok and thumbnails on youtube, say. Pass --channel and
+    the right one is selected; an experiment with no channel matches any."""
     path = ws / "config" / "experiments.json"
     if not path.is_file():
-        return None
+        return None, []
     try:
         data = json.loads(path.read_text())
     except json.JSONDecodeError as e:
         sys.exit(f"error: config/experiments.json is not valid JSON — {e}")
-    for exp in data.get("experiments", []):
-        if exp.get("workflow") == workflow and exp.get("status") == "live":
-            return exp
-    return None
+    live = [exp for exp in data.get("experiments", [])
+            if exp.get("workflow") == workflow and exp.get("status") == "live"]
+    if channel:
+        live = [e for e in live
+                if not (e.get("channel") or "").strip()
+                or e["channel"].strip() == channel]
+    if not live:
+        return None, []
+    return live[0], [e.get("id", "?") for e in live[1:]]
 
 
 def rows(path: Path) -> list[dict]:
@@ -109,17 +112,34 @@ def active_templates(ws: Path, workflow: str) -> list[Path]:
                   if p.is_file() and not p.name.startswith("."))
 
 
+def template_ext(ws: Path, workflow: str, base: str) -> str:
+    """Extension for an implied template name: whatever the base template
+    already uses, else the folder's most common, else .txt. Keeps seo's .md
+    templates from being guessed as .txt."""
+    files = active_templates(ws, workflow)
+    for p in files:
+        if p.stem == base and p.suffix:
+            return p.suffix
+    exts = Counter(p.suffix for p in files if p.suffix)
+    return exts.most_common(1)[0][0] if exts else ".txt"
+
+
 def template_path(ws: Path, workflow: str, arm: dict, base: str) -> Path:
-    name = arm.get("template") or (
-        f"{base}.txt" if arm["id"] in NORMALISE_TO_BASE else f"{base}-{arm['id']}.txt"
-    )
+    name = arm.get("template")
+    if not name:
+        ext = template_ext(ws, workflow, base)
+        name = f"{base}{ext}" if arm["id"] in NORMALISE_TO_BASE else f"{base}-{arm['id']}{ext}"
     return ws / "templates" / workflow / name
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workflow", required=True,
-                    help="outreach | seo | linkedin | video")
+                    help="any workflow name — outreach, seo, linkedin, video, "
+                         "or one of your own")
+    ap.add_argument("--channel", default="",
+                    help="channel this piece is for — selects between "
+                         "channel-scoped experiments in the same workflow")
     ap.add_argument("--entity", default="",
                     help="stable id (email, handle) — keeps them in their arm")
     ap.add_argument("--workspace")
@@ -127,7 +147,15 @@ def main() -> int:
     a = ap.parse_args()
 
     ws = find_workspace(a.workspace)
-    exp = load_experiment(ws, a.workflow)
+    exp, skipped_live = load_experiment(ws, a.workflow, a.channel)
+    if skipped_live:
+        scope = f"'{a.workflow}'" + (f" / channel '{a.channel}'" if a.channel else "")
+        print(f"warning: {len(skipped_live) + 1} live experiments match "
+              f"{scope} — using {exp['id']}, ignoring {', '.join(skipped_live)}. "
+              f"Concurrent experiments are fine when scoped to different "
+              f"channels (set \"channel\" on each and pass --channel); "
+              f"otherwise pause the ones you aren't running.",
+              file=sys.stderr)
 
     if exp is None:
         # No experiment: report what exists and let the agent decide.
@@ -193,6 +221,7 @@ def main() -> int:
 
     out = {
         "experiment_id": exp["id"],
+        "channel": (exp.get("channel") or "").strip(),
         "arm": chosen["id"],
         "label": chosen.get("label", ""),
         "template": str(path),
@@ -200,6 +229,8 @@ def main() -> int:
         "action": "use_template" if exists else "write_template",
         "why": reason,
     }
+    if skipped_live:
+        out["ignored_live_experiments"] = skipped_live
     if not exists:
         # R4 — never block. Tell the agent exactly what to write.
         out["hypothesis"] = chosen.get("hypothesis", "")

@@ -15,20 +15,26 @@ prose and guessing.
 Sections 5 and 6 (proposed changes, next actions) are left for a human or an
 agent to fill in. The script does arithmetic; it does not have opinions.
 
+Re-running in the same ISO week regenerates (overwrites) that week's report —
+that's how the weekly job stays idempotent. To keep more than one report in a
+week — a mid-week check, a per-campaign cut — pass --tag and it gets its own
+slug: weekly-2026-W31-launch.md.
+
 Usage:
-    render_report.py [--days 7] [--workspace PATH]
+    render_report.py [--days 7] [--workspace PATH] [--tag NAME]
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import json
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from score_arms import find_workspace, rows, tally, judge, as_float  # noqa: E402
+from score_arms import find_workspace, rows, tally, judge, outlier_note, as_float  # noqa: E402
 
 NEEDS_HUMAN = "_TODO — an agent or a human fills this in._"
 
@@ -58,16 +64,24 @@ def summarise(runs: list[dict]) -> dict:
     measured = [as_float(r.get("metric_value")) for r in runs]
     measured = [m for m in measured if m is not None]
     by_source: dict[str, int] = {}
+    by_metric: dict[str, dict] = {}
     for r in runs:
         if (r.get("metric_value") or "").strip():
             s = (r.get("metric_source") or "?").strip() or "?"
             by_source[s] = by_source.get(s, 0) + 1
+            val = as_float(r.get("metric_value"))
+            if val is not None:
+                name = (r.get("primary_metric") or "?").strip() or "?"
+                slot = by_metric.setdefault(name, {"total": 0.0, "measured": 0})
+                slot["total"] = round(slot["total"] + val, 2)
+                slot["measured"] += 1
     return {
         "runs": len(runs),
         "measured": len(measured),
         "total": round(sum(measured), 2),
         "mean": round(sum(measured) / len(measured), 2) if measured else 0.0,
         "by_source": by_source,
+        "by_metric": by_metric,
     }
 
 
@@ -75,6 +89,8 @@ def counts(runs: list[dict], key: str) -> dict:
     out: dict[str, int] = {}
     for r in runs:
         k = (r.get(key) or "").strip() or "—"
+        if key == "skill" and k.startswith("engine-"):
+            k = k[len("engine-"):]   # older rows stored the skill name
         out[k] = out.get(k, 0) + 1
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
@@ -83,6 +99,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--workspace")
     ap.add_argument("--days", type=int, default=7)
+    ap.add_argument("--tag", default="",
+                    help="suffix for the report slug — a second report in the "
+                         "same week overwrites the first unless it has one")
     a = ap.parse_args()
 
     ws = find_workspace(a.workspace)
@@ -115,14 +134,21 @@ def main() -> int:
                 continue
             min_runs = int(exp.get("min_runs_per_arm", 15))
             ratio = float(exp.get("win_ratio", 1.2))
+            direction = exp.get("direction", "up")
+            aggregate = exp.get("aggregate", "mean")
             cohort = tally(runs, exp["id"], True, exp.get("started", ""))
-            verdict, why = judge(cohort, min_runs, ratio)
+            verdict, why = judge(cohort, min_runs, ratio, direction, aggregate)
             experiments.append({
                 "id": exp["id"], "workflow": exp.get("workflow", ""),
+                "channel": (exp.get("channel") or "").strip(),
                 "variable": exp.get("variable", ""), "verdict": verdict, "why": why,
                 "min_runs_per_arm": min_runs, "win_ratio": ratio,
+                "direction": direction, "aggregate": aggregate,
+                "caution": outlier_note(cohort, aggregate),
                 "arms": {k: {"runs": v["n"], "measured": v["measured"],
-                             "mean": round(v["mean"], 2)} for k, v in cohort.items()},
+                             "mean": round(v["mean"], 2),
+                             "median": round(v["median"], 2)}
+                         for k, v in cohort.items()},
             })
 
     awaiting = sum(1 for r in runs
@@ -131,6 +157,8 @@ def main() -> int:
 
     iso = now.isocalendar()
     slug = f"weekly-{iso[0]}-W{iso[1]:02d}"
+    if a.tag.strip():
+        slug += "-" + re.sub(r"[^A-Za-z0-9_-]+", "-", a.tag.strip()).strip("-")
 
     data = {
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
@@ -179,6 +207,11 @@ def main() -> int:
               f"| measured runs | {this_sum['measured']}/{this_sum['runs']} | "
               f"{prev_sum['measured']}/{prev_sum['runs']} |", "",
               f"{arrow} {abs(round(delta, 2))} vs previous period."]
+        if len(this_sum["by_metric"]) > 1:
+            L += ["", "> Runs this period recorded **different metrics** — the "
+                      "totals above mix them and should not be read as one number:"]
+            L += [f"> - {name}: {s['total']} across {s['measured']} runs"
+                  for name, s in this_sum["by_metric"].items()]
         if this_sum["by_source"]:
             src = ", ".join(f"{k}: {v}" for k, v in this_sum["by_source"].items())
             L += ["", f"Sources: {src}."]
@@ -190,18 +223,24 @@ def main() -> int:
 
     if awaiting:
         L += ["", f"`{awaiting}` published runs are still waiting on a number "
-                  f"— run `due_metrics.py` to see which are past 72h."]
+                  f"— run `due_metrics.py` to see which are past their window."]
 
     L += ["", "## 4. Experiments", ""]
     if experiments:
         for e in experiments:
-            L += [f"### {e['id']} — {e['workflow']} · {e['variable']}", ""]
+            scope = f" · {e['channel']}" if e["channel"] else ""
+            L += [f"### {e['id']} — {e['workflow']}{scope} · {e['variable']}", ""]
             if e["arms"]:
-                L += ["| arm | runs | measured | mean |", "|---|---|---|---|"]
-                for arm, s in sorted(e["arms"].items(), key=lambda kv: -kv[1]["mean"]):
-                    L.append(f"| {arm} | {s['runs']} | {s['measured']} | {s['mean']} |")
+                L += ["| arm | runs | measured | mean | median |", "|---|---|---|---|---|"]
+                better = 1 if e["direction"] == "down" else -1
+                key = "median" if e["aggregate"] == "median" else "mean"
+                for arm, s in sorted(e["arms"].items(), key=lambda kv: better * kv[1][key]):
+                    L.append(f"| {arm} | {s['runs']} | {s['measured']} | "
+                             f"{s['mean']} | {s['median']} |")
                 L.append("")
             L += [f"**{e['verdict']}** — {e['why']}", ""]
+            if e["caution"]:
+                L += [f"> {e['caution']}", ""]
     else:
         L.append("_No live experiments._")
 

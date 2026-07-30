@@ -58,7 +58,12 @@ markdown, deployed on push. All free at this size:
 
 ### engine-linkedin
 
-Nothing required if you post manually, which is the default.
+Nothing required for LinkedIn and X — you post from your own logged-in browser.
+Posting mode (manual, Upload Post, Buffer): [posting-options.md](posting-options.md).
+
+| What | Where | Notes |
+|---|---|---|
+| **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `config/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
 
 ### engine-video
 
@@ -152,10 +157,12 @@ first, then paste your own keys in — never into a chat window.
 
 | Environment variable | Get it from | Needed for |
 |---|---|---|
+| `BSKY_HANDLE` / `BSKY_APP_PASSWORD` | <https://bsky.app> → Settings → App Passwords | engine-linkedin (Bluesky only) |
 | `PEXELS_API_KEY` | <https://www.pexels.com/api/> | engine-video |
 | `ELEVENLABS_API_KEY` | <https://elevenlabs.io> → API Keys | engine-video |
 | `UPLOADPOST_API_KEY` | <https://www.upload-post.com/> → dashboard | posting (optional) |
 | `BUFFER_ACCESS_TOKEN` | <https://developers.buffer.com> | posting (optional) |
+| `RESEND_API_KEY` | <https://resend.com> → API Keys | engine-outreach (optional, advanced) |
 | `AHREFS_API_KEY` | <https://ahrefs.com/api> | engine-seo (optional) |
 | `SEMRUSH_API_KEY` | <https://www.semrush.com/api-documentation/> | engine-seo (optional) |
 | `APIFY_API_TOKEN` | <https://console.apify.com> → Integrations | engine-loop (optional) |
