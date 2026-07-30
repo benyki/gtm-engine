@@ -1,8 +1,8 @@
 # Architecture & Layered Build Guide
 
-If an existing vidwatch repo is reachable on the current machine (look for a
-`vidwatch/` folder under the user's code directory), copy files from it and adapt;
-when it isn't, this document is enough to rebuild from scratch.
+If the user already has a working vidwatch-style app to adapt, copy from that and
+diff against this guide; when they don't, this document is enough to rebuild from
+scratch.
 
 ## Stack
 
@@ -24,7 +24,7 @@ app/
       shell.ts               ←   reveal / open / openExternal / clipboard
     services/                ← pure logic, no Electron imports except app.getPath
       config.ts              ←   [NEW in ports] load + validate vidwatch.config.json
-      registry.ts            ←   named sources (reads config; original hardcodes)
+      registry.ts            ←   named sources (reads config; never hardcode paths)
       scanner.ts             ←   THE CORE: discovery + metadata + the join → Overview
       ledger.ts              ←   posting-ledger reader (path/stem indexed)
       availability.ts        ←   liveness + metrics cache (see platforms.md)

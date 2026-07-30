@@ -10,7 +10,9 @@ Read this after a month of real runs, not on day one. Each section starts with t
 
 Once you've tuned these templates to your product, they're the accumulated record of what works for you. Losing them to a wiped machine loses months.
 
-Fork this repo, make it yours, and every machine you own pulls the same set. The install pattern already supports it — workflows are symlinked from the clone into your agent's skills directory, so `git pull` updates all of them at once.
+Fork this repo, make it yours, and every machine you own pulls the same set.
+Re-run `install_skills.sh` after `git pull` — it copies the selected skills into
+`~/.agents/skills/` and refreshes the agent / workspace symlinks.
 
 Keep your **workspace** in a separate private repo. It holds your CRM and your numbers, and it should never be public.
 

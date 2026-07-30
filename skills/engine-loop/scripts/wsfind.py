@@ -2,9 +2,9 @@
 """Find the workspace. One implementation, imported by every loop script.
 
 A workspace is recognised by its marker files, not by its folder name:
-config/pathways.json (written by the scaffold) or config/channels.json.
-`workflows/` is only the default name — a workspace called growth/ or
-marketing/ works the same.
+config/workflows.json (written by the scaffold; legacy: pathways.json) or
+config/channels.json. `workflows/` is only the default name — a workspace
+called growth/ or marketing/ works the same.
 
 Resolution order:
   1. --workspace flag (explicit always wins)
@@ -19,7 +19,11 @@ import os
 import sys
 from pathlib import Path
 
-MARKERS = ("config/pathways.json", "config/channels.json")
+MARKERS = (
+    "config/workflows.json",
+    "config/pathways.json",  # legacy
+    "config/channels.json",
+)
 
 
 def is_workspace(p: Path) -> bool:

@@ -1,9 +1,8 @@
 # The Config Contract
 
-The original vidwatch hardcodes its machine's layout in `app/main/services/registry.ts`.
-When building for a new machine, **do not copy those paths** — implement this config
-file instead and make `registry.ts` read it. Everything machine-specific lives in one
-JSON file; the code stays portable.
+Do not hardcode machine paths in `app/main/services/registry.ts`. Put everything
+machine-specific in one config file and make `registry.ts` read it so the code
+stays portable.
 
 ## Location
 
@@ -43,7 +42,7 @@ Every field except `videosRoot` has a default. A minimal config is one line.
 
   // ── Layer 3: ledger (optional) ──────────────────────────────────────────
   "ledger": {
-    "path": "~/.agents/runs/posts.jsonl",    // null → layer 3 off, mtime fallback
+    "path": "/path/to/your/posts.jsonl",     // null → layer 3 off, mtime fallback
     "format": "jsonl",                       // jsonl | json-array | csv
     "fields": {                              // map YOUR ledger's field names onto
       "file": "file_archived",               // vidwatch's canonical ones. Only "file"
@@ -83,12 +82,12 @@ Every field except `videosRoot` has a default. A minimal config is one line.
   // disk but not listed here still appears, labeled "unlinked".
   "sources": [
     {
-      "id": "learn-words-fr",
-      "publishedRel": "learn-words/final/published",  // relative to videosRoot
-      "label": "Learn Words · French",
-      "format": "learn-words",
-      "language": "French",
-      "account": "mybrand.fr",               // fallback when ledger has no account
+      "id": "series-a",
+      "publishedRel": "series-a/published",  // relative to videosRoot
+      "label": "Series A",
+      "format": "default",
+      "language": "English",
+      "account": "your-account",             // fallback when ledger has no account
       "pipeline": "upload-post"
     }
   ]
@@ -111,15 +110,15 @@ Every field except `videosRoot` has a default. A minimal config is one line.
 
 ## Worked examples
 
-### A. The original setup (multi-format agent pipeline)
+### A. Ledger + published marker
 
 ```json
 {
-  "videosRoot": "/path/to/project/world/videos",
-  "ledger": { "path": "~/.agents/runs/posts.jsonl", "format": "jsonl" }
+  "videosRoot": "/path/to/your/videos",
+  "ledger": { "path": "/path/to/your/posts.jsonl", "format": "jsonl" }
 }
 ```
-Everything else is defaults — the defaults *are* the original's conventions.
+Everything else can stay at defaults until you need named sources or extra platforms.
 
 ### B. Flat folder, no pipeline, no ledger
 

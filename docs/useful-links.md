@@ -58,8 +58,8 @@ markdown, deployed on push. All free at this size:
 
 ### engine-linkedin
 
-Nothing required for LinkedIn and X — you post from your own logged-in browser.
-Posting mode (manual, Upload Post, Buffer): [posting-options.md](posting-options.md).
+Nothing required for LinkedIn and X — draft in the agent, post from your own
+logged-in browser. Bluesky uses its API (app password), not a scheduler.
 
 | What | Where | Notes |
 |---|---|---|
@@ -74,7 +74,10 @@ Posting mode (manual, Upload Post, Buffer): [posting-options.md](posting-options
 | **ElevenLabs** | <https://elevenlabs.io> | Sign in → profile menu → **API Keys** | free tier |
 | **CapCut** *(optional)* | <https://www.capcut.com> | n/a | free |
 
-### Posting (optional — manual needs nothing)
+Video posting options (manual / Upload Post / Buffer):
+[engine-video/references/posting-options.md](../skills/engine-video/references/posting-options.md).
+
+### Posting for video (optional — manual needs nothing)
 
 | What | Where | Getting the key | Cost |
 |---|---|---|---|
@@ -107,6 +110,19 @@ the reference that explains when it's worth it.
 | Cloudflare R2 *(no egress fees)* | <https://developers.cloudflare.com/r2/> |
 | AWS S3 | <https://aws.amazon.com/s3/> |
 | Tailscale | <https://tailscale.com> |
+
+### Additional skills (optional toolbox)
+
+Not part of the default gtm-engine install. Download from
+[`benyki/skills`](https://github.com/benyki/skills) **into** `~/.agents/skills/<name>`,
+then symlink to Claude / Codex / Cursor — full steps in
+[additional-skills.md](additional-skills.md).
+
+| What | Where |
+|---|---|
+| Skills repo | <https://github.com/benyki/skills> |
+| Example skill | <https://github.com/benyki/skills/tree/main/ffmpeg> |
+| Canonical install path | `~/.agents/skills/<skill-name>/` |
 
 ### Email at volume — `engine-outreach/references/advanced.md`
 

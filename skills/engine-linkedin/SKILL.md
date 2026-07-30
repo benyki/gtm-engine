@@ -1,6 +1,6 @@
 ---
 name: engine-linkedin
-description: Writes LinkedIn, X and Bluesky posts in the user's own voice, learned from their best-performing work, with the A/B arm assigned and the run logged. Posting is the user's choice of manual, Upload Post, or Buffer (see docs/posting-options.md); Bluesky can post via its own API. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social workflow", "turn this into a post", or asks for short-form written content.
+description: Writes LinkedIn, X and Bluesky posts in the user's own voice, learned from their best-performing work, with the A/B arm assigned and the run logged. LinkedIn and X post from the user's browser; Bluesky posts via its AT Protocol API after approval. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social workflow", "turn this into a post", or asks for short-form written content.
 ---
 
 # engine-linkedin
@@ -62,13 +62,18 @@ One run per post. That's what makes the arm comparison work.
 
 ### 5. Publish
 
-Posting mode is the user's choice per channel — manual, Upload Post, or Buffer; `docs/posting-options.md` has the comparison. With manual, the user posts it themselves, then:
+**LinkedIn and X** — the user posts from their logged-in browser (you hand them
+the draft). Then record the URL:
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
 ```
 
-The URL is needed to read the numbers back later. If they use Upload Post or Buffer, see `docs/posting-options.md`.
+**Bluesky** — post via the AT Protocol API after explicit per-post approval
+(see below). Schedulers (Upload Post / Buffer) are a video concern; see
+`engine-video/references/posting-options.md` if you later want them for text too.
+
+The URL is needed to read the numbers back later.
 
 ## Bluesky
 

@@ -1,7 +1,11 @@
 # Posting: manual, Upload Post, or Buffer
 
-Choose one per channel and set `publish` in `config/channels.json`. The
-comparison below is the decision; each option's details follow.
+Primarily for **`engine-video`**. Choose one per channel and set `publish` in
+`config/channels.json`. The comparison below is the decision; each option's
+details follow.
+
+LinkedIn / X text posts use the user's browser; Bluesky uses its own API — see
+`engine-linkedin`. These schedulers are optional there.
 
 These are the three documented options, not a closed list — the `publish`
 field in `channels.json` is advisory, and any scheduler you already use fits
@@ -9,8 +13,7 @@ as long as the contract holds: a human approves before anything goes live,
 and the URL gets recorded. Platforms with an open posting API (e.g. Bluesky —
 see `engine-linkedin`) can skip the scheduler entirely. And for platforms
 whose APIs won't post what you need at all, there's device posting via
-mobilerun — see `skills/engine-video/references/advanced.md`, account-risk
-section first.
+mobilerun — see `references/advanced.md`, account-risk section first.
 
 | | **Manual** | **Upload Post** | **Buffer** |
 |---|---|---|---|

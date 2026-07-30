@@ -23,7 +23,7 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-import pathways as pw  # noqa: E402
+import workflows as wf  # noqa: E402
 
 REPO_ROOT = _HERE.parents[2]
 
@@ -86,12 +86,9 @@ def check_machine() -> None:
 def _skill_names(ws: Path | None = None) -> list[str]:
     """Skills we expect to be installed for this machine / workspace."""
     if ws is not None:
-        return pw.skills_for(pw.read_installed(ws))
-    root = REPO_ROOT / "skills"
-    if not root.is_dir():
-        return list(pw.ALWAYS_SKILLS)
+        return wf.skills_for(wf.read_workflows(ws))
     # No workspace yet — only require the always-on pair, not every workflow.
-    return list(pw.ALWAYS_SKILLS)
+    return list(wf.CORE_SKILLS)
 
 
 def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bool:
@@ -131,7 +128,8 @@ def check_install(ws: Path | None = None) -> None:
 
     agent_homes = [
         Path.home() / ".claude/skills",
-        Path.home() / ".openclaw/skills",
+        Path.home() / ".codex/skills",
+        Path.home() / ".cursor/skills",
     ]
     # Same extension point as install_skills.sh — extra agent skill dirs.
     for extra in (os.environ.get("GTM_AGENT_DIRS") or "").split(":"):
@@ -144,18 +142,22 @@ def check_install(ws: Path | None = None) -> None:
         if _check_skill_dir(d, names):
             found_agent = True
 
-    for d, note in (
-        (Path.home() / ".codex/skills", "Codex reads ~/.agents/skills — these do nothing"),
-        (Path.home() / ".cursor/skills", "redundant; Cursor reads ~/.agents/skills"),
-    ):
-        stale = [n for n in available if (d / n).is_symlink()]
-        if stale:
-            add("warn", f"Legacy links in {str(d).replace(str(Path.home()), '~')}",
-                f"{len(stale)} from an older install — {note}")
-
     if ws is not None:
-        _check_skill_dir(ws / "skills", names, required=True)
-        installed = pw.read_installed(ws)
+        ws_skills = ws / "skills"
+        canon = Path.home() / ".agents/skills"
+        if ws_skills.is_symlink():
+            try:
+                target = ws_skills.resolve()
+                if target == canon.resolve():
+                    add("pass", "  workspace/skills → ~/.agents/skills")
+                else:
+                    add("warn", "  workspace/skills",
+                        f"points at {target}, expected ~/.agents/skills")
+            except OSError:
+                add("warn", "  workspace/skills", "broken symlink")
+        else:
+            _check_skill_dir(ws_skills, names, required=True)
+        installed = wf.read_workflows(ws)
         add("pass", f"  workflows: {', '.join(installed)}")
 
     if not canon_ok and not found_agent:
@@ -177,8 +179,8 @@ def check_tools(active: str) -> None:
 # --- workspace -------------------------------------------------------------
 
 def find_workspace(explicit: str | None) -> Path | None:
-    """Markers (config/pathways.json, config/channels.json) identify a
-    workspace — 'workflows' is only the default folder name."""
+    """Markers (config/workflows.json, legacy pathways.json, channels.json)
+    identify a workspace — 'workflows' is only the default folder name."""
     if explicit:
         p = Path(explicit).expanduser().resolve()
         return p if p.is_dir() else None
@@ -188,8 +190,10 @@ def find_workspace(explicit: str | None) -> Path | None:
         return p if p.is_dir() else None
 
     def marked(p: Path) -> bool:
-        return (p / "config" / "pathways.json").is_file() \
-            or (p / "config" / "channels.json").is_file()
+        cfg = p / "config"
+        return (cfg / "workflows.json").is_file() \
+            or (cfg / "pathways.json").is_file() \
+            or (cfg / "channels.json").is_file()
 
     for base in (Path.cwd(), *Path.cwd().parents):
         if marked(base):
@@ -219,15 +223,11 @@ def check_workspace(ws: Path | None) -> str:
     for rel in ("config", "inputs", "runs", "reports", "state", "templates"):
         add("pass" if (ws / rel).is_dir() else "fail", f"  {rel}/")
 
-    installed = pw.read_installed(ws)
-    for wf in installed:
-        tdir = ws / "templates" / wf
-        add("pass" if tdir.is_dir() else "fail", f"  templates/{wf}/",
-            "" if tdir.is_dir() else "re-run scaffold with --workflow " + wf)
-    if "outreach" in installed:
-        crm = ws / "state" / "crm.csv"
-        add("pass" if crm.is_file() else "fail", "  state/crm.csv",
-            "" if crm.is_file() else "needed for outreach")
+    installed = wf.read_workflows(ws)
+    for name in installed:
+        tdir = ws / "templates" / name
+        add("pass" if tdir.is_dir() else "warn", f"  templates/{name}/",
+            "" if tdir.is_dir() else "create it, or re-run scaffold --merge --workflow " + name)
 
     # brand.md filled in?
     brand = ws / "config" / "brand.md"

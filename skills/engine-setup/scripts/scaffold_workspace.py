@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""Create a gtm-engine workspace inside your project — scoped to the workflows
-you actually run.
+"""Create a gtm-engine workspace inside your project.
 
 Usage:
     scaffold_workspace.py [project_dir] --workflow seo
@@ -10,13 +9,11 @@ Usage:
     scaffold_workspace.py . --workflow video --merge
 
     project_dir   where to create it (default: current directory)
-    --workflow    required. Built-ins (seo, linkedin, video, outreach) come
-                  with a dedicated skill and starter templates; 'all' means
-                  all built-ins. ANY other name is a custom workflow: it gets
-                  templates/<name>/ plus the shared loop files, and
-                  engine-loop runs it through the same three traces —
-                  register its experiments in config/experiments.json and
-                  add its channel to config/channels.json yourself
+    --workflow    required. Names that already have skills/engine-N or a
+                  starter template under templates/workspace/templates/N are
+                  discovered automatically via `workflows.py list`. Any other
+                  name is fine too — you get templates/<name>/ plus the shared
+                  loop files; the agent fills in the rest.
     --merge       fill in missing files in an existing workspace
                   (never overwrites anything that already exists)
     --name        workspace folder name (default: workflows). Use a second
@@ -33,10 +30,29 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-import pathways as pw  # noqa: E402
+import workflows as wf  # noqa: E402
 
 REPO_ROOT = _HERE.parents[2]
 TEMPLATE = REPO_ROOT / "templates" / "workspace"
+
+# Shared spine — always created. Config files are copied whole; the agent
+# trims what this brand doesn't need. No per-workflow path registry.
+SHARED = (
+    "config/brand.md",
+    "config/channels.json",
+    "config/sources.json",
+    "config/experiments.json",
+    "config/.env.example",
+    "runs/index.csv",
+    "reports/.gitkeep",
+    "inputs/queue/.gitkeep",
+    "inputs/best/.gitkeep",
+    "inputs/swipe/.gitkeep",
+    "inputs/assets/.gitkeep",
+    "inputs/audience/.gitkeep",
+    "state/published.csv",
+    "state/crm.csv",
+)
 
 
 def copy_path(src: Path, dst: Path, merge: bool) -> tuple[int, int]:
@@ -66,56 +82,19 @@ def copy_path(src: Path, dst: Path, merge: bool) -> tuple[int, int]:
     return 1, 0
 
 
-def write_json(path: Path, data: dict, *, merge: bool) -> tuple[int, int]:
-    if path.exists() and merge:
-        return 0, 1
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(data, indent=2) + "\n")
-    return 1, 0
+def ensure_gitkeep_dir(path: Path) -> bool:
+    path.mkdir(parents=True, exist_ok=True)
+    keep = path / ".gitkeep"
+    if keep.exists():
+        return False
+    keep.write_text("")
+    return True
 
 
-def merge_sources(existing: dict, template: dict, workflows: list[str]) -> dict:
-    out = dict(existing)
-    filtered = pw.filter_sources(template, workflows)
-    for k, v in filtered.items():
-        if k not in out:
-            out[k] = v
-    return out
-
-
-def merge_experiments(existing: dict, template: dict, workflows: list[str]) -> dict:
-    out = dict(existing)
-    have = {e.get("id") for e in out.get("experiments", [])}
-    extras = [
-        e for e in pw.filter_experiments(template, workflows).get("experiments", [])
-        if e.get("id") not in have
-    ]
-    if extras:
-        out["experiments"] = list(out.get("experiments", [])) + extras
-    return out
-
-
-def merge_channels(existing: dict, workflows: list[str]) -> dict:
-    """Enable channels for newly added workflows; keep active_workflow if set."""
-    out = dict(existing)
-    channels = dict(out.get("channels") or {})
-    wanted = set()
-    for wf in workflows:
-        wanted.update(pw.pathway_for(wf)["channels"])
-    for name in wanted:
-        if name not in channels:
-            continue
-        cfg = dict(channels[name])
-        cfg["enabled"] = True
-        channels[name] = cfg
-    out["channels"] = channels
+def set_active_workflow(channels: dict, name: str) -> dict:
+    out = dict(channels)
     if not (out.get("active_workflow") or "").strip():
-        out["active_workflow"] = workflows[0]
-    # Add video block from template if video was just added and missing.
-    if "video" in workflows and "video" not in out:
-        tmpl = json.loads((TEMPLATE / "config/channels.json").read_text())
-        if "video" in tmpl:
-            out["video"] = tmpl["video"]
+        out["active_workflow"] = name
     return out
 
 
@@ -127,8 +106,7 @@ def main() -> int:
     ap.add_argument("project_dir", nargs="?", default=".")
     ap.add_argument(
         "--workflow", "-w", required=True,
-        help="built-ins: seo, linkedin, video, outreach (comma-separated), "
-             "or all — any other name scaffolds a custom workflow",
+        help="workflow name(s), comma-separated, or 'all' for every known one",
     )
     ap.add_argument("--name", default="workflows",
                     help="workspace folder name (default: workflows) — "
@@ -138,7 +116,7 @@ def main() -> int:
     a = ap.parse_args()
 
     try:
-        workflows = pw.parse_workflows(a.workflow)
+        workflows = wf.parse_workflows(a.workflow)
     except ValueError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
@@ -163,36 +141,52 @@ def main() -> int:
         print(f"  --name workflows2  scaffold alongside it\n")
         return 1
 
-    custom = [wf for wf in workflows if pw.is_custom(wf)]
+    known = set(wf.list_known())
+    custom = [name for name in workflows if name not in known]
 
     print(f"\nCreating workspace: {dest}")
     print(f"  workflows: {', '.join(workflows)}")
-    for wf in custom:
-        print(f"  note: '{wf}' is a custom workflow — templates/{wf}/ is created "
-              f"empty. Write its templates, register its experiments in "
-              f"config/experiments.json, and add its channel(s) to "
-              f"config/channels.json. engine-loop handles the rest.")
+    for name in custom:
+        print(f"  note: '{name}' has no shipped skill/template — "
+              f"templates/{name}/ is created empty. Write templates, "
+              f"register experiments, enable channels; engine-loop handles "
+              f"the scoring.")
     print()
 
     created = skipped = 0
-    special = {
-        "config/channels.json",
-        "config/sources.json",
-        "config/experiments.json",
-        "config/.env.example",
-    }
 
-    for rel in pw.paths_for(workflows):
-        if rel in special:
-            continue
+    for rel in SHARED:
         src = TEMPLATE / rel
+        dst = dest / rel
         if not src.exists():
             if rel.endswith("/.gitkeep"):
-                (dest / Path(rel).parent).mkdir(parents=True, exist_ok=True)
+                if ensure_gitkeep_dir(dest / Path(rel).parent):
+                    created += 1
+                    print(f"  + {Path(rel).parent}/")
                 continue
             print(f"  ! missing in template: {rel}", file=sys.stderr)
             continue
-        dst = dest / rel
+
+        if rel == "config/channels.json":
+            if dst.exists() and a.merge:
+                data = set_active_workflow(
+                    json.loads(dst.read_text()), workflows[0],
+                )
+                dst.write_text(json.dumps(data, indent=2) + "\n")
+                print("  ~ config/channels.json  (active_workflow if empty)")
+                continue
+            data = set_active_workflow(
+                json.loads(src.read_text()), workflows[0],
+            )
+            if dst.exists():
+                skipped += 1
+            else:
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                dst.write_text(json.dumps(data, indent=2) + "\n")
+                created += 1
+                print(f"  + config/channels.json  (active_workflow={workflows[0]})")
+            continue
+
         c, s = copy_path(src, dst, a.merge)
         created += c
         skipped += s
@@ -201,78 +195,30 @@ def main() -> int:
         elif s and not a.merge:
             print(f"  = {rel} (kept yours)")
 
-    # Record workflows first so filtered config covers the full installed set.
-    before = (
-        set(pw.read_installed(dest))
-        if (dest / "config/pathways.json").exists()
-        else set()
-    )
-    pw.write_installed(dest, workflows)
-    installed = pw.read_installed(dest)
-    if set(installed) != before:
+    # Per-workflow template folder — copy starter if we have one, else empty.
+    for name in workflows:
+        src = TEMPLATE / "templates" / name
+        dst = dest / "templates" / name
+        if src.is_dir():
+            c, s = copy_path(src, dst, a.merge)
+            created += c
+            skipped += s
+            if c:
+                print(f"  + templates/{name}/")
+            elif s and not a.merge:
+                print(f"  = templates/{name}/ (kept yours)")
+        elif ensure_gitkeep_dir(dst):
+            created += 1
+            print(f"  + templates/{name}/")
+
+    marker_before = (dest / "config" / wf.MARKER_NEW).is_file() \
+        or (dest / "config" / wf.MARKER_OLD).is_file()
+    before = set(wf.read_workflows(dest)) if marker_before else set()
+    wf.write_workflows(dest, workflows)
+    installed = wf.read_workflows(dest)
+    if set(installed) != before or not marker_before:
         created += 1
-        print(f"  + config/pathways.json  ({', '.join(installed)})")
-
-    # Config — create fresh, or merge workflow pieces into an existing workspace.
-    tmpl_channels = json.loads((TEMPLATE / "config/channels.json").read_text())
-    tmpl_sources = json.loads((TEMPLATE / "config/sources.json").read_text())
-    tmpl_experiments = json.loads((TEMPLATE / "config/experiments.json").read_text())
-
-    ch_path = dest / "config/channels.json"
-    if ch_path.exists() and a.merge:
-        data = merge_channels(json.loads(ch_path.read_text()), workflows)
-        ch_path.write_text(json.dumps(data, indent=2) + "\n")
-        print("  ~ config/channels.json  (enabled new workflow channels)")
-    else:
-        c, s = write_json(
-            ch_path, pw.patch_channels(tmpl_channels, workflows), merge=False,
-        )
-        created += c
-        skipped += s
-        if c:
-            print(f"  + config/channels.json  (active_workflow={workflows[0]})")
-
-    src_path = dest / "config/sources.json"
-    if src_path.exists() and a.merge:
-        data = merge_sources(json.loads(src_path.read_text()), tmpl_sources, workflows)
-        src_path.write_text(json.dumps(data, indent=2) + "\n")
-        print("  ~ config/sources.json")
-    else:
-        c, s = write_json(
-            src_path, pw.filter_sources(tmpl_sources, workflows), merge=False,
-        )
-        created += c
-        skipped += s
-        if c:
-            print("  + config/sources.json")
-
-    exp_path = dest / "config/experiments.json"
-    if exp_path.exists() and a.merge:
-        data = merge_experiments(
-            json.loads(exp_path.read_text()), tmpl_experiments, workflows,
-        )
-        exp_path.write_text(json.dumps(data, indent=2) + "\n")
-        print("  ~ config/experiments.json")
-    else:
-        c, s = write_json(
-            exp_path, pw.filter_experiments(tmpl_experiments, workflows), merge=False,
-        )
-        created += c
-        skipped += s
-        if c:
-            print("  + config/experiments.json")
-
-    # .env.example is always regenerated from the full installed set — names only.
-    env_text = pw.render_env_example(installed)
-    env_path = dest / "config/.env.example"
-    prev = env_path.read_text() if env_path.exists() else None
-    env_path.parent.mkdir(parents=True, exist_ok=True)
-    env_path.write_text(env_text)
-    if prev is None:
-        created += 1
-        print("  + config/.env.example")
-    elif prev != env_text:
-        print("  ~ config/.env.example  (keys for installed workflows)")
+        print(f"  + config/workflows.json  ({', '.join(installed)})")
 
     gitignore = dest / ".gitignore"
     if not gitignore.exists():
@@ -281,7 +227,7 @@ def main() -> int:
             "config/.env\n"
             ".env\n"
             "*.local\n"
-            "\n# skill symlinks — recreated by install_skills.sh --workspace\n"
+            "\n# skills/ is a symlink to ~/.agents/skills — recreated by install_skills.sh\n"
             "skills/\n"
             "\n# build junk — site/ appears if engine-seo scaffolds you a website\n"
             "site/node_modules/\n"
@@ -297,11 +243,11 @@ def main() -> int:
         created += 1
         print("  + .gitignore")
 
-    skills = pw.skills_for(installed)
+    skills = wf.skills_for(installed)
     print(f"\n  {created} files created" + (f", {skipped} left alone" if skipped else ""))
     print(f"""
 Next:
-  1. Install only the skills for these workflows:
+  1. Install skills for these workflows:
        {REPO_ROOT}/skills/engine-setup/scripts/install_skills.sh \\
          --workspace {dest} --workflow {','.join(installed)}
      (skills: {', '.join(skills)})

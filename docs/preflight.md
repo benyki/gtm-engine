@@ -2,13 +2,13 @@
 
 **This is the workshop checklist** — deliberately rigid and ordered so a room
 full of different machines reaches the same working state. Do the steps in
-sequence; pick one pathway and set up only that one. (Everywhere else in this
+sequence; pick one workflow and set up only that one. (Everywhere else in this
 repo, instructions are defaults you may adapt — here they're steps to follow.)
 
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
 
-Only set up the pathway you're actually running. Downloads and signup links:
+Only set up the workflow you're actually running. Downloads and signup links:
 [useful-links.md](useful-links.md).
 
 ---
@@ -20,7 +20,7 @@ Only set up the pathway you're actually running. Downloads and signup links:
 | **Apple Silicon Mac** (M1 or newer) | → About This Mac → "Chip" says Apple M-something | Intel works for text workflows; video rendering will be slow. Linux mostly works. Windows needs adapting — ask us |
 | **macOS 13+** | same screen | Update first — it's a long download |
 | **You can install apps** | try installing anything | Managed work laptops often block this. You need admin access. Sort it before you start |
-| **10 GB free disk** | Storage settings | Only needed for the video pathway |
+| **10 GB free disk** | Storage settings | Only needed for the video workflow |
 | **Developer tools** | `xcode-select --install` in Terminal | 5–10 minutes. This is what gives you `git` |
 | **Python 3.9+** | `python3 --version` | Already on macOS. Scripts use the standard library only |
 
@@ -55,7 +55,7 @@ If the file appears, you're ready. If it asks for permissions, approve them.
 - **What you sell**, and the promise you make
 - **The one number that matters** — replies, signups, demos
 
-## 4. Your pathway
+## 4. Your workflow
 
 Only set up the one you're running. Links in [useful-links.md](useful-links.md).
 
@@ -78,14 +78,16 @@ your CMS login / GitHub access for a code-based site.
 ### B. Social (`engine-linkedin`)
 
 Be signed in to **LinkedIn and/or X in your browser** — no API keys needed
-for those.
+for those. Post from the browser; schedulers are optional later.
 
 **Bluesky?** Create an **app password** before the session — bsky.app →
 Settings → Privacy and Security → App Passwords (format `xxxx-xxxx-xxxx-xxxx`).
 Never use your account password. It goes in `config/.env` as `BSKY_HANDLE`
-and `BSKY_APP_PASSWORD`.
+and `BSKY_APP_PASSWORD`. The agent posts via the Bluesky API after you approve
+each post.
 
-Posting mode — manual, Upload Post, or Buffer: [posting-options.md](posting-options.md).
+Video posting (manual / Upload Post / Buffer):
+[engine-video/references/posting-options.md](../skills/engine-video/references/posting-options.md).
 
 ### C. Short-form video (`engine-video`)
 
@@ -146,7 +148,7 @@ Do not install anything without asking me first.
 Once the starter folder is on your machine:
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/doctor.py
+python3 <repo>/skills/engine-setup/scripts/doctor.py
 ```
 
 Run it again after setup — it also checks workspace, config, and keys.

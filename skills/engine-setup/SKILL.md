@@ -1,6 +1,6 @@
 ---
 name: engine-setup
-description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a workflow-scoped <project>/workflows/, installs only the skills for those workflows into ~/.agents/skills/ (plus mirrors), interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
+description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a workflow-scoped <project>/workflows/, copies selected skills into ~/.agents/skills/ then symlinks them into Claude/Codex/Cursor and links the whole skills folder into the workspace, interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
 ---
 
 # engine-setup
@@ -13,7 +13,8 @@ Run it once per project. It is also re-runnable — `doctor.py` alone is the hea
 
 Two separate things, and keeping them separate is the point:
 
-- **The repo** (`~/code/gtm-engine`) — the workflows. Updated by `git pull`. Nothing personal in it.
+- **The repo** — the workflows (wherever they cloned it). Updated by `git pull`.
+  Nothing personal in it.
 - **The workspace** (`<their-project>/workflows/`) — their brand, inputs, templates, runs, numbers. Never touched by an update.
 
 ## Steps
@@ -27,35 +28,42 @@ Otherwise give them the link and let them click.
 
 ### 2. Clone
 
+**Ask where they want the clone.** Suggest one of:
+
+- **Desktop** — easy to find (`~/Desktop/gtm-engine`)
+- **A personal folder that is not often cleaned up** — e.g. `~/Documents/gtm-engine`, `~/Projects/gtm-engine`, or whatever durable path they already use for code
+
+Let them pick (or name their own path). Do **not** put it in Downloads, a scratch folder, or anything that gets emptied regularly — the clone is pulled for updates over months.
+
 ```bash
-git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
+git clone https://github.com/benyki/gtm-engine.git <path-they-chose>/gtm-engine
 ```
 
-Confirm the path first — some people keep code elsewhere. If the directory already exists, `git -C ~/code/gtm-engine pull` instead.
+If that directory already exists, `git -C <path>/gtm-engine pull` instead. Use that path for every later command in this setup (scaffold, install, doctor).
 
 ### 3. Scaffold the workspace
 
 Ask which project they want to grow, and **which workflow(s)** they're starting
-with. The built-ins are `seo`, `linkedin`, `video`, `outreach` — one is enough —
-and the set is open: any other name (`newsletter`, `podcast`, `ads`,
-`community`, …) scaffolds a **custom workflow** with an empty `templates/<name>/`
-folder and the shared loop files. A custom workflow has no dedicated skill —
-you supply the craft — but `engine-loop` runs it through the same three traces
-as everything else; register its experiments in `config/experiments.json` and
-add its channel(s) to `config/channels.json` as part of this setup. Then from
-that directory:
+with. Names that already ship a skill (`engine-seo`, …) or a starter template
+are listed by `workflows.py list`. Any other name (`newsletter`, `podcast`,
+`ads`, `community`, …) is fine too — you get `templates/<name>/` plus the shared
+loop files; you supply the craft, and `engine-loop` runs it through the same
+three traces. Register experiments in `config/experiments.json` and enable
+channel(s) in `config/channels.json` as part of this setup. Then from that
+directory:
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
+python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py . \
   --workflow seo
 ```
 
 Use a comma list for more than one (`--workflow seo,outreach`), or `--workflow all`
-only if they really want every built-in workflow on day one.
+only if they really want every known workflow on day one.
 
-It scaffolds **only** what that workflow needs: shared `config/` + `runs/` +
-`inputs/queue/`, the workflow's `templates/` and inputs, and `state/crm.csv` only
-for outreach. `site/` is never pre-created.
+It creates the shared spine (`config/`, `runs/`, `inputs/`, `state/`) and a
+`templates/<name>/` folder per workflow (starter content when the repo has it,
+empty otherwise). Config files are copied whole — trim what this brand doesn't
+need. `site/` is never pre-created.
 
 It refuses to overwrite an existing `workflows/`. That refusal is correct — use
 `--merge --workflow <new>` to add another workflow later, or `--name` for a
@@ -72,74 +80,58 @@ If they already created an empty `workflows/` folder during preflight, run with
 
 ### 4. Install the skills
 
-This is the path chain. One source of truth; everything else is a symlink.
+Path chain — real files in the canonical store; everything else is a symlink:
 
 ```
-~/code/gtm-engine/skills/<name>
-        ↓ symlink
-~/.agents/skills/<name>          ← canonical store (create it)
-        ↓ symlink
-<project>/workflows/skills/<name>
-~/.claude/skills/<name>          ← Claude Code doesn't scan the canonical store
-~/.openclaw/skills/<name>        ← only if that agent is present
+<repo>/skills/<name>
+        ↓ COPY
+~/.agents/skills/<name>          ← canonical (real files)
+        ↓ symlink each
+~/.claude/skills/<name>
+~/.codex/skills/<name>
+~/.cursor/skills/<name>
+        ↓ symlink whole folder
+<project>/workflows/skills  →  ~/.agents/skills
 ```
 
-**`~/.agents/skills/` is the install target.** It's the cross-agent standard: Codex
-reads it natively ([docs](https://developers.openai.com/codex/skills)) and so does
-Cursor ([docs](https://cursor.com/help/customization/skills)). Neither needs a link in
-its own directory, and a link in `~/.codex/skills/` is dead code — Codex doesn't scan
-that path at all.
+**`~/.agents/skills/` is the only place skill files live.** Agent folders and the
+workspace get symlinks. Re-run the installer after `git pull` in the engine repo
+to refresh the copies.
 
-An agent-specific directory is an **exception, and needs a doc URL saying why**:
+| Directory | What happens |
+|---|---|
+| `~/.agents/skills/` | **copy** of each selected `engine-*` skill |
+| `~/.claude/skills/` | symlink per skill (if `~/.claude` exists) |
+| `~/.codex/skills/` | symlink per skill (if `~/.codex` exists) |
+| `~/.cursor/skills/` | symlink per skill (if `~/.cursor` exists) |
+| `<workspace>/skills` | one symlink to the whole `~/.agents/skills` folder |
 
-| Directory | Linked? | Why |
-|---|---|---|
-| `~/.agents/skills/` | canonical | read natively by Codex and Cursor |
-| `~/.claude/skills/` | **yes** | Claude Code reads only its own dirs ([docs](https://code.claude.com/docs/en/skills)) |
-| `~/.codex/skills/` | no | not scanned by Codex — links here are dead |
-| `~/.cursor/skills/` | no | redundant; Cursor already reads the canonical store |
-| `~/.openclaw/skills/` | yes, if present | own layout, no public doc — verified on the machine |
-
-If you're tempted to add a directory to that list, find the vendor doc first. A dead
-symlink is worse than none: the installer reports it green and the skill silently
-never triggers.
-
-Two caveats that keep this table honest:
-
-- **The vendor claims were verified as of 2026-07** and vendors change scanning
-  behaviour between releases. If a skill isn't triggering in some agent, re-check
-  that agent's current doc before debugging anything else.
-- **The table isn't the whole world.** For an agent it doesn't know (Windsurf,
-  Zed, a company-internal one), find its skills directory in its vendor doc, then
-  set `GTM_AGENT_DIRS` (colon-separated paths) before running the installer —
-  no repo edit needed. `doctor.py` honours the same variable.
+Other agents: set `GTM_AGENT_DIRS` (colon-separated skill dirs). `doctor.py`
+honours the same variable.
 
 Run the installer for the **same workflows** (always includes `engine-setup` +
 `engine-loop`):
 
 ```bash
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh \
+<repo>/skills/engine-setup/scripts/install_skills.sh \
   --workspace <project>/workflows --workflow seo
 ```
 
-If `config/pathways.json` already exists, you can omit `--workflow` and it
+If `config/workflows.json` already exists, you can omit `--workflow` and it
 reads the marker.
 
-What it does (you do **not** do this by hand unless the script is unavailable):
+What it does:
 
 1. **Create** `~/.agents/skills/` if missing
-2. **Symlink only the selected skills** from the clone into `~/.agents/skills/<name>`
-3. **Create** `<workspace>/skills/` and symlink those skills there too
-4. **Mirror into the agents that need it** — only Claude Code (`~/.claude/skills`) and
-   OpenClaw (`~/.openclaw/skills`), and only when that agent's home already exists.
-   Codex and Cursor are skipped on purpose; see the table above
-5. **Idempotent** — correct links stay; wrong links are relinked; a real directory collision is warned and skipped (never overwrite). Links left in `~/.codex/skills` by an older install are reported, not deleted — removing things from someone's home directory is their call
+2. **Copy** the selected skills from the clone into `~/.agents/skills/<name>`
+3. **Symlink** `<workspace>/skills` → `~/.agents/skills` (whole folder)
+4. **Symlink** each skill into Claude / Codex / Cursor skill dirs when that
+   agent home exists (plus `GTM_AGENT_DIRS`)
+5. **Idempotent** — re-copy refreshes content; wrong links are relinked; a real
+   directory collision in an agent folder is warned and skipped
 
-Because they're symlinks, `git pull` in the engine repo updates every agent at once. There is never a reinstall for content — only re-run the script when adding a new workflow, agent, or workspace.
-
-If it reports "a real directory is already there", something else owns that name. Tell the user, don't force it.
-
-Without `--workspace`, it still does the home + agent mirrors (useful on a fresh machine before the project folder exists). Re-run with `--workspace` once `workflows/` is ready.
+Without `--workspace`, it still does the canonical copy + agent mirrors.
+Re-run with `--workspace` once `workflows/` is ready.
 
 ### 5. Fill in the config
 
@@ -178,7 +170,7 @@ Which keys they need depends on the workflow — see `docs/preflight.md` §4. Fo
 ### 7. Check
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/doctor.py
+python3 <repo>/skills/engine-setup/scripts/doctor.py
 ```
 
 Walk through anything red. Warnings are usually fine to leave. Doctor checks the canonical store, each agent mirror it can see, and `workflows/skills/` when a workspace is found.
@@ -189,13 +181,11 @@ Tell them the one next thing to do — run their chosen content workflow and shi
 
 ## Rules
 
-- **Confirm before writing anywhere outside the workspace.** Cloning and symlinking touch their home directory
+- **Confirm before writing anywhere outside the workspace.** Cloning and installing skills touch their home directory
 - **Never star, push or post without an explicit yes**
 - **Never read `config/.env`.** Names come from `.env.example`
-- **Never copy skill folders** — always symlink. Copies drift the moment they `git pull`
-- **Install to `~/.agents/skills/`, not to each agent's own folder.** An agent-specific
-  directory gets a link only with a vendor doc URL justifying it — today that's Claude
-  Code and OpenClaw. Codex and Cursor read the canonical store directly
+- **Copy skills into `~/.agents/skills/`, then symlink out** to agent folders and
+  the workspace — never leave the only copy inside an agent-specific directory
 - If they're not on Apple Silicon, say what will and won't work rather than pretending it's fine. The workspace scripts are plain stdlib Python and run anywhere; Linux is fully workable. On Windows, run the bash installer and symlinks under WSL — native Windows needs developer mode for symlinks and has no supported installer yet. Video rendering is slow on Intel Macs
 
 ## Going further

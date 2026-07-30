@@ -11,7 +11,7 @@ videos, joins them against a posting ledger, and renders a grid of cards with po
 frames, per-platform status, and live view/like counts.
 
 This skill builds it on **any** machine, against **any** folder layout and **any**
-metadata format. Nothing here assumes the original author's paths.
+metadata format. Nothing here assumes a particular author's paths.
 
 ## When to Use This Skill
 
@@ -68,7 +68,7 @@ You cannot configure this from assumptions. Ask, and record answers into the con
 file from `references/config.md`:
 
 1. **Where do finished videos live?** One root, or several? Absolute path.
-2. **How are they organised?** Is there a marker folder (the original uses
+2. **How are they organised?** Is there a marker folder (many pipelines use
    `published/`), or is every mp4 under the root fair game?
 3. **Is there a posting ledger?** A JSONL/JSON/CSV/SQLite record of what was posted,
    when, to which account, with what URL. Path? Or none?
@@ -110,8 +110,8 @@ wrong and expensive to debug:
 
 - **Never let an optional layer break a required one.** A missing ledger, an
   unparseable sidecar, a failed metrics fetch, absent ffmpeg — each must degrade to
-  "unknown" and leave the grid intact. Every read in the original is wrapped in
-  try/catch returning `undefined` for exactly this reason.
+  "unknown" and leave the grid intact. Wrap every optional read in try/catch
+  returning `undefined` for exactly this reason.
 - **Keep the liveness verdict separate from the metrics scrape.** See
   `references/platforms.md` — conflating them is the single worst bug in this design,
   because a scraper's HTML shape changing will silently mark healthy posts as deleted.

@@ -1,6 +1,6 @@
 ---
 name: engine-video
-description: Makes short-form vertical video — script, voiceover via ElevenLabs, footage sourced or pulled from Pexels, rendered 9:16 with ffmpeg — with the A/B arm assigned and the run logged. Posting is the user's choice of manual, Upload Post, or Buffer (see docs/posting-options.md). Use when the user says "make a video", "run the video workflow", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
+description: Makes short-form vertical video — script, voiceover via ElevenLabs, footage sourced or pulled from Pexels, rendered 9:16 with ffmpeg — with the A/B arm assigned and the run logged. Posting is the user's choice of manual, Upload Post, or Buffer (see references/posting-options.md). Use when the user says "make a video", "run the video workflow", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
 ---
 
 # engine-video
@@ -72,7 +72,7 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow video --ch
   --experiment exp-004 --arm tension --template script-tension.txt
 ```
 
-Posting mode is the user's choice — manual, Upload Post, or Buffer; the comparison is in `docs/posting-options.md` (note Upload Post's free tier caps at 10 posts a month). For platforms whose APIs won't post what you need, device posting via mobilerun is in `references/advanced.md` — read its account-risk section first. Whichever mode, record the URL:
+Posting mode is the user's choice — manual, Upload Post, or Buffer; the comparison is in `references/posting-options.md` (note Upload Post's free tier caps at 10 posts a month). For platforms whose APIs won't post what you need, device posting via mobilerun is in `references/advanced.md` — read its account-risk section first. Whichever mode, record the URL:
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...

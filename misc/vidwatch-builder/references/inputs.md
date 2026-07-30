@@ -27,15 +27,14 @@ this regex — it is the single point of truth for stem aliasing.
 ## 2. Per-clip metadata (sidecars)
 
 Resolution order comes from config `metadataLocations` — path templates relative to
-the mp4's directory with `{stem}` substituted. Defaults cover the original pipeline's
-real layouts:
+the mp4's directory with `{stem}` substituted. Defaults cover common layouts:
 
-| template | which pipeline layout it serves |
+| template | which layout it serves |
 |---|---|
-| `{stem}.json` | canonical: sidecar right next to the published mp4 |
+| `{stem}.json` | sidecar right next to the published mp4 |
 | `../{stem}.json` | render-dir sidecar (mp4 archived one level down into published/) |
 | `../configs/{stem}.json` | configs folder beside the outputs dir |
-| `../../configs/{stem}.json` | configs at the format root |
+| `../../configs/{stem}.json` | configs at the series root |
 | `../../inputs/{stem}.json` | authored inputs dir |
 
 First file that exists **and parses** wins. Adapting to a new project is usually just
@@ -85,16 +84,16 @@ list itself lives under a new key, add that key to the list-lookup chain. Keep
 branches ordered most-specific-first. Never throw on a weird element — skip it.
 
 Language, if absent from metadata, falls back to the source's config `language`, then
-to filename heuristics if you add any (the original doesn't — flags render 🌐 when
+to filename heuristics if you add any (otherwise flags can render a neutral mark when
 unknown).
 
 ## 3. The posting ledger
 
 Append-only log written by whatever posts the clips. One record per post attempt.
-The original is JSONL at `~/.agents/runs/posts.jsonl`:
+Example JSONL at `<workspace>/state/posts.jsonl` (or any path you set in config):
 
 ```jsonl
-{"posted_at":"2026-07-28T17:38:12Z","pipeline":"upload-post","account":"mybrand.daily","status":"sent","post_url":"https://www.tiktok.com/@mybrand.daily/video/7123456789012345678","post_id":"v_...","tag":"learnwords-posting-cron","file_archived":"/Users/you/videos/learn-words/final/published/numbers-20260719T004512Z.mp4"}
+{"posted_at":"2026-07-28T17:38:12Z","pipeline":"upload-post","account":"your-account","status":"sent","post_url":"https://www.tiktok.com/@your-handle/video/7123456789012345678","post_id":"v_...","tag":"daily-posting","file_archived":"/path/to/videos/series-a/published/clip-001.mp4"}
 ```
 
 The config `ledger.fields` block maps arbitrary field names onto the canonical set,

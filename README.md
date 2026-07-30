@@ -23,7 +23,8 @@ Later, when you need it:
 
 | Doc | Why |
 |---|---|
-| [`docs/posting-options.md`](docs/posting-options.md) | Choosing between manual, Upload Post and Buffer |
+| [`skills/engine-video/references/posting-options.md`](skills/engine-video/references/posting-options.md) | Video posting: manual, Upload Post, or Buffer |
+| [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/skills`](https://github.com/benyki/skills) — download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
 
 Then install (below) and tell your agent: `run engine-setup`.
 
@@ -56,13 +57,19 @@ and run engine-setup.
 
 Or do it yourself:
 
+Pick a durable location first — Desktop, or a personal folder you don't clean out
+often (not Downloads). Then:
+
 ```bash
-git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
+git clone https://github.com/benyki/gtm-engine.git ~/Desktop/gtm-engine   # or your path
+python3 ~/Desktop/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
+~/Desktop/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
 ```
 
-Replace `seo` with `linkedin`, `video`, `outreach`, a comma list, `all` — or any name of your own for a custom workflow (the loop treats it like the built-ins; you supply the templates).
+Replace `~/Desktop/gtm-engine` with wherever you cloned. Replace `seo` with
+`linkedin`, `video`, `outreach`, a comma list, `all` — or any name of your own
+for a custom workflow (the loop treats it like the built-ins; you supply the
+templates).
 
 Then tell your agent: `run engine-setup` — it fills in your brand config, picks your workflow, and runs the checks.
 
@@ -72,13 +79,16 @@ Then tell your agent: `run engine-setup` — it fills in your brand config, pick
 
 > **The repo is logic. Your workspace is data. They never mix.**
 
-| | This repo (`~/code/gtm-engine`) | Your workspace (`<your-project>/workflows/`) |
+| | This repo (wherever you cloned it) | Your workspace (`<your-project>/workflows/`) |
 |---|---|---|
 | Holds | the workflows, templates, docs | your brand, inputs, runs, numbers, reports |
 | Changes | when you `git pull` | every time you run something |
 | Belongs to | this project | you — keep it in your own private repo |
 
-Workflows install as **symlinks** from the clone into `~/.agents/skills/` and every coding agent on the machine. `git pull` updates all of them at once. Nothing you own lives in this repo, so an update can never clobber your data.
+Workflows are **copied** into `~/.agents/skills/`, then symlinked into each
+agent's skills folder and as one `workflows/skills` → `~/.agents/skills` link.
+Re-run `install_skills.sh` after `git pull` to refresh the copies. Nothing you
+own lives in this repo, so an update can never clobber your data.
 
 Full layout: [`docs/workspace.md`](docs/workspace.md). The spine is `runs/index.csv` — one row per thing you ever made, with the arm it used and the number it earned.
 
@@ -119,5 +129,24 @@ Each workflow ships a `references/advanced.md` — the specific next step, not a
 - A site of AI-generated pages ranks like one — `engine-seo` mines real questions, but it isn't a shortcut
 - The loop needs about three weeks of runs before its verdicts mean anything
 - It won't fix a product nobody wants
+
+---
+
+## Updates
+
+Check this repo regularly for upstream changes. When there are some, **pull** —
+do not edit files in the clone to “improve” the engine.
+
+- **This repo** is updated only by `git pull` from remote, so you pick up new
+  insights and workflow improvements. Treat the clone as read-only for day-to-day
+  work.
+- **Your running skills** live in `~/.agents/skills/`. If you need to tweak a
+  workflow, edit it there — not in the clone.
+- After a pull, re-run `install_skills.sh` only when you want those upstream
+  copies refreshed into `~/.agents/skills/`.
+- When a skill on your machine conflicts with a newer one from the repo, **you**
+  decide what to keep. Prefer leaving a workflow that is already performing
+  alone. Agents and docs may *suggest* canonical updates; they must never push
+  or force-overwrite the skills you are actively running.
 
 MIT licensed. Issues and PRs welcome.

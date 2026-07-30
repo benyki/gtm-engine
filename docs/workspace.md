@@ -6,20 +6,20 @@ you chose**. Everything in here is yours — the engine repo never touches it, s
 
 ```
 <your-project>/workflows/
-├── skills/                 symlinks for installed workflows only
+├── skills/                 symlink → ~/.agents/skills (whole folder)
 ├── config/
 │   ├── brand.md            who you are, who you're for, what you'll never say
-│   ├── pathways.json       which workflows this workspace runs
+│   ├── workflows.json      which workflows this workspace runs
 │   ├── channels.json       active workflow, primary metric, publish mode
-│   ├── sources.json        sources for your installed workflows
-│   ├── experiments.json    live A/B tests for those workflows
-│   ├── .env.example        key NAMES for those workflows (committed)
+│   ├── sources.json        idea sources (open set — agent trims unused)
+│   ├── experiments.json    A/B tests (pause what you won't run)
+│   ├── .env.example        key NAMES (committed; fill only what you need)
 │   └── .env                key VALUES (gitignored, never read by your agent)
-├── inputs/                 only folders your workflows use (+ queue/)
-│   ├── swipe/              content you like          (seo, linkedin)
-│   ├── best/               your best work — voice    (seo, linkedin, video)
-│   ├── audience/           outreach lists            (outreach)
-│   ├── assets/             logo, fonts, b-roll       (video)
+├── inputs/                 drop material here; unused folders are fine
+│   ├── swipe/              content you like
+│   ├── best/               your best work — voice
+│   ├── audience/           outreach lists
+│   ├── assets/             logo, fonts, b-roll
 │   └── queue/              next week's ideas         (engine-loop)
 ├── templates/
 │   └── <workflow>/         one folder per installed workflow — add your own freely
@@ -30,15 +30,15 @@ you chose**. Everything in here is yours — the engine repo never touches it, s
 ├── site/                   created on demand by engine-seo — never pre-scaffolded
 └── state/
     ├── published.csv       what shipped, where, when
-    └── crm.csv             outreach only
+    └── crm.csv             lead tracking when you do outreach
 ```
 
 Add another workflow later without rebuilding:
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . \
+python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py . \
   --workflow video --merge
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh \
+<repo>/skills/engine-setup/scripts/install_skills.sh \
   --workspace ./workflows --workflow video
 ```
 
