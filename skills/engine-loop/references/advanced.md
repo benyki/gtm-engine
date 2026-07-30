@@ -38,7 +38,7 @@ That boundary is what keeps the templates explainable. Once it starts promoting 
 
 **Segment before you conclude.** One arm often wins for enterprise and loses for solo founders. Once you have a few hundred rows, score by segment as well as overall — the aggregate can hide two opposite truths.
 
-**Track time-to-outcome, not just outcome.** A reply in two hours and a reply in three weeks are different results. The timestamps are already recorded — `created_at` and `published_at` in `runs/index.csv`, `sent_at` and `replied_at` in `state/crm.csv`.
+**Track time-to-outcome, not just outcome.** A reply in two hours and a reply in three weeks are different results. The timestamps are already recorded — `created_at` and `published_at` in `runs/index.csv`, `sent_at` and `replied_at` in `crm.csv`.
 
 **Write a decision log.** Every promotion, every retirement, one line each, appended forever. After six months this is the most valuable file you own — it's the only record of what you tried and what happened, and it's what stops you re-running an experiment you already ran.
 

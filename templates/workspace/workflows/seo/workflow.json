@@ -1,0 +1,7 @@
+{
+  "type": "seo",
+  "goal": "",
+  "primary_metric": "",
+  "_primary_metric_hint": "The one number THIS workflow optimises \u2014 commonly clicks from Search Console. A channel can still override it in shared/channels.json.",
+  "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Want a second seo workflow with a different goal or audience? Copy this whole folder to a new name (e.g. seo-partners/), rewrite this file's goal and metric, and run it independently. The folder name is the workflow name; 'type' maps it to the engine-seo skill."
+}

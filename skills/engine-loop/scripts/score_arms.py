@@ -24,8 +24,11 @@ Per-experiment knobs in experiments.json (both optional):
 When the mean is in use and one run dominates an arm's total, the verdict
 carries an outlier caution — read it before acting.
 
+Reads each workflow folder's own experiments.json and runs/index.csv —
+workflows are self-contained; nothing is scored across folders.
+
 Usage:
-    score_arms.py [--workspace PATH] [--json]
+    score_arms.py [--workspace PATH] [--workflow NAME] [--json]
 """
 from __future__ import annotations
 
@@ -36,7 +39,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from wsfind import find_workspace  # noqa: E402
+from wsfind import find_workspace, find_workflow_dir, list_workflow_dirs  # noqa: E402
 
 DIM, BOLD, GREEN, YELLOW, RESET = "\033[2m", "\033[1m", "\033[32m", "\033[33m", "\033[0m"
 
@@ -139,18 +142,16 @@ def judge(stats: dict, min_runs: int, win_ratio: float,
                          f"(needs {win_ratio}x, on {label}) — keep running")
 
 
-def main() -> int:
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace")
-    ap.add_argument("--json", action="store_true")
-    a = ap.parse_args()
-
-    ws = find_workspace(a.workspace)
-    cfg = ws / "config" / "experiments.json"
+def score_workflow(wd) -> list[dict]:
+    """Score one workflow folder's live experiments against its own runs."""
+    cfg = wd / "experiments.json"
     if not cfg.is_file():
-        sys.exit("error: config/experiments.json not found")
-    data = json.loads(cfg.read_text())
-    runs = rows(ws / "runs" / "index.csv")
+        return []
+    try:
+        data = json.loads(cfg.read_text())
+    except json.JSONDecodeError as e:
+        sys.exit(f"error: {cfg} is not valid JSON — {e}")
+    runs = rows(wd / "runs" / "index.csv")
 
     report = []
     for exp in data.get("experiments", []):
@@ -168,7 +169,7 @@ def main() -> int:
         caution = outlier_note(cohort, aggregate)
 
         report.append({
-            "id": exp["id"], "workflow": exp.get("workflow", ""),
+            "id": exp["id"], "workflow": wd.name,
             "channel": (exp.get("channel") or "").strip(),
             "variable": exp.get("variable", ""), "started": started,
             "min_runs_per_arm": min_runs, "win_ratio": win_ratio,
@@ -178,13 +179,35 @@ def main() -> int:
                            for kk, vv in v.items()} for k, v in cohort.items()},
             "alltime_n": {k: v["n"] for k, v in alltime.items()},
         })
+    return report
+
+
+def main() -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--workspace")
+    ap.add_argument("--json", action="store_true")
+    ap.add_argument("--workflow", default="",
+                    help="scope to one workflow folder (default: all)")
+    a = ap.parse_args()
+
+    ws = find_workspace(a.workspace)
+    if a.workflow:
+        dirs = [find_workflow_dir(ws, a.workflow)]
+    else:
+        dirs = list_workflow_dirs(ws)
+        if not dirs:
+            sys.exit("error: no workflow folders in this workspace")
+
+    report = []
+    for wd in dirs:
+        report.extend(score_workflow(wd))
 
     if a.json:
         print(json.dumps(report, indent=2))
         return 0
 
     if not report:
-        print("\nNo live experiments. Add one to config/experiments.json.\n")
+        print("\nNo live experiments. Add one to <workflow>/experiments.json.\n")
         return 0
 
     for e in report:
@@ -211,7 +234,7 @@ def main() -> int:
 
         if e["verdict"] == "decided":
             print(f"  {DIM}next: promote the winner, move the loser to "
-                  f"templates/{e['workflow']}/losers/, write a challenger.{RESET}")
+                  f"{e['workflow']}/templates/losers/, write a challenger.{RESET}")
     print()
     return 0
 

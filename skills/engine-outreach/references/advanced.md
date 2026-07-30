@@ -63,12 +63,12 @@ Use both. They cost about twenty lines and they are the reason this stays recove
 
 ### Setup
 
-Verify your domain in the Resend dashboard, then create an API key. Put it in `workflows/config/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
+Verify your domain in the Resend dashboard, then create an API key. Put it in `workflows/shared/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
 
 Load it at run time rather than hardcoding it anywhere:
 
 ```bash
-set -a; . workflows/config/.env; set +a
+set -a; . workflows/shared/.env; set +a
 ```
 
 ### The send call
@@ -130,7 +130,7 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id>
 
 - CRM row: `status=sent`, `sent_at`, `next_followup_at`, and store the returned message id so a cancel or a bounce can be traced back to a person
 
-Set the email channel's `publish` in `config/channels.json` to something other than `draft_only` so the config states what's actually happening. Keep `metric_delay_hours` at 24–48 for email — replies settle faster than social.
+Set the email channel's `publish` in `shared/channels.json` to something other than `draft_only` so the config states what's actually happening. Keep `metric_delay_hours` at 24–48 for email — replies settle faster than social.
 
 ### Reading replies back
 

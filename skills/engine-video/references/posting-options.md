@@ -1,17 +1,17 @@
 # Posting: manual, Upload Post, or Buffer
 
 Primarily for **`engine-video`**. Choose one per channel and set `publish` in
-`config/channels.json`. The comparison below is the decision; each option's
+`shared/channels.json`. The comparison below is the decision; each option's
 details follow.
 
-LinkedIn / X text posts use the user's browser; Bluesky uses its own API — see
-`engine-linkedin`. These schedulers are optional there.
+LinkedIn / X text posts use the user's browser; Bluesky uses its own API —
+see `engine-social`. These schedulers are optional there.
 
 These are the three documented options, not a closed list — the `publish`
 field in `channels.json` is advisory, and any scheduler you already use fits
 as long as the contract holds: a human approves before anything goes live,
 and the URL gets recorded. Platforms with an open posting API (e.g. Bluesky —
-see `engine-linkedin`) can skip the scheduler entirely. And for platforms
+see `engine-social`) can skip the scheduler entirely. And for platforms
 whose APIs won't post what you need at all, there's device posting via
 mobilerun — see `references/advanced.md`, account-risk section first.
 
@@ -51,8 +51,8 @@ The free tier is 10 posts a month. If you're posting three times a week you'll
 hit it in the second week, so decide up front whether you're paying or staying
 manual — discovering the cap mid-run is annoying.
 
-Key goes in `config/.env` as `UPLOADPOST_API_KEY`. Set the channel's `publish`
-to `uploadpost` in `config/channels.json`.
+Key goes in `shared/.env` as `UPLOADPOST_API_KEY`. Set the channel's `publish`
+to `uploadpost` in `shared/channels.json`.
 
 ## Buffer
 
@@ -64,7 +64,7 @@ costs at roughly zero.
 
 For text-only LinkedIn and X posts this doesn't apply and Buffer is fine.
 
-Token goes in `config/.env` as `BUFFER_ACCESS_TOKEN`. Set `publish` to
+Token goes in `shared/.env` as `BUFFER_ACCESS_TOKEN`. Set `publish` to
 `buffer`.
 
 ---

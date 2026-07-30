@@ -1,0 +1,30 @@
+{
+  "_comment": "Starter experiment \u2014 an EXAMPLE of shape, not a recommendation for your business. Rewriting arms/hypotheses is part of engine-setup. The second arm ships with no template on purpose: first time it's assigned, the agent writes it from the hypothesis (R4). Optional fields per experiment: channel, direction, aggregate \u2014 see engine-loop/references/ab-testing.md.",
+  "experiments": [
+    {
+      "id": "exp-004",
+      "status": "live",
+      "template_base": "script",
+      "variable": "hook",
+      "min_runs_per_arm": 10,
+      "win_ratio": 1.2,
+      "started": "",
+      "arms": [
+        {
+          "id": "default",
+          "label": "payoff first",
+          "template": "script-default.txt",
+          "hypothesis": "Leading with the result earns the first 1.5 seconds, which is the only part that matters."
+        },
+        {
+          "id": "tension",
+          "label": "tension first",
+          "template": "script-tension.txt",
+          "hypothesis": "Opening on the problem creates a gap the viewer wants closed, buying a longer watch. Risk: slower start loses people before the gap opens."
+        }
+      ],
+      "decision": null
+    }
+  ],
+  "decision_log": []
+}

@@ -7,7 +7,7 @@ setup (did it all land?). It changes nothing — it only looks.
 Usage:
     doctor.py [--workspace PATH]
 
-Secrets: this reads the NAMES of the keys in config/.env to confirm they
+Secrets: this reads the NAMES of the keys in shared/.env to confirm they
 are set. It never reads, prints or logs a value.
 """
 from __future__ import annotations
@@ -86,7 +86,7 @@ def check_machine() -> None:
 def _skill_names(ws: Path | None = None) -> list[str]:
     """Skills we expect to be installed for this machine / workspace."""
     if ws is not None:
-        return wf.skills_for(wf.read_workflows(ws))
+        return wf.skills_for(wf.workspace_types(ws))
     # No workspace yet — only require the always-on pair, not every workflow.
     return list(wf.CORE_SKILLS)
 
@@ -157,8 +157,8 @@ def check_install(ws: Path | None = None) -> None:
                 add("warn", "  workspace/skills", "broken symlink")
         else:
             _check_skill_dir(ws_skills, names, required=True)
-        installed = wf.read_workflows(ws)
-        add("pass", f"  workflows: {', '.join(installed)}")
+        types = wf.workspace_types(ws)
+        add("pass", f"  workflow types: {', '.join(types) or '(none yet)'}")
 
     if not canon_ok and not found_agent:
         add("fail", "Workflows not installed",
@@ -179,8 +179,8 @@ def check_tools(active: str) -> None:
 # --- workspace -------------------------------------------------------------
 
 def find_workspace(explicit: str | None) -> Path | None:
-    """Markers (config/workflows.json, legacy pathways.json, channels.json)
-    identify a workspace — 'workflows' is only the default folder name."""
+    """A workspace is recognised by its shared/ folder (brand, channels,
+    keys) — 'workflows' is only the default folder name."""
     if explicit:
         p = Path(explicit).expanduser().resolve()
         return p if p.is_dir() else None
@@ -190,16 +190,16 @@ def find_workspace(explicit: str | None) -> Path | None:
         return p if p.is_dir() else None
 
     def marked(p: Path) -> bool:
-        cfg = p / "config"
-        return (cfg / "workflows.json").is_file() \
-            or (cfg / "pathways.json").is_file() \
-            or (cfg / "channels.json").is_file()
+        shared = p / "shared"
+        return shared.is_dir() and any(
+            (shared / f).is_file()
+            for f in ("channels.json", "brand.md", ".env.example"))
 
     for base in (Path.cwd(), *Path.cwd().parents):
         if marked(base):
             return base
         cand = base / "workflows"
-        if marked(cand) or (cand / "config").is_dir():
+        if marked(cand):
             return cand
         if base == Path.home():
             break
@@ -220,60 +220,76 @@ def check_workspace(ws: Path | None) -> str:
 
     add("pass", f"Workspace: {str(ws).replace(str(Path.home()), '~')}")
 
-    for rel in ("config", "inputs", "runs", "reports", "state", "templates"):
-        add("pass" if (ws / rel).is_dir() else "fail", f"  {rel}/")
+    # shared/ — the one cross-workflow folder.
+    shared = ws / "shared"
+    add("pass" if shared.is_dir() else "fail", "  shared/")
 
-    installed = wf.read_workflows(ws)
-    for name in installed:
-        tdir = ws / "templates" / name
-        add("pass" if tdir.is_dir() else "warn", f"  templates/{name}/",
-            "" if tdir.is_dir() else "create it, or re-run scaffold --merge --workflow " + name)
-
-    # brand.md filled in?
-    brand = ws / "config" / "brand.md"
+    brand = shared / "brand.md"
     if not brand.is_file():
-        add("fail", "  config/brand.md missing")
+        add("fail", "  shared/brand.md missing")
     else:
         text = brand.read_text()
         if "TODO" in text or "<your" in text:
-            add("warn", "  config/brand.md still has placeholders",
+            add("warn", "  shared/brand.md still has placeholders",
                 "the workflows are only as good as this file")
         else:
-            add("pass", "  config/brand.md filled in")
+            add("pass", "  shared/brand.md filled in")
 
-    # active workflow
-    active = ""
-    ch = ws / "config" / "channels.json"
+    ch = shared / "channels.json"
     if ch.is_file():
         try:
-            data = json.loads(ch.read_text())
-            active = (data.get("active_workflow") or "").strip()
-            metric = (data.get("primary_metric") or "").strip()
-            add("pass" if active else "warn", f"  active workflow: {active or 'not set'}")
-            add("pass" if metric else "warn", f"  primary metric: {metric or 'not set'}",
-                "" if metric else "the loop optimises this — name it")
+            json.loads(ch.read_text())
+            add("pass", "  shared/channels.json")
         except json.JSONDecodeError as e:
-            add("fail", "  config/channels.json is not valid JSON", str(e))
+            add("fail", "  shared/channels.json is not valid JSON", str(e))
     else:
-        add("fail", "  config/channels.json missing")
+        add("fail", "  shared/channels.json missing")
 
-    # runs spine
-    idx = ws / "runs" / "index.csv"
-    if idx.is_file():
-        n = max(0, sum(1 for _ in idx.open()) - 1)
-        add("pass", f"  runs recorded: {n}",
-            "" if n else "nothing to learn from yet — that's expected on day one")
-    else:
-        add("fail", "  runs/index.csv missing", "the loop has no spine without it")
+    # One self-contained folder per workflow.
+    wds = [p for p in sorted(ws.iterdir())
+           if p.is_dir() and (p / "workflow.json").is_file()]
+    if not wds:
+        add("fail", "  no workflow folders",
+            "scaffold one: scaffold_workspace.py --merge --workflow <name>")
+    types = set()
+    for wd in wds:
+        try:
+            meta = json.loads((wd / "workflow.json").read_text())
+        except json.JSONDecodeError as e:
+            add("fail", f"  {wd.name}/workflow.json is not valid JSON", str(e))
+            continue
+        typ = (meta.get("type") or "").strip() or wd.name
+        types.add(typ)
+        metric = (meta.get("primary_metric") or "").strip()
+        bits = [typ]
+        if metric:
+            bits.append(metric)
+        add("pass", f"  {wd.name}/  ({' · '.join(bits)})",
+            "" if metric else "no primary_metric in workflow.json — the loop "
+            "optimises this, name it")
+        for rel in ("templates", "runs", "reports", "inputs"):
+            if not (wd / rel).is_dir():
+                add("warn", f"    {wd.name}/{rel}/ missing")
+        idx = wd / "runs" / "index.csv"
+        if idx.is_file():
+            n = max(0, sum(1 for _ in idx.open()) - 1)
+            add("pass", f"    runs recorded: {n}",
+                "" if n else "nothing to learn from yet — expected on day one")
+        else:
+            add("warn", f"    {wd.name}/runs/index.csv missing",
+                "this workflow has no spine without it")
+        if typ == "outreach" and not (wd / "crm.csv").is_file():
+            add("warn", f"    {wd.name}/crm.csv missing",
+                "outreach needs the CRM for stickiness and dedupe")
 
     check_env(ws)
-    return active
+    return "video" if "video" in types else ""
 
 
 def check_env(ws: Path) -> None:
     """Confirm key NAMES are set. Never reads a value."""
-    example = ws / "config" / ".env.example"
-    env = ws / "config" / ".env"
+    example = ws / "shared" / ".env.example"
+    env = ws / "shared" / ".env"
 
     if not example.is_file():
         return
@@ -284,7 +300,7 @@ def check_env(ws: Path) -> None:
         return
 
     if not env.is_file():
-        add("warn", "  config/.env not created",
+        add("warn", "  shared/.env not created",
             f"copy .env.example → .env and add keys ({len(wanted)} known)")
         return
 

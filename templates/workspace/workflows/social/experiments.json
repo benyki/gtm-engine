@@ -1,0 +1,30 @@
+{
+  "_comment": "Starter experiment \u2014 an EXAMPLE of shape, not a recommendation for your business. Rewriting arms/hypotheses is part of engine-setup. The second arm ships with no template on purpose: first time it's assigned, the agent writes it from the hypothesis (R4). Optional fields per experiment: channel, direction, aggregate \u2014 see engine-loop/references/ab-testing.md.",
+  "experiments": [
+    {
+      "id": "exp-003",
+      "status": "live",
+      "template_base": "post",
+      "variable": "hook",
+      "min_runs_per_arm": 12,
+      "win_ratio": 1.2,
+      "started": "",
+      "arms": [
+        {
+          "id": "default",
+          "label": "claim opener",
+          "template": "post-default.txt",
+          "hypothesis": "A flat, specific claim in line one stops the scroll without sounding like bait."
+        },
+        {
+          "id": "question",
+          "label": "question opener",
+          "template": "post-question.txt",
+          "hypothesis": "A question the reader has actually asked themselves earns the second line. Risk: reads as engagement bait if it's not genuinely specific."
+        }
+      ],
+      "decision": null
+    }
+  ],
+  "decision_log": []
+}

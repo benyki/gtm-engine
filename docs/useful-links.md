@@ -56,14 +56,14 @@ markdown, deployed on push. All free at this size:
 | **Cloudflare Pages** | <https://pages.cloudflare.com> | free tier, deploys on push |
 | **Railway** | <https://railway.app> | free trial then usage-based; simplest if you already run other services there |
 
-### engine-linkedin
+### engine-social
 
 Nothing required for LinkedIn and X — draft in the agent, post from your own
 logged-in browser. Bluesky uses its API (app password), not a scheduler.
 
 | What | Where | Notes |
 |---|---|---|
-| **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `config/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
+| **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `shared/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
 
 ### engine-video
 
@@ -86,7 +86,8 @@ Video posting options (manual / Upload Post / Buffer):
 
 ### engine-loop
 
-Nothing required — browser reading is free and works.
+Not a content workflow — the learning framework under the ones above. Nothing
+required; browser reading is free and works.
 
 | What | Where | Getting the token | Cost |
 |---|---|---|---|
@@ -168,12 +169,12 @@ Read the account-risk section in that reference before acting on it.
 
 ## Which key goes where
 
-Every value below lives in `workflows/config/.env`. Copy `.env.example`
+Every value below lives in `workflows/shared/.env`. Copy `.env.example`
 first, then paste your own keys in — never into a chat window.
 
 | Environment variable | Get it from | Needed for |
 |---|---|---|
-| `BSKY_HANDLE` / `BSKY_APP_PASSWORD` | <https://bsky.app> → Settings → App Passwords | engine-linkedin (Bluesky only) |
+| `BSKY_HANDLE` / `BSKY_APP_PASSWORD` | <https://bsky.app> → Settings → App Passwords | engine-social (Bluesky only) |
 | `PEXELS_API_KEY` | <https://www.pexels.com/api/> | engine-video |
 | `ELEVENLABS_API_KEY` | <https://elevenlabs.io> → API Keys | engine-video |
 | `UPLOADPOST_API_KEY` | <https://www.upload-post.com/> → dashboard | posting (optional) |

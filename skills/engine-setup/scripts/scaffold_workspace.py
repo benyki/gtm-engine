@@ -1,19 +1,30 @@
 #!/usr/bin/env python3
 """Create a gtm-engine workspace inside your project.
 
+The workspace is one `shared/` folder (brand, accounts, keys, assets, docs,
+cross-workflow insights) plus ONE SELF-CONTAINED FOLDER PER WORKFLOW — its
+own workflow.json, experiments.json, sources.json, templates/, inputs/,
+runs/, reports/. Workflows never reach into each other's folders,
+so an agent rewriting one can't break another.
+
 Usage:
-    scaffold_workspace.py [project_dir] --workflow seo
+    scaffold_workspace.py                       # default: all four starters
     scaffold_workspace.py . --workflow seo,outreach
-    scaffold_workspace.py . --workflow all
-    scaffold_workspace.py . --workflow newsletter      # custom workflow
+    scaffold_workspace.py . --workflow outreach-investors:outreach
+    scaffold_workspace.py . --workflow newsletter        # custom workflow
     scaffold_workspace.py . --workflow video --merge
 
     project_dir   where to create it (default: current directory)
-    --workflow    required. Names that already have skills/engine-N or a
-                  starter template under templates/workspace/templates/N are
-                  discovered automatically via `workflows.py list`. Any other
-                  name is fine too — you get templates/<name>/ plus the shared
-                  loop files; the agent fills in the rest.
+    --workflow    optional. Omitted (or 'all') → one folder for each shipped
+                  workflow (outreach, seo, social, video). Otherwise a comma
+                  list of name[:type] — the NAME is the folder (free), the
+                  TYPE picks the starter and skill. `outreach-investors:outreach`
+                  is a second outreach workflow with its own goal; a name with
+                  no shipped type is a custom workflow (generic scaffold).
+                  Create as many as your situation needs — two outreach
+                  workflows with different audiences, three video workflows
+                  with different formats. The default is a starting point,
+                  not the shape.
     --merge       fill in missing files in an existing workspace
                   (never overwrites anything that already exists)
     --name        workspace folder name (default: workflows). Use a second
@@ -34,68 +45,72 @@ import workflows as wf  # noqa: E402
 
 REPO_ROOT = _HERE.parents[2]
 TEMPLATE = REPO_ROOT / "templates" / "workspace"
+SHARED_SRC = TEMPLATE / "shared"
+BASE_SRC = TEMPLATE / "workflow-base"
+STARTERS = TEMPLATE / "workflows"
 
-# Shared spine — always created. Config files are copied whole; the agent
-# trims what this brand doesn't need. No per-workflow path registry.
-SHARED = (
-    "config/brand.md",
-    "config/channels.json",
-    "config/sources.json",
-    "config/experiments.json",
-    "config/.env.example",
-    "runs/index.csv",
-    "reports/.gitkeep",
-    "inputs/queue/.gitkeep",
-    "inputs/best/.gitkeep",
-    "inputs/swipe/.gitkeep",
-    "inputs/assets/.gitkeep",
-    "inputs/audience/.gitkeep",
-    "state/published.csv",
-    "state/crm.csv",
-)
+GITIGNORE = """\
+# secrets
+shared/.env
+.env
+*.local
+
+# skills/ is a symlink to ~/.agents/skills — recreated by install_skills.sh
+skills/
+
+# build junk — site/ appears if engine-seo scaffolds you a website
+site/node_modules/
+site/dist/
+site/.astro/
+site/.next/
+
+# python
+__pycache__/
+*.pyc
+
+# video renders are large; keep the finished file, not the scratch
+**/runs/**/output/*.tmp.*
+"""
 
 
-def copy_path(src: Path, dst: Path, merge: bool) -> tuple[int, int]:
-    """Copy a file or directory tree. Never overwrite existing files."""
+def copy_tree(src: Path, dst: Path) -> tuple[int, int]:
+    """Copy a directory tree. Never overwrite existing files."""
     created = skipped = 0
-    if src.is_dir():
-        for item in sorted(src.rglob("*")):
-            rel = item.relative_to(src)
-            target = dst / rel
-            if item.is_dir():
-                target.mkdir(parents=True, exist_ok=True)
-                continue
-            if target.exists():
-                skipped += 1
-                if not merge:
-                    print(f"  = {rel} (kept yours)")
-                continue
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(item, target)
-            created += 1
-        return created, skipped
-
-    if dst.exists():
-        return 0, 1
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(src, dst)
-    return 1, 0
+    for item in sorted(src.rglob("*")):
+        rel = item.relative_to(src)
+        target = dst / rel
+        if item.is_dir():
+            target.mkdir(parents=True, exist_ok=True)
+            continue
+        if target.exists():
+            skipped += 1
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(item, target)
+        created += 1
+    return created, skipped
 
 
-def ensure_gitkeep_dir(path: Path) -> bool:
-    path.mkdir(parents=True, exist_ok=True)
-    keep = path / ".gitkeep"
-    if keep.exists():
-        return False
-    keep.write_text("")
-    return True
+def write_if_missing(path: Path, text: str) -> int:
+    if path.exists():
+        return 0
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(text)
+    return 1
 
 
-def set_active_workflow(channels: dict, name: str) -> dict:
-    out = dict(channels)
-    if not (out.get("active_workflow") or "").strip():
-        out["active_workflow"] = name
-    return out
+def custom_workflow_json(name: str) -> str:
+    return json.dumps({
+        "type": name,
+        "goal": "",
+        "primary_metric": "",
+        "_primary_metric_hint": "The one number THIS workflow optimises. "
+                                "A channel can override it in shared/channels.json.",
+        "_comment": f"Custom workflow — no shipped skill; engine-loop runs it "
+                    f"through the same traces as the built-ins. This folder is "
+                    f"fully self-contained. Want a second one? Copy the whole "
+                    f"folder to a new name and rewrite this file.",
+    }, indent=2) + "\n"
 
 
 def main() -> int:
@@ -105,25 +120,27 @@ def main() -> int:
     )
     ap.add_argument("project_dir", nargs="?", default=".")
     ap.add_argument(
-        "--workflow", "-w", required=True,
-        help="workflow name(s), comma-separated, or 'all' for every known one",
+        "--workflow", "-w", default="",
+        help="comma list of name[:type]; omitted → one folder per shipped "
+             "workflow. See the module docstring.",
     )
     ap.add_argument("--name", default="workflows",
                     help="workspace folder name (default: workflows) — "
                          "use another name for a second brand/ICP")
     ap.add_argument("--merge", action="store_true",
-                    help="add missing files to an existing workspace")
+                    help="add missing files/workflows to an existing workspace")
     a = ap.parse_args()
 
     try:
-        workflows = wf.parse_workflows(a.workflow)
+        pairs = wf.parse_workflows(a.workflow)
     except ValueError as e:
         print(f"error: {e}", file=sys.stderr)
         return 1
 
-    if not TEMPLATE.is_dir():
-        print(f"error: template not found at {TEMPLATE}", file=sys.stderr)
-        return 1
+    for d in (SHARED_SRC, BASE_SRC):
+        if not d.is_dir():
+            print(f"error: template not found at {d}", file=sys.stderr)
+            return 1
 
     project = Path(a.project_dir).expanduser().resolve()
     if not project.is_dir():
@@ -136,122 +153,70 @@ def main() -> int:
         print(f"\n{dest} already exists.\n")
         print("That folder holds your runs and your brand config, so this")
         print("script will not touch it. Your options:\n")
-        print(f"  --merge --workflow {a.workflow}")
-        print("      add only the files you're missing for these workflows")
-        print(f"  --name workflows2  scaffold alongside it\n")
+        print(f"  --merge --workflow <name[:type]>   add a workflow / missing files")
+        print(f"  --name workflows2                  scaffold alongside it\n")
         return 1
 
     known = set(wf.list_known())
-    custom = [name for name in workflows if name not in known]
 
     print(f"\nCreating workspace: {dest}")
-    print(f"  workflows: {', '.join(workflows)}")
-    for name in custom:
-        print(f"  note: '{name}' has no shipped skill/template — "
-              f"templates/{name}/ is created empty. Write templates, "
-              f"register experiments, enable channels; engine-loop handles "
-              f"the scoring.")
+    print(f"  workflows: {', '.join(n if n == t else f'{n} (type {t})' for n, t in pairs)}")
+    print(f"  (a starting point, not the shape — copy any workflow folder to "
+          f"run a second one with a different goal)")
     print()
 
     created = skipped = 0
 
-    for rel in SHARED:
-        src = TEMPLATE / rel
-        dst = dest / rel
-        if not src.exists():
-            if rel.endswith("/.gitkeep"):
-                if ensure_gitkeep_dir(dest / Path(rel).parent):
-                    created += 1
-                    print(f"  + {Path(rel).parent}/")
-                continue
-            print(f"  ! missing in template: {rel}", file=sys.stderr)
-            continue
+    # shared/ — the one cross-workflow folder.
+    c, s = copy_tree(SHARED_SRC, dest / "shared")
+    created += c
+    skipped += s
+    if c:
+        print("  + shared/  (brand, channels, .env.example, assets/, docs/, insights.md)")
 
-        if rel == "config/channels.json":
-            if dst.exists() and a.merge:
-                data = set_active_workflow(
-                    json.loads(dst.read_text()), workflows[0],
-                )
-                dst.write_text(json.dumps(data, indent=2) + "\n")
-                print("  ~ config/channels.json  (active_workflow if empty)")
-                continue
-            data = set_active_workflow(
-                json.loads(src.read_text()), workflows[0],
-            )
-            if dst.exists():
-                skipped += 1
-            else:
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                dst.write_text(json.dumps(data, indent=2) + "\n")
-                created += 1
-                print(f"  + config/channels.json  (active_workflow={workflows[0]})")
-            continue
+    # One self-contained folder per workflow: type starter first (its
+    # experiments/sources/templates win), then the base shell fills the gaps.
+    for name, typ in pairs:
+        wd = dest / name
+        c2 = s2 = 0
+        starter = STARTERS / typ
+        if starter.is_dir():
+            c2, s2 = copy_tree(starter, wd)
+        else:
+            c2 += write_if_missing(wd / "workflow.json", custom_workflow_json(name))
+        c1, s1 = copy_tree(BASE_SRC, wd)
+        # A renamed instance keeps its type in workflow.json even when the
+        # starter shipped `"type": typ` — rewrite only if freshly copied.
+        marker = wd / "workflow.json"
+        if name != typ and marker.is_file():
+            try:
+                meta = json.loads(marker.read_text())
+                if meta.get("type") != typ:
+                    meta["type"] = typ
+                    marker.write_text(json.dumps(meta, indent=2) + "\n")
+            except json.JSONDecodeError:
+                pass
+        created += c1 + c2
+        skipped += s1 + s2
+        if c1 + c2:
+            tag = "" if name == typ else f"  (type {typ})"
+            note = "" if (starter.is_dir() or typ in known) else "  (custom — no shipped skill; the agent fills it in)"
+            print(f"  + {name}/{tag}{note}")
+        elif (s1 + s2) and not a.merge:
+            print(f"  = {name}/ (kept yours)")
 
-        c, s = copy_path(src, dst, a.merge)
-        created += c
-        skipped += s
-        if c:
-            print(f"  + {rel}{'/' if src.is_dir() else ''}")
-        elif s and not a.merge:
-            print(f"  = {rel} (kept yours)")
+    created += write_if_missing(dest / ".gitignore", GITIGNORE)
 
-    # Per-workflow template folder — copy starter if we have one, else empty.
-    for name in workflows:
-        src = TEMPLATE / "templates" / name
-        dst = dest / "templates" / name
-        if src.is_dir():
-            c, s = copy_path(src, dst, a.merge)
-            created += c
-            skipped += s
-            if c:
-                print(f"  + templates/{name}/")
-            elif s and not a.merge:
-                print(f"  = templates/{name}/ (kept yours)")
-        elif ensure_gitkeep_dir(dst):
-            created += 1
-            print(f"  + templates/{name}/")
-
-    marker_before = (dest / "config" / wf.MARKER_NEW).is_file() \
-        or (dest / "config" / wf.MARKER_OLD).is_file()
-    before = set(wf.read_workflows(dest)) if marker_before else set()
-    wf.write_workflows(dest, workflows)
-    installed = wf.read_workflows(dest)
-    if set(installed) != before or not marker_before:
-        created += 1
-        print(f"  + config/workflows.json  ({', '.join(installed)})")
-
-    gitignore = dest / ".gitignore"
-    if not gitignore.exists():
-        gitignore.write_text(
-            "# secrets\n"
-            "config/.env\n"
-            ".env\n"
-            "*.local\n"
-            "\n# skills/ is a symlink to ~/.agents/skills — recreated by install_skills.sh\n"
-            "skills/\n"
-            "\n# build junk — site/ appears if engine-seo scaffolds you a website\n"
-            "site/node_modules/\n"
-            "site/dist/\n"
-            "site/.astro/\n"
-            "site/.next/\n"
-            "\n# python\n"
-            "__pycache__/\n"
-            "*.pyc\n"
-            "\n# video renders are large; keep the finished file, not the scratch\n"
-            "runs/**/output/*.tmp.*\n"
-        )
-        created += 1
-        print("  + .gitignore")
-
-    skills = wf.skills_for(installed)
+    types = wf.workspace_types(dest)
+    skills = wf.skills_for(types)
     print(f"\n  {created} files created" + (f", {skipped} left alone" if skipped else ""))
     print(f"""
 Next:
-  1. Install skills for these workflows:
+  1. Install the skills for these workflows:
        {REPO_ROOT}/skills/engine-setup/scripts/install_skills.sh \\
-         --workspace {dest} --workflow {','.join(installed)}
+         --workspace {dest}
      (skills: {', '.join(skills)})
-  2. Copy config/.env.example to config/.env and add any keys you need
+  2. Copy shared/.env.example to shared/.env and add any keys you need
   3. Tell your agent:  run engine-setup
 """)
     return 0

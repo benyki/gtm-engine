@@ -1,0 +1,12 @@
+{
+  "_comment": "Where this workflow's ideas and raw material come from. Free-form \u2014 add fields as needed.",
+  "primary": "own_material",
+  "_primary_options": [
+    "own_material",
+    "queue",
+    "repurpose_seo",
+    "reddit"
+  ],
+  "repurpose_from": "seo",
+  "_repurpose_hint": "own_material is the day-one default. Prefer inputs/queue/ once engine-loop has filled it. One article is usually three or four posts."
+}

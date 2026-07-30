@@ -1,0 +1,13 @@
+{
+  "type": "video",
+  "goal": "",
+  "primary_metric": "",
+  "_primary_metric_hint": "The one number THIS workflow optimises \u2014 commonly watch_through_rate, then views. A channel can still override it in shared/channels.json.",
+  "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Want a second video workflow with a different goal or audience? Copy this whole folder to a new name (e.g. video-partners/), rewrite this file's goal and metric, and run it independently. The folder name is the workflow name; 'type' maps it to the engine-video skill.",
+  "video": {
+    "elevenlabs_voice_id": "",
+    "resolution": "1080x1920",
+    "target_seconds": 35,
+    "_note": "Knobs engine-video reads. 9:16 vertical is the default, not a law \u2014 set 1920x1080 for a YouTube-landscape strategy and say so in brand.md."
+  }
+}

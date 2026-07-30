@@ -1,7 +1,7 @@
 # gtm-engine
 
 
-Growth workflows for coding agents — they write content, send personalised outreach, and keep score. Ships with seo, linkedin, video and outreach; add your own workflows freely, and more will land here over time.
+Growth workflows for coding agents — they write content, send personalised outreach, and keep score. Ships with seo, social, video and outreach; add your own workflows freely, and more will land here over time.
 
 Built for indie devs and early-stage startups: you have a product, no users, and no growth team.
 
@@ -32,16 +32,19 @@ Then install (below) and tell your agent: `run engine-setup`.
 
 ## The workflows
 
-| Workflow | What it does |
+| | What it does |
 |---|---|
 | **`engine-setup`** | Installs everything and builds your workspace. Run once. |
 | **`engine-seo`** | Finds the questions your buyers ask, writes the article that answers them. No website? It builds one |
-| **`engine-linkedin`** | LinkedIn and X posts in your voice, learned from your own best work |
+| **`engine-social`** | LinkedIn, X, Bluesky and other text social posts in your voice |
 | **`engine-video`** | Short-form vertical video: script, voiceover, footage, render |
 | **`engine-outreach`** | Researches real people and writes personalised emails — as **drafts**, never sends |
-| **`engine-loop`** | Numbers in, A/B verdicts out, weekly report, next week's plan |
 
-Pick one content workflow to start. `engine-loop` needs runs on the board before it can tell you anything.
+**`engine-loop` is not a fifth workflow.** It is the framework that sits under the
+ones above (and any custom workflow you add): it makes them learn, grow, and
+compound over time — metrics in, A/B verdicts out, weekly report, next week's
+plan. Pick one content workflow to start; the loop only has something to say
+once there are runs on the board.
 
 ---
 
@@ -67,7 +70,7 @@ python3 ~/Desktop/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py .
 ```
 
 Replace `~/Desktop/gtm-engine` with wherever you cloned. Replace `seo` with
-`linkedin`, `video`, `outreach`, a comma list, `all` — or any name of your own
+`social`, `video`, `outreach`, a comma list, `all` — or any name of your own
 for a custom workflow (the loop treats it like the built-ins; you supply the
 templates).
 
@@ -90,12 +93,14 @@ agent's skills folder and as one `workflows/skills` → `~/.agents/skills` link.
 Re-run `install_skills.sh` after `git pull` to refresh the copies. Nothing you
 own lives in this repo, so an update can never clobber your data.
 
-Full layout: [`docs/workspace.md`](docs/workspace.md). The spine is `runs/index.csv` — one row per thing you ever made, with the arm it used and the number it earned.
+Full layout: [`docs/workspace.md`](docs/workspace.md). The workspace is one self-contained folder per workflow (own experiments, templates, runs, reports — copy a folder to run a second outreach or video workflow with a different goal) plus one `shared/` folder (brand, accounts, keys, assets, cross-workflow insights). Each workflow keeps its own spine at `<workflow>/runs/index.csv` — one row per thing it ever made, with the arm it used and the number it earned.
 
 ---
 
-## The loop
+## The loop (`engine-loop`)
 
+Not a separate growth channel — the framework that makes your existing workflows
+(seo, social, video, outreach, or a custom one) learn, grow, and compound.
 Four jobs you schedule once:
 
 | Job | Cadence | What happens |

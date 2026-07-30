@@ -24,7 +24,7 @@ Keep your **workspace** in a separate private repo. It holds your CRM and your n
 
 CSV is right until it isn't. The breaking points are specific: concurrent writes, wanting to query across projects, or a history long enough that reading it stops being practical.
 
-Supabase (hosted Postgres) is the low-friction option — move `runs/index.csv`, `state/crm.csv` and the metrics into tables and give your agent access via the Supabase CLI or its MCP server. MCP is less setup; the CLI is more capable.
+Supabase (hosted Postgres) is the low-friction option — move `runs/index.csv`, `crm.csv` and the metrics into tables and give your agent access via the Supabase CLI or its MCP server. MCP is less setup; the CLI is more capable.
 
 **One trap worth knowing about in advance.** If you have more than one Supabase account, a missing environment variable will silently target the wrong one — no error, just changes landing in the wrong project. The fix is a small wrapper script that injects the right token on every invocation, and never calling the bare CLI for automated work. Use one access token per machine so you can revoke a laptop without touching anything else.
 

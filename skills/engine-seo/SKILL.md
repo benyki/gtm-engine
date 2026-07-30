@@ -7,13 +7,30 @@ description: Writes search-led articles and landing pages by mining the question
 
 Finds a question people actually asked, answers it better than what currently ranks, and writes the piece in the user's voice.
 
+This skill runs any workflow folder of **type `seo`**. The default folder is
+`seo/`; paths below (`sources.json`, `inputs/`, `templates/`, `runs/`, `site/`)
+are inside that folder, while brand, accounts and keys live in `shared/`.
+**Two seo workflows are fine** — e.g. `seo/` for the product blog and
+`seo-docs/` for a docs/comparison site, each with its own sources, site and
+metric — scaffold with `--merge --workflow seo-docs:seo`, or copy a folder
+and empty its `runs/` and `reports/` (history belongs to the original).
+
 Output is markdown, generated locally. Where it goes depends on whether they already have a site — see **Publishing** below. Either way nothing goes live without them saying so.
+
+**How (not just what):**
+
+| Step | Reference |
+|---|---|
+| Reddit / SERPs in the browser | `references/browser-research.md` |
+| Cut AI slop / keep voice | `references/writing.md` |
+| After publish (Clarity → rewrites) | `references/clarity-rewrite.md` |
+| Static site / CMS tradeoffs | `references/advanced.md` |
 
 ## Where topics come from
 
-Read `config/sources.json`. The default is Reddit, and it needs no account.
+Read this workflow's `sources.json`. The default is Reddit, and it needs no account.
 
-**Reddit (default).** Find the subreddits where the audience in `config/brand.md` actually posts, then look for questions asked repeatedly, questions with long comment threads, and questions where the top answer is bad. That last one is the opportunity — a real question with no good answer is the whole game.
+**Reddit (default).** Find the subreddits where the audience in `shared/brand.md` actually posts, then look for questions asked repeatedly, questions with long comment threads, and questions where the top answer is bad. That last one is the opportunity — a real question with no good answer is the whole game. How to read threads without an API: `references/browser-research.md`.
 
 **Competitor URLs.** If they're listed in `sources.json`, read them and find what they left out, what they got wrong, and what's aged badly. Beat the page that exists; don't write a worse copy of it.
 
@@ -47,7 +64,9 @@ Voice comes from `inputs/best/` — their own best-performing pieces — not fro
 - Specifics over hedging. Real numbers, real examples, real product names
 - No throat-clearing intros, no "in today's fast-paced world", no summary of what the article will cover
 - Length is whatever the question needs
-- Respect the banned words and claims in `config/brand.md`
+- Respect the banned words and claims in `shared/brand.md`
+
+Before the user reviews, run `references/writing.md` over the draft (edit or detect).
 
 ### 5. Log it
 
@@ -72,7 +91,7 @@ Then building one is part of this workflow, because thirty good articles in a fo
 
 The **contract** is: content stays in plain markdown files an agent can read and fix, publishing is a git push, and each page carries its `run_id` back to the spine. Any stack that satisfies it works — if they already have a Next.js site or a company-standard host, publish into that rather than building a parallel one. The **default**, when starting from nothing, is Astro + local markdown + a simple host:
 
-1. Scaffold an Astro site once, into `workflows/site/`
+1. Scaffold an Astro site once, into this workflow's own `site/` folder (e.g. `seo/site/`) — self-contained like everything else here
 2. Define a content collection with the `glob` loader pointing at your articles:
 
    ```ts
@@ -107,7 +126,12 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --
 
 The URL matters — `engine-loop` needs it to fetch Search Console numbers later.
 
-One timing note: search is slow. The 72-hour default window in `due_metrics.py` is a social-media number; Search Console data on a new article takes weeks to mean anything. Set `metric_delay_hours` on the blog channel in `config/channels.json` (336 = two weeks is a sane floor) so the loop doesn't ask for numbers that don't exist yet.
+One timing note: search is slow. The 72-hour default window in `due_metrics.py` is a social-media number; Search Console data on a new article takes weeks to mean anything. Set `metric_delay_hours` on the blog channel in `shared/channels.json` (336 = two weeks is a sane floor) so the loop doesn't ask for numbers that don't exist yet.
+
+### After it has traffic
+
+If Clarity is set up, turn behavior into the next rewrite with
+`references/clarity-rewrite.md` — don’t guess from vanity metrics alone.
 
 ## Rules
 
@@ -115,7 +139,10 @@ One timing note: search is slow. The 72-hour default window in `due_metrics.py` 
 - **Never invent a statistic, study or quote.** If a claim needs a source, find one or cut the claim. A fabricated number in a published article is the kind of mistake that outlives the article
 - **Never write about a question nobody asked.** If it didn't come from a real thread, a real competitor gap or the queue, it's guesswork
 - Don't write ten pieces in a batch. One good piece, published, measured, beats ten in a folder
+- An objection or question that keeps appearing in other workflows' replies is your next article — check `shared/insights.md` and the siblings' `reports/latest.json` when picking topics, and add a line back when an article's numbers teach something general
 
 ## Going further
 
-`references/advanced.md` — building an Astro or Next.js static site that generates itself from everything in `runs/`, so publishing stops being a manual step.
+- `references/advanced.md` — site that generates from `runs/`
+- Optional: `benyki/skills/clarity-api-seo`, `benyki/skills/agent-browser` —
+  `docs/additional-skills.md`

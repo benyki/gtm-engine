@@ -3,12 +3,15 @@
 
 Convention, not a registry:
   - core skills always install: engine-setup, engine-loop
-  - workflow name N → skill engine-N, but only if that folder exists
-  - anything else is a custom workflow (templates only; agent supplies judgement)
+  - a workflow folder's TYPE (workflow.json) maps to skill engine-<type>,
+    but only if that skill folder exists
+  - the folder NAME is free — outreach-investors/ with type "outreach" is
+    a second outreach workflow; anything without a shipped type is custom
+    (generic scaffold; the agent supplies the judgement)
 
 Usage:
-    workflows.py skills seo,outreach
-    workflows.py list
+    workflows.py skills seo,outreach-investors:outreach
+    workflows.py list          # types that ship a skill or starter
 """
 from __future__ import annotations
 
@@ -20,124 +23,93 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 REPO_ROOT = _HERE.parents[2]
 SKILLS_DIR = REPO_ROOT / "skills"
+STARTERS_DIR = REPO_ROOT / "templates" / "workspace" / "workflows"
 
 CORE_SKILLS = ("engine-setup", "engine-loop")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
 
-# New name; still read the old marker so existing workspaces keep working.
-MARKER_NEW = "workflows.json"
-MARKER_OLD = "pathways.json"
-
-
-def parse_workflows(raw: str | None) -> list[str]:
-    if raw is None or raw.strip() == "":
-        raise ValueError("pass --workflow <name>[,name...] or --workflow all")
-    text = raw.strip().lower()
-    if text == "all":
-        return list_known()
-    out: list[str] = []
-    for part in text.split(","):
-        name = part.strip()
-        if not name:
-            continue
-        if not NAME_RE.match(name):
-            raise ValueError(
-                f"invalid workflow name {name!r} — lowercase letters, digits, "
-                f"- and _ only"
-            )
-        if name not in out:
-            out.append(name)
-    if not out:
-        raise ValueError("no workflows given")
-    return out
-
 
 def list_known() -> list[str]:
-    """Workflows that already ship a skill or a starter template — discovery only."""
+    """Workflow TYPES that ship a skill or a starter — discovery only."""
     names: list[str] = []
     if SKILLS_DIR.is_dir():
         for p in sorted(SKILLS_DIR.iterdir()):
-            if not p.name.startswith("engine-"):
-                continue
-            if p.name in CORE_SKILLS:
+            if not p.name.startswith("engine-") or p.name in CORE_SKILLS:
                 continue
             if (p / "SKILL.md").is_file():
                 names.append(p.name.removeprefix("engine-"))
-    tmpl = REPO_ROOT / "templates" / "workspace" / "templates"
-    if tmpl.is_dir():
-        for p in sorted(tmpl.iterdir()):
+    if STARTERS_DIR.is_dir():
+        for p in sorted(STARTERS_DIR.iterdir()):
             if p.is_dir() and p.name not in names and NAME_RE.match(p.name):
                 names.append(p.name)
     return names
 
 
-def skill_for(workflow: str) -> str | None:
-    name = f"engine-{workflow}"
+def parse_workflows(raw: str | None) -> list[tuple[str, str]]:
+    """Parse '--workflow' input into (name, type) pairs.
+
+    Forms: 'outreach' (name = type), 'outreach-investors:outreach'
+    (second instance of a type), 'newsletter' (custom — type = name),
+    'all' (every known type, name = type). Empty/None → all: the default
+    scaffold is one folder per shipped workflow.
+    """
+    known = list_known()
+    if raw is None or raw.strip() == "" or raw.strip().lower() == "all":
+        return [(t, t) for t in known]
+    out: list[tuple[str, str]] = []
+    for part in raw.strip().lower().split(","):
+        part = part.strip()
+        if not part:
+            continue
+        name, _, typ = part.partition(":")
+        typ = typ or name
+        for label, v in (("name", name), ("type", typ)):
+            if not NAME_RE.match(v):
+                raise ValueError(
+                    f"invalid workflow {label} {v!r} — lowercase letters, "
+                    f"digits, - and _ only"
+                )
+        if name not in [n for n, _ in out]:
+            out.append((name, typ))
+    if not out:
+        raise ValueError("no workflows given")
+    return out
+
+
+def skill_for(wf_type: str) -> str | None:
+    name = f"engine-{wf_type}"
     if (SKILLS_DIR / name / "SKILL.md").is_file():
         return name
     return None
 
 
-def skills_for(workflows: list[str]) -> list[str]:
+def skills_for(types: list[str]) -> list[str]:
     names = list(CORE_SKILLS)
-    for wf in workflows:
-        skill = skill_for(wf)
+    for t in types:
+        skill = skill_for(t)
         if skill and skill not in names:
             names.append(skill)
     return names
 
 
-def _marker_path(ws: Path) -> Path:
-    new = ws / "config" / MARKER_NEW
-    old = ws / "config" / MARKER_OLD
-    if new.is_file():
-        return new
-    if old.is_file():
-        return old
-    return new
-
-
-def read_workflows(ws: Path) -> list[str]:
-    marker = _marker_path(ws)
-    if marker.is_file():
-        try:
-            data = json.loads(marker.read_text())
-            got = [
-                w for w in data.get("workflows", [])
-                if isinstance(w, str) and NAME_RE.match(w)
-            ]
-            if got:
-                return got
-        except (json.JSONDecodeError, OSError):
-            pass
-    templates = ws / "templates"
-    if templates.is_dir():
-        found = [
-            p.name for p in sorted(templates.iterdir())
-            if p.is_dir() and NAME_RE.match(p.name)
-        ]
-        if found:
-            return found
-    return []
-
-
-def write_workflows(ws: Path, workflows: list[str]) -> None:
-    """Merge into config/workflows.json. Migrates away from pathways.json."""
-    config = ws / "config"
-    config.mkdir(parents=True, exist_ok=True)
-    dest = config / MARKER_NEW
-    existing = read_workflows(ws)
-    merged: list[str] = []
-    for w in existing + workflows:
-        if w not in merged:
-            merged.append(w)
-    dest.write_text(json.dumps({"workflows": merged}, indent=2) + "\n")
-    old = config / MARKER_OLD
-    if old.is_file() and old != dest:
-        try:
-            old.unlink()
-        except OSError:
-            pass
+def workspace_types(ws: Path) -> list[str]:
+    """Types of every workflow folder in a workspace (from workflow.json)."""
+    types: list[str] = []
+    try:
+        for p in sorted(ws.iterdir()):
+            marker = p / "workflow.json"
+            if not (p.is_dir() and marker.is_file()):
+                continue
+            try:
+                t = (json.loads(marker.read_text()).get("type") or "").strip()
+            except (json.JSONDecodeError, OSError):
+                t = ""
+            t = t or p.name
+            if t not in types:
+                types.append(t)
+    except OSError:
+        pass
+    return types
 
 
 def main() -> int:
@@ -151,11 +123,11 @@ def main() -> int:
     if cmd == "skills":
         raw = sys.argv[2] if len(sys.argv) > 2 else ""
         try:
-            wfs = parse_workflows(raw)
+            pairs = parse_workflows(raw)
         except ValueError as e:
             print(f"error: {e}", file=sys.stderr)
             return 1
-        print(" ".join(skills_for(wfs)))
+        print(" ".join(skills_for([t for _, t in pairs])))
         return 0
     print(f"error: unknown command {cmd!r}", file=sys.stderr)
     return 1

@@ -1,0 +1,30 @@
+{
+  "_comment": "Starter experiment \u2014 an EXAMPLE of shape, not a recommendation for your business. Rewriting arms/hypotheses is part of engine-setup. The second arm ships with no template on purpose: first time it's assigned, the agent writes it from the hypothesis (R4). Optional fields per experiment: channel, direction, aggregate \u2014 see engine-loop/references/ab-testing.md.",
+  "experiments": [
+    {
+      "id": "exp-002",
+      "status": "live",
+      "template_base": "article",
+      "variable": "opening",
+      "min_runs_per_arm": 8,
+      "win_ratio": 1.2,
+      "started": "",
+      "arms": [
+        {
+          "id": "default",
+          "label": "answer first",
+          "template": "article-default.md",
+          "hypothesis": "Answering in the first hundred words holds the reader who arrived from a search result."
+        },
+        {
+          "id": "story",
+          "label": "context first",
+          "template": "article-story.md",
+          "hypothesis": "A short concrete situation before the answer builds enough trust to carry the reader further down the page. Costs some bounce, may win on time-on-page and conversion."
+        }
+      ],
+      "decision": null
+    }
+  ],
+  "decision_log": []
+}

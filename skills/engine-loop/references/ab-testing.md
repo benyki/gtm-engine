@@ -8,7 +8,7 @@ They apply to **any workflow built from a template plus config** — outreach em
 
 ## R1 — A variant is a whole template file
 
-`templates/<workflow>/<base>-<variant>.txt`. The file is the unit, even when the change inside it is one line. That way what was actually sent is always recoverable, and a diff between two arms is a real diff rather than a config lookup.
+`<workflow>/templates/<base>-<variant>.txt`. The file is the unit, even when the change inside it is one line. That way what was actually sent is always recoverable, and a diff between two arms is a real diff rather than a config lookup.
 
 **How big the difference should be is not fixed — it shrinks as you learn.**
 
@@ -83,7 +83,7 @@ Whatever you pick, the sanity check before acting on any `decided` verdict is th
 ## After a verdict
 
 1. **Promote** the winner to the base template
-2. **Retire** the loser to `templates/<workflow>/losers/` — never delete it. Runs only read the active folder, so it can't return by accident, but something that lost against one audience often wins against the next, and the folder is the cheapest record you'll keep of what doesn't work
+2. **Retire** the loser to the workflow's `templates/losers/` — never delete it. Runs only read the active folder, so it can't return by accident, but something that lost against one audience often wins against the next, and the folder is the cheapest record you'll keep of what doesn't work
 3. **Write a challenger** that attacks the winner, with the hypothesis in a header comment
 4. **Register** it in `experiments.json`, reset `started` to today, record the decision
 

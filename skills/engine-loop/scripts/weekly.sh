@@ -50,4 +50,5 @@ fi
 echo "wrote $REPORT"
 echo ""
 echo "Sections 5 and 6 are blank on purpose — an agent or you fills those in."
-echo "Next agent: read reports/latest.json before deciding anything."
+echo "Next agent: read each workflow's reports/latest.json (and shared/insights.md)"
+echo "before deciding anything."

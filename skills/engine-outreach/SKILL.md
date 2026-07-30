@@ -7,6 +7,15 @@ description: Personalised cold outreach that ends in mail drafts, never sends. R
 
 Writes outreach worth reading, one person at a time, and stops at the draft.
 
+This skill runs any workflow folder of **type `outreach`**. The default folder
+is `outreach/`; paths below (`inputs/audience/`, `crm.csv`, `templates/`,
+`runs/`) are inside that folder, while brand, accounts and keys live in
+`shared/`. **Multiple outreach workflows are a normal shape** — `outreach/`
+for customers and `outreach-investors/` for fundraising are two independent
+folders with their own CRMs, templates, experiments and metrics — scaffold one
+with `--merge --workflow <name>:outreach`, or copy a folder and empty its
+`runs/`, `reports/` and `crm.csv` (history belongs to the original).
+
 **It never sends.** Not with permission, not "just this once". Drafts land in the user's own mail system and a human clicks send. Everything downstream — the CRM, the A/B verdicts, the report — assumes that boundary holds.
 
 ## Setup
@@ -25,7 +34,7 @@ If a managed Workspace or tenant blocks the connector at the admin level, that's
 
 ### 1. Load the list
 
-Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pasted text — and normalise it into `state/crm.csv`. Dedupe on email, falling back to LinkedIn URL then name+company.
+Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pasted text — and normalise it into `crm.csv`. Dedupe on email, falling back to LinkedIn URL then name+company.
 
 **Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this workflow can make, and it's silent unless you check.
 
@@ -45,7 +54,7 @@ This is where the whole thing is won or lost. A merge field is not personalisati
 
 Look for something specific and recent: what they shipped, what they wrote, what they're hiring for, what they said publicly. One real observation beats three generic compliments. Budget about a minute per person; if there's genuinely nothing to find, that's a signal they're the wrong target, not a reason to write filler.
 
-Pull the voice and the constraints from `config/brand.md` — especially the banned claims.
+Pull the voice and the constraints from `shared/brand.md` — especially the banned claims.
 
 ### 4. Draft
 
@@ -64,7 +73,7 @@ Then update the CRM row: `status=drafted`, `arm`, `template_used`, `drafted_at`,
 
 ## Before you hand over
 
-Show the user ten drafts, not fifty. Ask them to kill the ones that read like a robot and say why — then regenerate the rest with that feedback. The second batch is always better, and the reason is worth writing into `config/brand.md` so it survives.
+Show the user ten drafts, not fifty. Ask them to kill the ones that read like a robot and say why — then regenerate the rest with that feedback. The second batch is always better, and the reason is worth writing into `shared/brand.md` so it survives — and if the lesson isn't outreach-specific, add a line to `shared/insights.md` too.
 
 ## After they send
 
@@ -87,7 +96,7 @@ Skip this and the run stays `draft` forever: `due_metrics.py` never lists it, no
 
 ## Getting the numbers back
 
-The metric is replies and the source is the same mailbox the drafts came from — no analytics page, no browser reading. Replies settle faster than social distribution: if the 72h default feels slow here, set `metric_delay_hours` on the email channel in `config/channels.json` (24–48 is reasonable). On each loop pass, `due_metrics.py` lists the sent runs past that window with no number yet. For each one, check the thread:
+The metric is replies and the source is the same mailbox the drafts came from — no analytics page, no browser reading. Replies settle faster than social distribution: if the 72h default feels slow here, set `metric_delay_hours` on the email channel in `shared/channels.json` (24–48 is reasonable). On each loop pass, `due_metrics.py` lists the sent runs past that window with no number yet. For each one, check the thread:
 
 - **A reply landed** → `runlog.py metric --run <id> --value 1 --source api`, set `replied_at` in the CRM, stop the follow-ups
 - **No reply, sequence still open** → leave the cell empty. It stays on the due list and gets checked again next pass

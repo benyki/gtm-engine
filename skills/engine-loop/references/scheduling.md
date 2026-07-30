@@ -10,7 +10,7 @@ Be clear about this before wiring anything up, because it decides which kind of 
 
 | Step | Unattended script? | Why |
 |---|---|---|
-| Score experiments | **yes** | reads `runs/index.csv`, pure arithmetic |
+| Score experiments | **yes** | reads each workflow's `runs/index.csv`, pure arithmetic |
 | Render the report | **yes** | same |
 | List what's owed a number | **yes** | `due_metrics.py` checks each channel's window (72h default) |
 | **Read numbers off TikTok / LinkedIn / Instagram / X** | **no** | needs a logged-in browser, which needs an agent |
@@ -90,14 +90,15 @@ Run the engine-loop weekly cycle for this workspace.
    outreach — and record it with runlog.py metric and the right --source.
    Skip anything due_metrics lists as too early — leave those for next week.
 3. python3 ~/code/gtm-engine/skills/engine-loop/scripts/score_arms.py
-4. For any DECIDED experiment: move the losing template to
-   templates/<workflow>/losers/, write a challenger with its hypothesis as a
-   header comment, register it in experiments.json. Do NOT promote the
-   challenger to default — leave that for me.
+4. For any DECIDED experiment: move the losing template to that
+   workflow's templates/losers/, write a challenger with its hypothesis as a
+   header comment, register it in the workflow's experiments.json. Do NOT
+   promote the challenger to default — leave that for me.
 5. python3 ~/code/gtm-engine/skills/engine-loop/scripts/render_report.py
 6. Fill in sections 5 and 6 of the report.
-7. Write next week's content ideas into inputs/queue/, each with the run that
-   justifies it.
+7. Write next week's content ideas into each workflow's inputs/queue/, each
+   with the run that justifies it. If a finding generalises across workflows,
+   add one line to shared/insights.md.
 
 Never post, never send, never promote an arm. Stop and tell me if anything
 looks wrong.
@@ -130,10 +131,10 @@ Daily metric collection isn't about speed — it's that runs come due on a rolli
 
 This is the point of writing reports to a fixed place in a fixed shape.
 
-`reports/latest.json` is the handover file. Any agent starting fresh in this workspace should read it **first** — it gets the period, what ran, what shipped, the metric totals with their sources, every live experiment with its verdict, and how many runs are still owed a number. As data, not prose.
+Each workflow's `reports/latest.json` is its handover file. Any agent starting fresh in this workspace should read them **first** (plus `shared/insights.md`) — it gets the period, what ran, what shipped, the metric totals with their sources, every live experiment with its verdict, and how many runs are still owed a number. As data, not prose.
 
 ```
-reports/
+<workflow>/reports/
 ├── latest.json          ← always the most recent. Read this first
 ├── index.csv            ← one row per report ever: the trend line
 └── weekly-2026-W31.md   ← the human-readable one

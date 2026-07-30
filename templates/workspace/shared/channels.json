@@ -1,0 +1,54 @@
+{
+  "_comment": "All your accounts, one place, shared by every workflow. This is the minimum global config \u2014 everything workflow-specific lives in that workflow's folder. The channel set is open: add newsletter, threads, reddit, podcast, ... freely; runlog.py --channel is free text and a channel only needs an entry here if you want config for it.",
+  "channels": {
+    "blog": {
+      "enabled": false,
+      "publish": "manual",
+      "base_url": ""
+    },
+    "linkedin": {
+      "enabled": false,
+      "publish": "manual",
+      "handle": ""
+    },
+    "x": {
+      "enabled": false,
+      "publish": "manual",
+      "handle": ""
+    },
+    "bluesky": {
+      "enabled": false,
+      "publish": "api",
+      "handle": ""
+    },
+    "tiktok": {
+      "enabled": false,
+      "publish": "manual",
+      "handle": ""
+    },
+    "instagram": {
+      "enabled": false,
+      "publish": "manual",
+      "handle": ""
+    },
+    "youtube": {
+      "enabled": false,
+      "publish": "manual",
+      "handle": ""
+    },
+    "email": {
+      "enabled": false,
+      "publish": "draft_only",
+      "from": ""
+    }
+  },
+  "_channel_keys": "Optional per-channel keys the scripts honour: primary_metric (overrides the workflow's own for runs on this channel) and metric_delay_hours (how long after publish before the number is worth reading \u2014 due_metrics.py defaults to 72, right for social; set e.g. 336 for blog/Search Console, 24 for email replies).",
+  "_publish_options": [
+    "manual",
+    "uploadpost",
+    "buffer",
+    "api",
+    "draft_only"
+  ],
+  "_publish_note": "Advisory, and an open set \u2014 no script enforces it. The contract is: a human approves before anything goes live, and the URL gets recorded. 'api' means the agent may publish directly after approval (sanctioned APIs only, e.g. Bluesky's AT Protocol); map any scheduler you already use onto the same contract."
+}

@@ -15,10 +15,12 @@
 #   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
 #   ./install_skills.sh --workflow all --workspace ./workflows
 #
-#   --workflow NAME    required (comma-separated), or all. Convention:
-#                      workflow N installs engine-N when that skill exists;
-#                      always installs engine-setup + engine-loop. Custom
-#                      names with no engine-N skill get the core pair only.
+#   --workflow NAME    optional. Comma-separated name[:type] or all. With
+#                      --workspace it's inferred from each workflow folder's
+#                      workflow.json type. Convention: type N installs
+#                      engine-N when that skill exists; always installs
+#                      engine-setup + engine-loop. Custom types with no
+#                      engine-N skill get the core pair only.
 #   --workspace PATH   project workspace folder (links PATH/skills → canonical)
 #   --dry-run          print what would happen, write nothing
 #   --help             show this usage
@@ -57,7 +59,9 @@ Usage:
   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
   ./install_skills.sh --workflow all --workspace ./workflows
 
-  --workflow NAME    required. Comma-separated names, or all.
+  --workflow NAME    optional — inferred from the workspace's workflow
+                     folders (workflow.json types) when --workspace is given;
+                     'all' with neither. Comma-separated names or types.
   --workspace PATH   project workspace folder (links PATH/skills → canonical)
   --dry-run          print what would happen, write nothing
   --help             show this usage
@@ -81,26 +85,41 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-read_workflows_marker() {
+# A workspace is one shared/ folder plus one folder per workflow; each
+# workflow folder carries its TYPE in workflow.json. Skills follow types.
+read_workspace_types() {
   local dir="$1"
-  if [[ -f "$dir/config/workflows.json" ]]; then
-    python3 -c "import json,sys; print(','.join(json.load(open(sys.argv[1]))['workflows']))" "$dir/config/workflows.json"
-  elif [[ -f "$dir/config/pathways.json" ]]; then
-    python3 -c "import json,sys; print(','.join(json.load(open(sys.argv[1]))['workflows']))" "$dir/config/pathways.json"
-  else
-    return 1
-  fi
+  [[ -d "$dir" ]] || return 1
+  python3 - "$dir" <<'PYEOF'
+import json, pathlib, sys
+ws = pathlib.Path(sys.argv[1])
+types = []
+for p in sorted(ws.iterdir()):
+    m = p / "workflow.json"
+    if p.is_dir() and m.is_file():
+        try:
+            t = (json.loads(m.read_text()).get("type") or "").strip() or p.name
+        except Exception:
+            t = p.name
+        if t not in types:
+            types.append(t)
+if not types:
+    sys.exit(1)
+print(",".join(types))
+PYEOF
 }
 
 if [[ -z "$WORKFLOW" ]]; then
-  if [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workflows_marker "${WORKSPACE%/}")"; then
+  if [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workspace_types "${WORKSPACE%/}")"; then
     :
-  elif [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workflows_marker "${WORKSPACE%/}/workflows")"; then
+  elif [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workspace_types "${WORKSPACE%/}/workflows")"; then
     :
-  else
-    echo "error: --workflow is required (names, comma-separated, or all)" >&2
-    echo "       or pass --workspace pointing at a scaffolded workspace with config/workflows.json" >&2
+  elif [[ -n "$WORKSPACE" ]]; then
+    echo "error: no workflow folders (with workflow.json) found under $WORKSPACE" >&2
     exit 1
+  else
+    # No workspace, no flag: install everything the repo ships.
+    WORKFLOW="all"
   fi
 fi
 
@@ -169,9 +188,9 @@ resolve_workspace() {
   if [[ -z "$raw" ]]; then
     return 1
   fi
-  if [[ -f "$raw/config/workflows.json" || -f "$raw/config/pathways.json" || -f "$raw/config/channels.json" ]]; then
+  if [[ -d "$raw/shared" ]]; then
     (cd "$raw" && pwd)
-  elif [[ -d "$raw/workflows" ]]; then
+  elif [[ -d "$raw/workflows/shared" ]]; then
     (cd "$raw/workflows" && pwd)
   else
     (cd "$raw" && pwd)

@@ -1,11 +1,37 @@
 ---
 name: engine-video
-description: Makes short-form vertical video — script, voiceover via ElevenLabs, footage sourced or pulled from Pexels, rendered 9:16 with ffmpeg — with the A/B arm assigned and the run logged. Posting is the user's choice of manual, Upload Post, or Buffer (see references/posting-options.md). Use when the user says "make a video", "run the video workflow", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
+description: Makes short-form vertical video — plan (VideoArchitecture), voiceover, footage, render 9:16 (ffmpeg floating-text by default, Remotion optional), optional looks/music, then post and log. Use when the user says "make a video", "run the video workflow", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
 ---
 
 # engine-video
 
 Script to rendered 9:16 mp4. The heaviest workflow in the repo — it needs disk, keys and patience — so don't pick it as a first workflow unless video is genuinely the channel.
+
+This skill runs any workflow folder of **type `video`**. The default folder is
+`video/`; paths below (`templates/`, `runs/`, `inputs/`) are inside it, while
+brand, accounts, keys and **reusable footage/fonts/logos live in `shared/`**
+(`shared/assets/` — any workflow can use them). **Several video workflows are a
+normal shape** — `video/` for product demos and `video-founder/` for talking-head
+content, each with its own templates, experiments and metric — scaffold with
+`--merge --workflow video-founder:video`, or copy a folder and empty its
+`runs/` and `reports/` (history belongs to the original). Render knobs (`resolution`, `target_seconds`,
+voice id) live in each folder's `workflow.json` under `video`, so two video
+workflows can render differently.
+
+**How (not just what):** the run below is the spine. The recipes live in `references/` — read the one for the step you're on instead of improvising ffmpeg or shot lists.
+
+| Step | Reference |
+|---|---|
+| Shot list / segments | `references/structure-plan.md` |
+| Voiceover | `references/voiceover.md` |
+| Footage / Pexels | `references/footage-pexels.md` |
+| Default render (text over B-roll) | `references/floating-text.md` |
+| ffmpeg commands | `references/ffmpeg-recipes.md` |
+| Optional looks | `references/looks.md` |
+| Music beds | `references/music.md` |
+| Remotion path | `references/remotion.md` |
+| Posting how-to | `references/posting-api.md` |
+| Manual vs Upload Post vs Buffer | `references/posting-options.md` |
 
 ## What it needs
 
@@ -17,7 +43,7 @@ Script to rendered 9:16 mp4. The heaviest workflow in the repo — it needs disk
 | `UPLOADPOST_API_KEY` | posting, optional | free to 10 posts/month |
 | ~10 GB disk | video is large | — |
 
-Check `config/.env.example` for the exact names. Never read `config/.env` itself.
+Check `shared/.env.example` for the exact names. Never read `shared/.env` itself.
 
 These are the **defaults**, not requirements — each row is one way to satisfy a contract:
 
@@ -35,7 +61,13 @@ python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow video
 
 The hook is the variable worth testing — question versus claim, face versus text, first-second payoff versus slow build. Everything else is noise by comparison. If it returns `write_template`, write that template from the hypothesis.
 
-### 2. Script
+### 2. Plan the structure
+
+Before drafting prose, write `runs/<run_id>/plan.json` from
+`references/structure-plan.md` (pattern → segments → durations). That file is the
+shot list; don't invent new scenes mid-render without updating it.
+
+### 3. Script
 
 Vertical video is decided in the first second and a half.
 
@@ -45,34 +77,49 @@ Vertical video is decided in the first second and a half.
 - 30–45 seconds is roughly 75–110 words
 - Read it aloud before rendering. If you stumble, so will the voiceover
 
-Voice and constraints from `config/brand.md`.
+Voice and constraints from `shared/brand.md`. Put the full VO text on
+`plan.json` → `voiceOverlay.fullScript`.
 
-### 3. Voiceover
+### 4. Voiceover
 
-ElevenLabs by default, with the voice id in `config/channels.json` — or whatever TTS the user already uses, if they have one. The rule that actually matters is invariant across tools: keep the same voice across runs. An inconsistent voice reads as inconsistent brand, and it also contaminates the A/B comparison.
+Follow `references/voiceover.md`. ElevenLabs by default, voice id in
+this workflow's `workflow.json` — or whatever TTS the user already uses. Same voice across
+arms. Timed multi-beat scripts = one clip per line, then assemble.
 
-### 4. Footage
+### 5. Footage
 
-**Sourced first.** Their own clips in `inputs/assets/`, or product screen recordings. Real footage of the actual product beats stock every time.
+**Sourced first** from `shared/assets/` (or product screen recordings).
+**Pexels as fallback** per `references/footage-pexels.md`. Real product footage
+beats stock; all-stock channels look like every other channel.
 
-**Pexels as fallback.** When there's nothing to source, pull background footage from Pexels. It's a safety net so the workflow always completes — not the default look. If every video is stock footage, the channel looks like every other channel.
+Optional bed: `references/music.md` (rights first; files under `shared/assets/music/`).
 
-### 5. Render
+### 6. Render
 
-Defaults: 9:16 at 1080×1920 (the `resolution` and `target_seconds` knobs live in `config/channels.json` under `video` — a YouTube-landscape strategy sets 1920×1080 there), H.264, audio at -14 LUFS. Burn captions in — most people watch muted, and platform auto-captions are unreliable and ugly.
+Defaults: 9:16 at 1080×1920 (this workflow's `workflow.json` → `video.resolution` /
+`target_seconds`), H.264, audio at −14 LUFS, captions burned in.
 
-Write the mp4 to `runs/<run_id>/output/`.
+**Default path:** floating text over B-roll — `references/floating-text.md` +
+workspace starter `templates/floating-text-default.json` (in the workflow folder) +
+`references/ffmpeg-recipes.md`.
 
-### 6. Log and post
+**Optional looks** after the base render: `references/looks.md` (keep identical
+across arms unless the look *is* the experiment).
 
-Use the arm and template `assign_arm.py` returned — for example, when it picks the tension opener:
+**Remotion** when you need sequenced React composition: `references/remotion.md`.
+
+Write the mp4 to `runs/<run_id>/output/final.mp4`.
+
+### 7. Log and post
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow video --channel tiktok \
   --experiment exp-004 --arm tension --template script-tension.txt
 ```
 
-Posting mode is the user's choice — manual, Upload Post, or Buffer; the comparison is in `references/posting-options.md` (note Upload Post's free tier caps at 10 posts a month). For platforms whose APIs won't post what you need, device posting via mobilerun is in `references/advanced.md` — read its account-risk section first. Whichever mode, record the URL:
+Posting mode: manual, Upload Post, or Buffer —
+`references/posting-options.md` (decision) and `references/posting-api.md` (how).
+Device posting: `references/advanced.md` (account-risk first). Record the URL:
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
@@ -98,6 +145,13 @@ Views alone are a weak signal. Watch-through rate is the one that tells you whet
 - Delete the intermediate files after a successful render. Video fills a disk faster than anyone expects
 - If a render fails, fix it — don't ship a broken or half-length file
 
+A hook verdict here usually says something about the social workflow's hooks
+too — when a finding generalises, add a line to `shared/insights.md`, and put
+reusable clips or end-cards in `shared/assets/` so siblings don't re-make them.
+
 ## Going further
 
-`references/advanced.md` — posting from a dedicated phone with mobilerun and a consistent VPN, which gets past what the posting APIs won't let you do. Read the account-risk section before acting on it.
+- `references/advanced.md` — dedicated phone + mobilerun (read account-risk first)
+- Deeper tool skills (optional install): `benyki/skills` — `ffmpeg`, `elevenlabs`,
+  `video-floating-text`, `video-filter`, `upload-post`, `remotion-best-practices`,
+  `music-downloader`, `pexel-video-downloader` — see `docs/additional-skills.md`

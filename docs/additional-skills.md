@@ -102,7 +102,7 @@ needs a tool it doesn't have yet.
 | `pexels` (or `pexel-video-downloader`) | `engine-video` footage fallback |
 | `upload-post` | `engine-video` posting |
 | `buffer` | `engine-video` posting |
-| `bluesky-post-manage` | `engine-linkedin` when posting to Bluesky via API |
+| `bluesky-post-manage` | `engine-social` when posting to Bluesky via API |
 | `clarity-api-seo` | `engine-seo` behavioural analytics |
 | one Apify entrypoint | research / metrics at volume |
 | `agent-browser` | LinkedIn / X / Reddit when there's no API |
@@ -121,7 +121,7 @@ Capabilities read and write the **workspace** only:
 | Use |
 |---|
 | `runs/<run_id>/output/` |
-| `inputs/assets/` |
+| `shared/assets/` |
 | `config/` (`.env.example` for names; `.env` sourced at run time, never read into chat) |
 | account tables as templates the user fills in |
 
@@ -147,6 +147,6 @@ skill's `SKILL.md`.
 - **LinkedIn / X** — post from the user's logged-in **browser** (no scheduler
   required on day one)
 - **Bluesky** — post via the **AT Protocol API** after per-post approval
-  (`engine-linkedin`); install `bluesky-post-manage` from
+  (`engine-social`); install `bluesky-post-manage` from
   [`benyki/skills`](https://github.com/benyki/skills/tree/main/bluesky-post-manage)
   when useful

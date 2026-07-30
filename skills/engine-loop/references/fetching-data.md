@@ -32,7 +32,7 @@ The routine:
 
 Notes that matter in practice:
 
-- **Respect the channel's window.** `due_metrics.py` enforces it — 72 hours by default, per-channel via `metric_delay_hours` in `config/channels.json`. For social it's a real floor: LinkedIn, TikTok, Instagram and X keep distributing a post for days, and an early number mostly tells you what time you posted. Before the window, don't record at all — an empty cell is honest, an early one is wrong and permanent
+- **Respect the channel's window.** `due_metrics.py` enforces it — 72 hours by default, per-channel via `metric_delay_hours` in `shared/channels.json`. For social it's a real floor: LinkedIn, TikTok, Instagram and X keep distributing a post for days, and an early number mostly tells you what time you posted. Before the window, don't record at all — an empty cell is honest, an early one is wrong and permanent
 - **Record the same metric every time.** Switching from views to watch-through rate halfway through an experiment invalidates it
 - **Watch-through rate beats views** for video, whenever the platform shows it. Views measure distribution; watch-through measures whether the hook worked
 - If a layout changes, adapt — that's exactly the case where a hard-coded scraper breaks and an agent doesn't
@@ -57,7 +57,7 @@ Paid, structured, precise. Worth it when:
 
 ## What to measure
 
-One primary metric per run, resolved from `config/channels.json`: the channel's own `primary_metric` if set, else the workspace-wide one. The loop optimises it, so it has to be something real. Common choices:
+One primary metric per run: the channel's `primary_metric` override in `shared/channels.json` if set, else the workflow's own (`workflow.json`). The loop optimises it, so it has to be something real. Common choices:
 
 | Workflow | Usually |
 |---|---|

@@ -66,23 +66,23 @@ browser. Output is local markdown first.
 
 Useful if you have them:
 
-- **Competitor URLs** — put them in `config/sources.json`
+- **Competitor URLs** — put them in the seo workflow's `sources.json`
 - **Google Search Console** — metric fetching becomes an API call
 - **Ahrefs or Semrush** — only if you already pay
 - **GA4 login**
 
-**No website yet?** The workflow builds an Astro site in `workflows/site/`.
+**No website yet?** The workflow builds an Astro site inside its own folder (`workflows/seo/site/`).
 You can use a **Cloudflare Pages** or **Railway** account to deploy. Or bring
 your CMS login / GitHub access for a code-based site.
 
-### B. Social (`engine-linkedin`)
+### B. Social (`engine-social`)
 
 Be signed in to **LinkedIn and/or X in your browser** — no API keys needed
 for those. Post from the browser; schedulers are optional later.
 
 **Bluesky?** Create an **app password** before the session — bsky.app →
 Settings → Privacy and Security → App Passwords (format `xxxx-xxxx-xxxx-xxxx`).
-Never use your account password. It goes in `config/.env` as `BSKY_HANDLE`
+Never use your account password. It goes in `shared/.env` as `BSKY_HANDLE`
 and `BSKY_APP_PASSWORD`. The agent posts via the Bluesky API after you approve
 each post.
 
@@ -102,7 +102,7 @@ Do this in advance:
 | **fal.ai** *(optional)* | AI-generated clips — **check credit balance** before the session |
 
 Also: **~10 GB free disk**, 3–5 reference videos, a few rough content ideas.
-Keys go in `config/.env` — copy `config/.env.example` and fill it in yourself.
+Keys go in `shared/.env` — copy `shared/.env.example` and fill it in yourself.
 
 ### Outreach (`engine-outreach`)
 
@@ -111,13 +111,15 @@ drafts stop scaling — `skills/engine-outreach/references/advanced.md`.
 
 ### The improvement loop (`engine-loop`)
 
-Reads your run data and your browser. Reporting stays inside Claude Code or
+Not a workflow you "pick" — it rides along with whatever content workflow you
+run. It reads your run data (and your browser when needed) so seo / social /
+video / outreach learn and compound. Reporting stays inside Claude Code or
 Codex. Optional: Slack, Discord or Telegram alerts; Apify at volume for
 structured analytics.
 
 ## 5. Keys
 
-- Paste them into `config/.env` yourself — never into a chat window
+- Paste them into `shared/.env` yourself — never into a chat window
 - `.env` is gitignored. Keep it that way
 - If a key leaks, rotate it
 - Your agent reads `.env.example` for variable *names*, never `.env`. If a key
