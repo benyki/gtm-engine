@@ -26,7 +26,7 @@ Arms are assigned least-used-first and written down immediately, so the split st
 
 Whether a script or the agent does the rotation matters less than what's forbidden: **nobody picks a favourite.** An agent that keeps reaching for the template it likes isn't running a test, it's confirming a hunch — and it will produce a clean-looking table that means nothing.
 
-`scripts/assign_arm.py` is the only thing that assigns an arm.
+`scripts/assign_arm.py` is the only thing that assigns an arm. Usage is counted from `runs/index.csv` — the spine — within the experiment's cohort. The CRM is never a usage ledger: its job is stickiness (R3), and every draft is already a run.
 
 ## R3 — Assignment is sticky
 
@@ -45,6 +45,8 @@ Instead:
 - Record the template you **actually rendered**, never the one that was requested
 
 That last line is the part that matters. The real failure was never the missing file — it was mislabelling. Rows tagged `partner` that actually received the default content leave the attribution quietly wrong for weeks, with nothing in any log to show for it. Write the missing template, record what shipped, and you never have to stop.
+
+The same spirit applies when no experiment is live at all: `assign_arm.py` doesn't guess a filename, it reports what's actually in the workflow's active folder — one template to use, a list to choose from (`action: choose_template` — nothing is being tested, so pick what fits), or `write_template` when the folder is empty. Whatever you decide, record the file you actually rendered.
 
 ## R5 — `default` and `none` mean the base template
 

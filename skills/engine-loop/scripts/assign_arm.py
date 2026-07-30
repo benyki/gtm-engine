@@ -3,12 +3,19 @@
 
 This is the only place an A/B arm is chosen. The rules it enforces:
 
-  R2  Least-used arm wins. Nobody cherry-picks a favourite.
+  R2  Least-used arm wins. Nobody cherry-picks a favourite. Usage is
+      counted from runs/index.csv — the spine — within the experiment's
+      cohort. state/crm.csv is for stickiness, not counting.
   R3  Sticky — an entity that already has an arm keeps it, forever,
       including follow-ups.
   R4  A missing template file NEVER blocks the run. It reports
       action="write_template" with the hypothesis, and the agent writes it.
   R5  "default" and "none" normalise to the base template.
+
+With no live experiment it doesn't guess a filename: it reports what's in
+the workflow's active template folder — one file to use, a list to choose
+from, or write_template when the folder is empty. The agent decides and
+records the file it actually rendered.
 
 Usage:
     assign_arm.py --workflow outreach [--entity someone@example.com]
@@ -73,7 +80,13 @@ def sticky_arm(ws: Path, entity: str) -> str | None:
 
 
 def arm_counts(ws: Path, exp: dict) -> Counter:
-    """Count usage within this experiment's cohort only (R6)."""
+    """Count usage within this experiment's cohort only (R6).
+
+    Reads runs/index.csv and nothing else. The CRM is not a usage ledger —
+    every draft is logged as a run, so counting CRM rows on top would count
+    the same work twice, and its rows carry no experiment id, so they'd
+    leak into other workflows' rotation whenever arm ids collide.
+    """
     started = exp.get("started", "")
     counts: Counter = Counter()
     for r in rows(ws / "runs" / "index.csv"):
@@ -84,11 +97,16 @@ def arm_counts(ws: Path, exp: dict) -> Counter:
         arm = (r.get("arm") or "").strip()
         if arm:
             counts[arm] += 1
-    for r in rows(ws / "state" / "crm.csv"):
-        arm = (r.get("arm") or "").strip()
-        if arm and (r.get("drafted_at") or r.get("sent_at")):
-            counts[arm] += 1
     return counts
+
+
+def active_templates(ws: Path, workflow: str) -> list[Path]:
+    """Template files in the active folder. losers/ never counts."""
+    d = ws / "templates" / workflow
+    if not d.is_dir():
+        return []
+    return sorted(p for p in d.iterdir()
+                  if p.is_file() and not p.name.startswith("."))
 
 
 def template_path(ws: Path, workflow: str, arm: dict, base: str) -> Path:
@@ -112,15 +130,38 @@ def main() -> int:
     exp = load_experiment(ws, a.workflow)
 
     if exp is None:
-        base = ws / "templates" / a.workflow
-        default = base / "first-touch.txt"
-        out = {
-            "experiment_id": "",
-            "arm": "",
-            "template": str(default if default.exists() else base),
-            "action": "use_template" if default.exists() else "write_template",
-            "why": "no live experiment for this workflow — running a single version",
-        }
+        # No experiment: report what exists and let the agent decide.
+        found = active_templates(ws, a.workflow)
+        out = {"experiment_id": "", "arm": ""}
+        if len(found) == 1:
+            out.update({
+                "template": str(found[0]),
+                "action": "use_template",
+                "why": "no live experiment — one active template, use it",
+            })
+        elif found:
+            out.update({
+                "template": "",
+                "templates": [str(p) for p in found],
+                "action": "choose_template",
+                "why": "no live experiment — several active templates",
+                "instruction": (
+                    "Nothing is being tested, so any of these is fine. Pick "
+                    "the one that fits the piece, and record template_used "
+                    "as the file you actually rendered."
+                ),
+            })
+        else:
+            out.update({
+                "template": str(ws / "templates" / a.workflow),
+                "action": "write_template",
+                "why": "no live experiment and no template yet",
+                "instruction": (
+                    f"Write the first template into templates/{a.workflow}/, "
+                    "guided by config/brand.md and the workflow's skill. Then "
+                    "use it and record template_used on the run."
+                ),
+            })
         print(json.dumps(out, indent=2))
         return 0
 
