@@ -60,12 +60,34 @@ Then update the CRM row: `status=drafted`, `arm`, `template_used`, `drafted_at`,
 
 Show the user ten drafts, not fifty. Ask them to kill the ones that read like a robot and say why — then regenerate the rest with that feedback. The second batch is always better, and the reason is worth writing into `config/brand.md` so it survives.
 
+## After they send
+
+Sending happens in Gmail, by the user. When they tell you drafts went out, record the moment for each one — it starts the 72-hour clock:
+
+```bash
+python3 ../engine-loop/scripts/runlog.py publish --run <run_id>
+```
+
+No `--url` — an email has none, and `publish` doesn't need one. Update the CRM row at the same time: `status=sent`, `sent_at`, `next_followup_at`.
+
+Skip this and the run stays `draft` forever: `due_metrics.py` never lists it, no number is ever recorded, and the experiment reports "no runs yet" no matter how many replies came in.
+
 ## Follow-ups
 
 - Same arm as the first touch, always
 - Stop when someone replies. `replied_at` set means no further follow-ups, ever
 - Three touches maximum unless the user asks otherwise
 - A follow-up that just says "bumping this" is worse than nothing. Add something new or don't send it
+
+## Getting the numbers back
+
+The metric is replies and the source is the same Gmail the drafts came from — no analytics page, no browser reading. On each loop pass, `due_metrics.py` lists the sent runs that are 72h+ old with no number yet. For each one, check the thread:
+
+- **A reply landed** → `runlog.py metric --run <id> --value 1 --source api`, set `replied_at` in the CRM, stop the follow-ups
+- **No reply, sequence still open** → leave the cell empty. It stays on the due list and gets checked again next pass
+- **No reply, sequence closed** — three touches done and 72h past the last → record the zero: `--value 0 --source api`. A zero is a real result, and writing it is what marks the run analysed
+
+A reply that arrives after a zero was recorded: run `metric` again with `--value 1`. Later information beats earlier.
 
 ## Rules
 

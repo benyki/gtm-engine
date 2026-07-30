@@ -20,6 +20,18 @@ All scripts live in `scripts/` and find the workspace automatically from the cur
 
 ---
 
+## What every workflow owes the loop
+
+Workflows differ — a LinkedIn post has a public URL and an analytics screen, an outreach email has neither — and the loop doesn't care, as long as every workflow leaves the same three traces in the workspace:
+
+1. **A run at creation.** `runlog.py new`, with the experiment, arm and template actually used. A piece of work that isn't in `runs/index.csv` doesn't exist to the loop
+2. **A live moment.** `runlog.py publish` when it goes out, whatever "out" means for that workflow — posted, deployed, or sent. Pass `--url` when one exists; an email has none and publishes without it. Either way, this is what starts the 72-hour clock
+3. **One number, 72h+ later.** `runlog.py metric` with `--source`. A written `metric_value` — zero counts — is what marks a run as analysed. `due_metrics.py` lists exactly the live runs that don't have one yet, so nothing is measured twice and nothing is forgotten
+
+*How* the number is fetched is the part that adapts: an analytics page in the browser for social, the Gmail thread for outreach replies, Search Console for articles. The traces are the contract; the fetching is judgement. When a new or unusual workflow shows up, map it onto these three traces rather than forcing it through another workflow's mechanics.
+
+---
+
 ## Getting the numbers
 
 Start here, always:

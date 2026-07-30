@@ -18,6 +18,8 @@ Free, exact, and already connected in a few cases:
 
 Use these where they exist. There's no reason to scrape a number a free API will hand you.
 
+Outreach is the clean case: the metric is replies and Gmail is the source. A reply in the thread → `--value 1 --source api`, plus `replied_at` in the CRM. Sequence closed with no reply → `--value 0 --source api` — the zero is a real result, and writing it is what marks the run analysed. A late reply overwrites the zero; later information beats earlier.
+
 ## 2. Browser — the normal case
 
 TikTok, Instagram, LinkedIn and X all show full analytics behind the user's own login. Reading them off the page works well and needs no API key, no developer account, no approval and no money.

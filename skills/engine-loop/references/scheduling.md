@@ -85,8 +85,9 @@ cd /path/to/your-project && claude -p "$(cat <<'EOF'
 Run the engine-loop weekly cycle for this workspace.
 
 1. python3 ~/code/gtm-engine/skills/engine-loop/scripts/due_metrics.py
-2. For each run it lists as READY: open its URL's analytics in the browser,
-   read the primary metric, and record it with runlog.py --source browser.
+2. For each run it lists as READY: fetch its number the way its channel
+   allows — analytics in the browser for social posts, the Gmail thread for
+   outreach — and record it with runlog.py metric and the right --source.
    Skip anything under 72 hours — leave those for next week.
 3. python3 ~/code/gtm-engine/skills/engine-loop/scripts/score_arms.py
 4. For any DECIDED experiment: move the losing template to

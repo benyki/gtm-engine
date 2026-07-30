@@ -9,12 +9,16 @@ Usage:
     runlog.py new --workflow seo --channel blog \
                   [--experiment exp-001 --arm default --template first-touch.txt]
     runlog.py metric --run 2026-08-01-001-seo --value 340 --source browser
-    runlog.py publish --run 2026-08-01-001-seo --url https://... [--title "..."]
+    runlog.py publish --run 2026-08-01-001-seo [--url https://...] [--title "..."]
     runlog.py verdict --run 2026-08-01-001-seo --verdict good
 
 `--source` is required when recording a metric, and it is not decoration:
 a report that can't tell a measured number from a typed-in one is worse
 than no report.
+
+`--url` is optional on publish: an outreach email has no URL. `publish`
+still records the moment it went out, which is what starts the 72-hour
+clock in due_metrics.py.
 """
 from __future__ import annotations
 
@@ -147,7 +151,7 @@ def cmd_publish(ws: Path, a) -> int:
         if not exists:
             w.writerow(["run_id", "channel", "url", "published_at", "title", "notes"])
         w.writerow([a.run, a.channel, a.url, stamp, a.title, a.notes])
-    print(f"{a.run}: published → {a.url}")
+    print(f"{a.run}: published" + (f" → {a.url}" if a.url else ""))
     return 0
 
 
@@ -178,9 +182,10 @@ def main() -> int:
     m.add_argument("--value", required=True)
     m.add_argument("--source", required=True, help="|".join(SOURCES))
 
-    p = sub.add_parser("publish", help="mark it live")
+    p = sub.add_parser("publish", help="mark it live (posted, deployed, or sent)")
     p.add_argument("--run", required=True)
-    p.add_argument("--url", required=True)
+    p.add_argument("--url", default="",
+                   help="public URL if one exists — an email has none")
     p.add_argument("--channel", default="")
     p.add_argument("--title", default="")
     p.add_argument("--notes", default="")
