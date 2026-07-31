@@ -74,18 +74,18 @@ created it:
 Run the engine-loop weekly cycle for the workspace at
 ~/code/your-project/workflows.
 
-1. python3 ~/code/gtm-engine/skills/engine-loop/scripts/due_metrics.py
+1. python3 ~/.agents/skills/engine-loop/scripts/due_metrics.py
 2. For each run it lists as READY: fetch its number the way its channel
    allows — analytics in the browser for social posts, the mailbox for
    outreach, Search Console for articles — and record it with
    runlog.py metric and the right --source. Skip anything due_metrics
    lists as too early; it will come round.
-3. python3 ~/code/gtm-engine/skills/engine-loop/scripts/score_arms.py
+3. python3 ~/.agents/skills/engine-loop/scripts/score_arms.py
 4. For any DECIDED experiment: move the losing template to that workflow's
    templates/losers/, write a challenger with its hypothesis as a header
    comment, register it in the workflow's experiments.json. Do NOT promote
    the challenger to default — leave that for me.
-5. python3 ~/code/gtm-engine/skills/engine-loop/scripts/render_report.py
+5. python3 ~/.agents/skills/engine-loop/scripts/render_report.py
 6. Fill in sections 5 and 6 of each report.
 7. Write next week's content ideas into each workflow's inputs/queue/, each
    with the run that justifies it. If a finding generalises across

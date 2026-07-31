@@ -18,7 +18,7 @@ Four jobs; run them in this order, because each depends on the one before.
 | generate inputs | weekly | see *What to make next* |
 | report | weekly | `render_report.py` |
 
-All scripts live in `scripts/` and find the workspace automatically from the current directory. `weekly.sh` chains the deterministic ones.
+**Call them by full path — `python3 ~/.agents/skills/engine-loop/scripts/<script>.py` — from anywhere.** That's the canonical store every install writes to, so the path is the same on every machine. Two shorter forms look tempting and both fail: `scripts/…` only resolves if the cwd is the skill folder, which is the one place the workspace *isn't* found from, and `skills/…` needs the workspace symlink, which is optional. The scripts locate the workspace from the current directory, so run them from the workspace or anywhere inside it — or pass `--workspace <path>` from outside. `weekly.sh` chains the deterministic ones and resolves its own paths.
 
 **The workspace is one folder per workflow, plus `shared/`.** Each workflow folder is self-contained — its own `workflow.json` (type, goal, primary metric), `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`, `reports/`. The loop scripts operate per folder and default to all of them; `--workflow <folder>` scopes to one. Nothing is pooled across workflows, so an agent rewriting one workflow cannot break another — and two workflows of the same type (`outreach/` and `outreach-investors/`) are just two folders.
 
@@ -45,7 +45,7 @@ Each spine is also extensible sideways: add your own columns to a workflow's `ru
 Start here, always:
 
 ```bash
-python3 scripts/due_metrics.py
+python3 ~/.agents/skills/engine-loop/scripts/due_metrics.py
 ```
 
 It lists published runs that are **past their channel's window and have no number yet**, and separately the ones still too young. Only read numbers for the first list.
@@ -71,7 +71,7 @@ Same rules as everything else: name the real system in `--source`, and check wha
 Open the post's analytics view, read the numbers, then:
 
 ```bash
-python3 scripts/runlog.py metric --run 2026-08-01-003-video --value 4200 --source browser
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py metric --run 2026-08-01-003-video --value 4200 --source browser
 ```
 
 This is a first-class option, not a fallback. For someone with forty posts, browser reading is correct and an API integration is over-engineering.
@@ -85,7 +85,7 @@ If a number genuinely can't be fetched, `--source manual` and move on. Recording
 ## Scoring and challenging
 
 ```bash
-python3 scripts/score_arms.py
+python3 ~/.agents/skills/engine-loop/scripts/score_arms.py
 ```
 
 It reports and nothing else — it never promotes an arm or edits config. Read the verdict, then act.
@@ -164,8 +164,8 @@ The user reviews the queue and approves. They never start from a blank page, and
 ## The report
 
 ```bash
-python3 scripts/render_report.py            # every workflow
-python3 scripts/render_report.py --workflow seo
+python3 ~/.agents/skills/engine-loop/scripts/render_report.py            # every workflow
+python3 ~/.agents/skills/engine-loop/scripts/render_report.py --workflow seo
 ```
 
 Each workflow gets its own report in its own `reports/` — three files:

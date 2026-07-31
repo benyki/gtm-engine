@@ -65,7 +65,7 @@ nothing to do next, say that instead of inventing filler.
 ## Every piece made gets a run row
 
 ```bash
-python3 skills/engine-loop/scripts/runlog.py new --workflow <name> --channel <channel>
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow <name> --channel <channel>
 ```
 
 One run per artifact, logged before it ships, with the template it used. A piece

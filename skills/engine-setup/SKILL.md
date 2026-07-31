@@ -1,13 +1,15 @@
 ---
 name: engine-setup
-description: Install gtm-engine and build the user's workspace. Sets up the ~/code layout, clones the repo, scaffolds a workflow-scoped <project>/workflows/, copies selected skills into ~/.agents/skills/ then symlinks them into Claude/Codex/Cursor and links the whole skills folder into the workspace, puts Desktop shortcuts on both, interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
+description: Install gtm-engine and build the user's workspace. Clones the repo into their project beside a workflow-scoped <project>/workflows/, copies selected skills into ~/.agents/skills/ then symlinks them into Claude/Codex/Cursor and links the whole skills folder into the workspace, puts Desktop shortcuts on both, interviews the user to fill in brand and channel config, and can run an optional doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
 ---
 
 # engine-setup
 
 Gets someone from nothing to a working workspace.
 
-Run it once per project. It is also re-runnable — `doctor.py` alone is the health check.
+Run it once per project. It is also re-runnable, and `doctor.py` is there as an
+optional health check when something looks wrong — never a step to clear before
+work can start.
 
 ## What you're building
 
@@ -28,9 +30,9 @@ No new home to invent, no path to remember.
 
 ```
 <the session's working directory>/
-└── workflows/                   ← the workspace: brand, runs, numbers
+├── workflows/                   ← the workspace: brand, runs, numbers
+└── gtm-engine/                  ← the clone (read-only, updated by git pull)
 
-~/code/gtm-engine/               ← the clone (read-only, updated by git pull)
 ~/.agents/skills/                ← the skills themselves (step 4)
 
 ~/Desktop/                       ← two symlinks, so neither is buried (step 5)
@@ -38,8 +40,18 @@ No new home to invent, no path to remember.
 └── skills     →  ~/.agents/skills
 ```
 
-The clone is the one thing that doesn't follow the cwd: it's shared across every
-project, so it keeps its own durable home (step 2 defaults to `~/code/gtm-engine`).
+**Both land in the folder they're already in** — one project, one place, no path
+to remember. They stay separate things sitting side by side: `gtm-engine/` is
+logic that `git pull` overwrites, `workflows/` is data that only they own.
+
+If the project is a git repo, add `gtm-engine/` to its `.gitignore` — a whole
+second repo in someone's history is not what they meant to commit. `install.sh`
+does this automatically; if you cloned by hand, do it yourself.
+
+**A shared clone at `~/code/gtm-engine` is the alternative**, and it's the better
+shape once someone runs this in several projects: one clone to pull instead of
+five. Offer it if they already have other gtm-engine projects, use the in-project
+default otherwise. Whatever you pick, use that path for every later command.
 
 `workflows/` is also the folder they can open directly in Claude Code or Codex day to day — everything the agent needs is reachable from it (`shared/`, each workflow folder, and `skills/` via the symlink).
 
@@ -57,10 +69,11 @@ The scripts locate a workspace by its `shared/` folder, not by its name or path 
 Do these in order. Confirm each one before moving on — a wrong path here is annoying to unpick later.
 
 **Before you scaffold, there are exactly two questions, and both already have
-their answer:** the folder (default `~/code/`) and the workflow (default
-outreach). Both are yes-or-something-else. Everything else in step 1 is a
-statement, not a choice — nothing about the repo link blocks the setup. Don't
-present a user with a numbered list of "required choices" on their first
+their answer:** where it goes (default: the folder this session is already in)
+and which workflow they'll *run* first (default: outreach — all four get
+scaffolded either way). Both are yes-or-something-else. Everything else in step
+1 is a statement, not a choice — nothing about the repo link blocks the setup.
+Don't present a user with a numbered list of "required choices" on their first
 screen; ask, take the default, keep going.
 
 ### 1. Point them at the repo
@@ -83,16 +96,23 @@ steps 2 to 4 are done: it clones, scaffolds `workflows/` in the directory they
 ran it from, and installs the skills. Check for `workflows/shared/` and the
 clone, confirm what's there, and pick up at step 5. Don't redo them.
 
-Otherwise, default to `~/code/gtm-engine`:
+Otherwise, clone it into the project they're already in, beside the workspace:
 
 ```bash
-mkdir -p ~/code
-git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
+git clone https://github.com/benyki/gtm-engine.git ./gtm-engine
 ```
 
-If they already keep code somewhere else, use that instead — any durable personal folder works (`~/Documents`, `~/Projects`, `~/Desktop`). Do **not** put it in Downloads, a scratch folder, or anything that gets emptied regularly; the clone is pulled for updates over months.
+Then, if that folder is a git repo, add `gtm-engine/` to its `.gitignore`.
 
-If that directory already exists, `git -C <path>/gtm-engine pull` instead. Use that path for every later command in this setup (scaffold, install, doctor).
+**Use `~/code/gtm-engine` instead when they already have one**, or when they say
+they'll run this in several projects — a shared clone means one `git pull`
+rather than one per project. Either is fine; say which you're doing in a
+sentence rather than turning it into a question. Not Downloads, not a scratch
+folder, not anywhere that gets emptied — the clone is pulled for updates over
+months.
+
+If the directory already exists, `git -C <path> pull` instead. Use whichever
+path you picked for every later command in this setup.
 
 ### 3. Scaffold the workspace
 
@@ -125,25 +145,33 @@ its path. Two cases worth catching before you scaffold: the cwd is the
 or it's a **home directory or a scratch folder** they'll clean out. In both,
 say so and ask for somewhere durable.
 
-**Which workflow:**
+**Which workflow to run first** — not which to install; all four get scaffolded:
 
-> The first workflow is **outreach**. Would you like me to set it up now?
+> You'll have all four workflows — seo, social, video and outreach. I'd
+> start by actually running **outreach**. Sound right?
 
-**Default to yes** and scaffold it. It's the fastest one to a real signal —
-drafts today, replies this week — and it needs no keys and no site. Something
-else is a fine answer: `seo`, `social`, `video`, a custom name, or a comma list.
+**Default to yes.** Outreach is the fastest one to a real signal — drafts today,
+replies this week — and it needs no keys and no site. Something else is a fine
+answer: `seo`, `social`, `video`, or a custom name.
 
 Then, from the project directory:
 
 ```bash
-python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py . --workflow outreach
+python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py . --workflow all
 ```
 
-**One workflow, not four.** Set up only the one they're running — the others are
-folders nobody fills, and the loop learns from runs, not from scaffolding. (With
-no `--workflow` at all the script creates one folder per shipped workflow;
-that's the script's default, not this step's.) Adding a second later is
-`--merge --workflow <name>`, which is the normal way to grow into it.
+**Scaffold all four, run one.** The folders are cheap — a `workflow.json`, an
+empty `experiments.json`, a `runs/index.csv` header — and having them there
+means switching channel later is opening a folder, not re-running setup. What
+they should *not* do is start four at once: the loop learns from runs, and four
+half-run workflows produce no verdict anywhere. So configure the goal, metric
+and templates for **the one they named**, and leave the others as scaffolding
+until they come back for them.
+
+`--workflow all` is also the script's own default, so a bare
+`scaffold_workspace.py .` does the same thing. Narrow it only if they ask —
+`--workflow outreach` for a single folder — and mention that a narrowed install
+installs fewer skills too. Adding one later is `--merge --workflow <name>`.
 
 Other shapes, when they ask for them:
 
@@ -157,8 +185,9 @@ Other shapes, when they ask for them:
 - `--workflow newsletter` — a **custom workflow**; `engine-loop` runs it
   through the same traces, you supply the craft. Enable its channel(s) in
   `shared/channels.json` and write its experiments as part of this setup
-- Delete any default folder they won't run — an empty workflow folder is
-  clutter, not an obligation
+- Delete a default folder **if they ask** — it's theirs. Don't propose it:
+  an unrun folder costs a few empty files, and deleting it turns "try video
+  next month" back into a setup task
 
 Each workflow folder's `workflow.json` carries its `type` (which skill runs
 it), its `goal`, and its `primary_metric`. `site/` is never pre-created.
@@ -215,10 +244,12 @@ to refresh the copies.
 Other agents: set `GTM_AGENT_DIRS` (colon-separated skill dirs). `doctor.py`
 honours the same variable.
 
-Run the installer for the **same workflows** (always includes `engine-setup` +
-`engine-loop`, plus any skill a chosen one depends on — `engine-social` reads
-`engine-seo`'s subject-finding and browser-research references, so choosing
-social installs seo too):
+Run the installer for the **same workflows**. With all four scaffolded that's
+**all six skills** — `engine-setup`, `engine-loop`, `engine-seo`,
+`engine-social`, `engine-video`, `engine-outreach`. (`engine-setup` and
+`engine-loop` are always installed; dependencies come along too — `engine-social`
+reads `engine-seo`'s subject-finding and browser-research references, so
+choosing social installs seo either way.)
 
 ```bash
 <repo>/skills/engine-setup/scripts/install_skills.sh \
@@ -226,7 +257,9 @@ social installs seo too):
 ```
 
 With `--workspace` you can omit `--workflow` — it reads each workflow
-folder's `workflow.json` type and installs the matching skills.
+folder's `workflow.json` type and installs the matching skills. That's the form
+to use: the workspace already says what's needed, and it stays right when they
+add a workflow later.
 
 What it does:
 
@@ -323,17 +356,26 @@ Have **them** paste the keys in. Never ask a user to give you a key in chat, and
 
 Which keys they need depends on the workflow — see `docs/preflight.md` §4. For `seo`, `social` and `outreach`, usually none.
 
-### 8. Check
+### 8. Check — optional
+
+**`doctor.py` is a helper, not a gate.** Nothing depends on it and nothing in
+the engine calls it: it's a second pair of eyes for when something looks off, or
+when a user wants reassurance that the install landed. If the scaffold and the
+installer both printed what you expected, skip it and go to step 9 — running it
+just to have a green tick teaches the user that setup needs a certificate.
+
+Worth running when: an earlier step printed something odd, they're on Windows or
+a locked-down machine, a workflow can't find its workspace later, or they ask.
 
 ```bash
 python3 <repo>/skills/engine-setup/scripts/doctor.py
 ```
 
-Walk through anything red. **`✗` is genuinely broken; `!` is information, not a
-to-do list** — don't hand the user a list of warnings to clear before they can
-start. A fresh outreach workspace with no keys and no runs is `All clear` by
-design. Doctor checks the canonical store, each agent mirror it can see, and
-`workflows/skills/` when a workspace is found.
+**`✗` is genuinely broken; `!` is information, not a to-do list** — don't hand
+the user a list of warnings to clear before they can start. A fresh outreach
+workspace with no keys and no runs is `All clear` by design. It checks the
+canonical store, each agent mirror it can see, and `workflows/skills/` when a
+workspace is found. It changes nothing — it only looks.
 
 ### 9. Hand over
 

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 """Check that everything gtm-engine needs is actually in place.
 
-Run it before you start (what's missing on this machine?) and again after
-setup (did it all land?). It changes nothing — it only looks.
+**Optional — a helper, not a step.** Nothing in the engine calls this, no
+workflow needs it to have passed, and a workspace that never runs it is a
+normal workspace. Reach for it when something looks off, when you're on an
+unfamiliar machine, or when you just want to see the install landed. It changes
+nothing — it only looks.
 
 **✗ means genuinely broken; ! is information, not a chore.** The engine is
 forgiving by design — a missing channels.json falls back to defaults, an empty
@@ -347,10 +350,14 @@ def parse_env_example(example: Path) -> list[tuple[str, str, bool]]:
 def check_env(ws: Path, types: set[str] | None = None) -> None:
     """Confirm key NAMES are set. Never reads a value.
 
-    Every key here is optional until a workflow that needs it exists — the
-    default outreach / seo / social setup needs none at all. Only a key whose
-    section matches a workflow in this workspace, and that the file doesn't
-    mark optional, is worth a warning.
+    Every key here is optional until a workflow that needs it exists. Only a
+    key whose section matches a workflow in this workspace, and that the file
+    doesn't mark optional, is worth a warning.
+
+    All four workflows scaffold by default, so a key is attributed to the
+    workflow whose section it sits under — never to every workflow present.
+    Scaffolded is not the same as running: someone with a `video/` folder they
+    haven't touched should read "for video", not "you're missing keys".
     """
     example = ws / "shared" / ".env.example"
     env = ws / "shared" / ".env"
@@ -367,13 +374,21 @@ def check_env(ws: Path, types: set[str] | None = None) -> None:
         return not optional and head in types
 
     wanted = [k for k, _, _ in keys]
-    required = [k for k, sec, opt in keys if needed(sec, opt)]
+    # Group by the section that asks for them. Joining every workspace type
+    # here would tell a four-workflow workspace that the video keys are
+    # "needed for outreach, seo, social, video" — true of none of them.
+    by_section: dict[str, list[str]] = {}
+    for k, sec, opt in keys:
+        if needed(sec, opt):
+            by_section.setdefault(sec.split()[0].lower(), []).append(k)
+    required = [k for ks in by_section.values() for k in ks]
+    detail = "; ".join(f"{', '.join(ks)} for {s}" for s, ks in sorted(by_section.items()))
 
     if not env.is_file():
         if required:
             add("warn", "  shared/.env not created",
-                f"copy .env.example → .env — {', '.join(required)} needed for "
-                f"{', '.join(sorted(types))}")
+                f"copy .env.example → .env — {detail}"
+                " — only when you run that workflow")
         else:
             add("pass", "  shared/.env not created",
                 f"nothing needs one yet — the {len(wanted)} keys in "
@@ -394,7 +409,10 @@ def check_env(ws: Path, types: set[str] | None = None) -> None:
     missing_required = [k for k in required if k not in present]
     if missing_required:
         add("warn", f"  keys set: {n_set}/{len(wanted)}",
-            "needed here and missing: " + ", ".join(missing_required))
+            "missing: " + "; ".join(
+                f"{', '.join(k for k in ks if k not in present)} for {s}"
+                for s, ks in sorted(by_section.items())
+                if any(k not in present for k in ks)))
     else:
         add("pass", f"  keys set: {n_set}/{len(wanted)}",
             "" if n_set == len(wanted)

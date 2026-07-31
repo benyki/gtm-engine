@@ -2,14 +2,17 @@
 
 **This is the workshop checklist** — deliberately rigid and ordered so a room
 full of different machines reaches the same working state. Do the steps in
-sequence, and set up **one** workflow only — outreach unless you'd rather start
+sequence. The install gives everyone all four workflows and all six skills;
+**run one** of them in the session — outreach unless you'd rather start
 somewhere else. (Everywhere else in this repo, instructions are defaults you may
 adapt — here they're steps to follow.)
 
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
 
-Only set up the workflow you're actually running. Downloads and signup links:
+You only need the accounts and keys for the workflow you're actually running —
+the other three sit there unconfigured until you want them. Downloads and signup
+links:
 [useful-links.md](useful-links.md).
 
 ---
@@ -197,10 +200,13 @@ real test of whether the extension is connected.
 Do not install anything without asking me first.
 ```
 
-Once the starter folder is on your machine:
+Once the starter folder is on your machine, there's an **optional** check you
+can run — it's a helper for when something looks wrong, not a step you have to
+pass before starting:
 
 ```bash
 python3 <repo>/skills/engine-setup/scripts/doctor.py
 ```
 
-Run it again after setup — it also checks workspace, config, and keys.
+It also reads workspace, config and keys once those exist. `✗` means something
+is genuinely broken; `!` is information, not a to-do list.

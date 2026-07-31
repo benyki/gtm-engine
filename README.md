@@ -67,9 +67,13 @@ Then install (below) and tell your agent: `run engine-setup`.
 **`engine-loop` is not a fifth workflow.** It is the framework that sits under the
 ones above (and any custom workflow you add): it makes them learn, grow, and
 compound over time — metrics in, A/B verdicts out, weekly report, next week's
-plan. Start with **one** content workflow — outreach unless you have a reason to
-start elsewhere; the loop only has something to say once there are runs on the
-board.
+plan.
+
+**Install gives you all six skills and all four workflow folders.** Everything
+is there from the first command, so switching channel later is a decision, not
+an install step. *Running* them is the part to take one at a time: start with
+one — outreach unless you have a reason to start elsewhere — because the loop
+only has something to say once there are runs on the board.
 
 ---
 
@@ -82,54 +86,73 @@ board.
 curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash
 ```
 
-It clones the engine to `~/code/gtm-engine`, creates `workflows/` **where you
-are**, and links the skills into whichever agents you have (Claude Code, Codex,
-Cursor). Then tell your agent: `run engine-setup` — it fills in your brand
-config, confirms the workflow, and runs the checks.
+Everything lands **where you are** — `gtm-engine/` (the clone) and `workflows/`
+(your workspace) side by side in that folder — and **all six skills** get linked
+into whichever agents you have (Claude Code, Codex, Cursor). If the folder is a
+git repo, `gtm-engine/` is added to your `.gitignore`; it's the engine, not your
+code. Then tell your agent: `run engine-setup` — it fills in your brand config
+and confirms which workflow you're starting with.
 
-A different first workflow — `seo`, `social`, `video`, a comma list, `all`, or
-any name of your own for a custom workflow (the loop treats it like the
-built-ins; you supply the templates):
+**You get everything:** `engine-setup`, `engine-loop`, `engine-seo`,
+`engine-social`, `engine-video` and `engine-outreach` installed, plus a
+scaffolded folder for each of the four content workflows. Nothing is held back
+for a second command — picking a channel later means opening a folder that's
+already there. An unused workflow folder is a few empty files; delete any you're
+sure you'll never run.
+
+Want a narrower workspace — one folder instead of four, or a name of your own
+for a custom workflow (the loop treats it like the built-ins; you supply the
+templates):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash -s -- --workflow seo
+curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash -s -- --workflow outreach
 ```
 
-`--engine-dir <path>` puts the clone somewhere other than `~/code/gtm-engine`;
-`--name <folder>` calls the workspace something other than `workflows`. Re-run
-it any time: it pulls, adds whatever workflow you name, and never overwrites
-what you already have. [`install.sh`](install.sh) is ~130 readable lines — worth
-a look before you pipe anything into `bash`, here or anywhere else.
+The skills are installed to match the folders you asked for, so a narrowed
+install gives you fewer skills too.
+
+`--name <folder>` calls the workspace something other than `workflows`.
+`--engine-dir ~/code/gtm-engine` keeps the clone outside the project — worth it
+once you run this in several projects, since otherwise each one has its own
+clone to pull. Re-run it any time: it pulls, adds whatever workflow you name,
+and never overwrites what you already have. [`install.sh`](install.sh) is ~140
+readable lines — worth a look before you pipe anything into `bash`, here or
+anywhere else.
 
 **Prefer to have the agent do it?** Paste this into Claude Code or Codex:
 
 ```
 Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
 When that passes, follow the setup instructions in the README and run
-engine-setup. Start with the outreach workflow unless I say otherwise.
+engine-setup. Install everything — all four workflows and all six skills —
+then help me run the outreach one first unless I say otherwise.
 Once the workspace exists, follow its AGENTS.md in every session.
 ```
 
-**Or do the three steps yourself.** Pick a durable location first — `~/code/` is
-the suggested home, any personal folder you don't clean out works (not
-Downloads):
+**Or do the three steps yourself**, from the project you want to grow — a folder
+you keep, not Downloads:
 
 ```bash
-mkdir -p ~/code && git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
+git clone https://github.com/benyki/gtm-engine.git ./gtm-engine
 ```
 
 ```bash
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow outreach
+python3 ./gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow all
 ```
 
 ```bash
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow outreach
+./gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows
 ```
 
-Run the last two from the project you want to grow; `workflows/` can live
-anywhere, and a Desktop symlink to it is worth the ten seconds. Keep one full
-workspace per project rather than sharing one between them. Replace
-`~/code/gtm-engine` with wherever you cloned.
+With no `--workflow`, `install_skills.sh` reads the workspace and installs the
+skills its folders call for — all six, here. Pass `--workflow outreach` to both
+commands instead if you want the narrow version.
+
+That leaves `gtm-engine/` and `workflows/` side by side — add `gtm-engine/` to
+your `.gitignore` if the folder is a repo. Cloning to `~/code/gtm-engine`
+instead works exactly the same; swap the path in the last two commands. Keep one
+full workspace per project rather than sharing one between them, and a Desktop
+symlink to `workflows/` is worth the ten seconds.
 
 ---
 

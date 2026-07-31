@@ -154,6 +154,11 @@ git commit -m "growth workspace"
 `shared/.env` is gitignored by the scaffold. Check that it stayed that way
 before your first push.
 
+If you cloned the engine into the same project — the default, so `gtm-engine/`
+sits beside `workflows/` — keep it out of your history: `install.sh` adds
+`gtm-engine/` to your `.gitignore`, and if you cloned by hand, add that line
+yourself. It's the engine, updated by `git pull`; only `workflows/` is yours.
+
 ## Starting over
 
 Per workflow: delete its `runs/` and `reports/`, keep `workflow.json`,

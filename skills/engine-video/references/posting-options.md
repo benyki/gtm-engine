@@ -37,7 +37,7 @@ Manual also costs you nothing in the loop. The metric still gets recorded —
 you read it off the platform's own analytics screen and run:
 
 ```bash
-python3 skills/engine-loop/scripts/runlog.py metric --run <id> --value 3400 --source browser
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py metric --run <id> --value 3400 --source browser
 ```
 
 The only thing you lose is the scheduling.
@@ -75,7 +75,7 @@ Token goes in `shared/.env` as `BUFFER_ACCESS_TOKEN`. Set `publish` to
 can't find:
 
 ```bash
-python3 skills/engine-loop/scripts/runlog.py publish --run <id> --url https://...
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <id> --url https://...
 ```
 
 **Nothing posts without you.** All three modes end with a human approving. The
