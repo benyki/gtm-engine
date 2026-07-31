@@ -64,6 +64,42 @@ what the user sees in the UI.
 
 Turning the findings into the next piece: `engine-seo/references/clarity-rewrite.md`.
 
+## 2b-bis. Public counters without a login — `yt-dlp`
+
+For a video you published at a public URL, `yt-dlp` reads the counters straight
+off the page. No login, no extension, no API key — and because it's a script,
+this is one of the few metric jobs that can be **deterministic** rather than an
+agent session.
+
+```bash
+yt-dlp -J --no-warnings "<public url>" | python3 -c "
+import json,sys; d=json.load(sys.stdin)
+print(d.get('view_count'), d.get('like_count'), d.get('comment_count'))"
+```
+
+Verified working on both YouTube and TikTok: `view_count`, `like_count`,
+`comment_count`, and on TikTok `repost_count` too.
+
+**What it cannot give you, on any platform:** watch-through, average view
+duration, retention curves, impressions, traffic source, follower deltas.
+Those exist only in the creator dashboard behind the account login — the field
+simply isn't in the response, so there's nothing to parse.
+
+That matters because `engine-video`'s default metric is **watch-through**, not
+views. Three honest options:
+
+| Route | Gets you | Cost |
+|---|---|---|
+| `yt-dlp` on the public URL | views, likes, comments | free, scriptable, no login |
+| Browser extension on the creator dashboard | watch-through, retention, impressions | needs the extension and a logged-in session |
+| **YouTube Analytics API** (OAuth, own channel) | average view duration and percentage — real watch-through | free, but YouTube only |
+
+If the user won't set up the extension, **say plainly that the workflow's metric
+becomes views** and set `primary_metric` accordingly rather than leaving a
+`watch_through_rate` column that never gets filled. Views are a weak signal —
+they measure distribution, not whether the hook worked — but a weak measured
+signal beats an empty column.
+
 ## 2c. Other free APIs worth knowing
 
 All free (or free at the volumes here), all callable with a token and no

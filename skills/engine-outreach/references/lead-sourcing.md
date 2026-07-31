@@ -44,6 +44,52 @@ it's the hour where you learn what the filter should actually be — which
 titles are decoys, which company sizes never reply, what the observable looks
 like in this niche. Automating before that just produces wrong leads faster.
 
+## The fastest honest path to the first 20 (B2B)
+
+Three steps, one afternoon, no list to buy. Works because LinkedIn is where the
+filter lives and the email is a separate problem you solve afterwards.
+
+**1. Search on LinkedIn with the agent driving the browser.**
+Build the search with real filters — title, industry, headcount, geography, and
+ideally something that changed recently (hiring, a new role, a recent post). The
+agent reads the results and writes name, company, role and **profile URL** into
+`inputs/audience/`. Capture the observable while you're on the profile: it's
+right there, and coming back for it later doubles the work. This needs the
+browser extension — [`docs/preflight.md`](../../../docs/preflight.md) §2b — and
+it uses the user's own logged-in session, so nothing is scraped anonymously.
+
+**2. Turn profiles into email addresses.**
+The profile URL is the input; a finder tool returns the address. Options, all
+paid, all freemium enough to test twenty rows before committing:
+
+| Tool | Shape |
+|---|---|
+| **Dux-Soup** | Chrome extension that works *through* your own LinkedIn session — visits, scrapes and enriches profiles as you browse. Closest to "I already have the search open" |
+| **Lusha · Apollo · Hunter · Clearbit Connect** | extension or API; paste or upload profile URLs, get verified addresses back |
+| **Prospeo · Findymail · Dropcontact** | API-first, built for exactly the URL-in-address-out step, and easier to script |
+
+Pick on two things: whether it **verifies** the address (a bounce costs sender
+reputation, and a fresh domain can't afford many), and whether it can take a
+**list** rather than one profile at a time. Expect a 50–70% hit rate on
+professional audiences — that's normal, not a failed run, and it's why you
+search for thirty to land twenty.
+
+**3. Run the outreach flow.**
+Normalise into `crm.csv`, then the ordinary run: `assign_arm.py` →
+research → `references/first-touch.md` → drafts. Nothing about this path is
+special downstream; it just fills the audience folder faster.
+
+**Two cautions, both worth saying once to the user:**
+
+- **Automating LinkedIn is against its terms**, and enforcement lands on the
+  account — the restriction is theirs to accept, so name it and let them decide.
+  Tools driving your own session at human pace are the lower-risk end of this;
+  bulk connection-request automation is the high-risk end and a different
+  activity entirely
+- **A found address is still cold outreach.** The consent, opt-out and
+  minimum-data rules further down apply exactly the same way, and a verified
+  address is not a relationship
+
 ## Scraping, when you get there
 
 - **Describe the filter precisely first**, then find the tool. A scraper is a

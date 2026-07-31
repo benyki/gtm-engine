@@ -191,6 +191,7 @@ any of them; the loop needs runs in one place. Product demo if you have an app
 and no audience, vibe if you have a look and no product story yet, informative
 if you already have written content you're proud of.
 
-Two formats = two workflow folders (`video/` and `video-vibe/`), not one folder
-with two kinds of run — they have different metrics, different experiments and
+Two formats = two workflow folders, named after the format they run —
+`video-app/`, `video-vibe/`, `video-info/`, all of type `video`. Not one folder
+with two kinds of run: they have different metrics, different experiments and
 different queues.

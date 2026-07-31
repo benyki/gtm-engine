@@ -43,6 +43,36 @@ create a file called hello.txt with the word hello in it
 
 If the file appears, you're ready. If it asks for permissions, approve them.
 
+## 2b. The browser extension
+
+The piece that lets the agent **act in your browser on your behalf** — open a
+page, read what's on it, fill a composer, click through an analytics screen —
+using the sessions you're already logged into. No API keys, no developer
+accounts.
+
+- **Claude Code** → *Claude in Chrome* extension, then connect it from the app
+- **Codex** → the ChatGPT browser extension, connected the same way
+
+Install it **before** the session and confirm the agent can see the browser —
+ask it to open a page and tell you the title. If it can't, that's a ten-minute
+fix now and a blocked workflow later.
+
+| Workflow | Extension |
+|---|---|
+| **`engine-social`** | **Mandatory.** LinkedIn and X have no free posting API worth using, and their analytics live behind your login. Without it, every post is copy-paste and every number is typed in by hand |
+| `engine-video` | Recommended, not required — **views, likes and comments come back without it** via `yt-dlp` on your own public URLs. What needs the login is **watch-through**, which is the number that tells you whether the hook worked |
+| `engine-seo` | Nice to have — Reddit and SERP research without an API |
+| `engine-outreach` | Nice to have — researching each person is browser work; the mail side goes through a connector instead |
+
+Two things worth knowing before you install it:
+
+- **It uses your real logged-in sessions.** That's the point, and it's also why
+  the agent never logs in, never touches credentials, and asks before anything
+  publishes
+- **Only some workflows need it, and only for some steps.** If you'd rather not
+  install it, `engine-seo` and `engine-outreach` run fine without it — and every
+  workflow still records its numbers, they just get typed in rather than read
+
 ## 3. Everyone brings
 
 - **A Gmail account** for the agent to draft in. Drafts only; nothing sends
@@ -77,8 +107,10 @@ your CMS login / GitHub access for a code-based site.
 
 ### B. Social (`engine-social`)
 
-Be signed in to **LinkedIn and/or X in your browser** — no API keys needed
-for those. Post from the browser; schedulers are optional later.
+**The browser extension (§2b) is mandatory here** — it's how posts get drafted
+into the composer and how the numbers come back. Set it up first, then be signed
+in to **LinkedIn and/or X in that browser**. No API keys needed for either.
+Schedulers are optional later.
 
 **Bluesky?** Create an **app password** before the session — bsky.app →
 Settings → Privacy and Security → App Passwords (format `xxxx-xxxx-xxxx-xxxx`).
@@ -141,9 +173,11 @@ Paste this into Claude Code or Codex:
 
 ```
 Read https://github.com/benyki/gtm-engine/blob/main/docs/preflight.md
-and check my machine against sections 1 and 2.
+and check my machine against sections 1, 2 and 2b.
 
 Give me a PASS / FAIL list with the exact command to fix anything that fails.
+For 2b, try to open a page in my browser and tell me the title — that's the
+real test of whether the extension is connected.
 Do not install anything without asking me first.
 ```
 

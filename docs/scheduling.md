@@ -190,6 +190,73 @@ to prevent.
 6. **Fail loudly, do nothing quietly.** A job that can't reach a platform should
    leave the cell empty and say so, never guess a number
 
+## When a job generates a batch: propose, validate, re-propose
+
+The rules above keep a job from doing damage. This one keeps it from producing
+**junk**, and it's the pattern that makes unattended generation trustworthy —
+whether the batch is ten video themes, seven post subjects, twenty article
+titles or a list of leads.
+
+Attended, you catch the bad item yourself. Unattended, nobody does — and the
+specific thing that goes wrong is never creativity, it's **memory**: the model
+proposes something used three weeks ago, or twice inside the same batch, or four
+characters too long for the layout. Asking it to "check what we've already done"
+across four hundred previous items works until it doesn't, silently.
+
+So split the job by what each side is actually good at:
+
+| The agent | A small script |
+|---|---|
+| Proposes the items — **it is the generator.** Never hardcode a list of themes or subjects into a prompt: a static list runs out, a model doesn't | Decides which proposals are acceptable, against the rules you can state mechanically |
+| Owns the rules that need taste: is this interesting, does it fit the brand, would anyone care | Owns already-used (check the registry), duplicated inside this batch, too long, missing a field, banned term, wrong shape |
+
+The loop:
+
+1. The agent writes its proposal to a file — `<workflow>/inputs/queue/` or a
+   scratch file for this run
+2. The script reads it and emits a **verdict per item, with a reason** —
+   `dup-registry`, `dup-in-batch`, `too-long(47)`, `missing-proof`, `already-published`
+3. Everything that passed proceeds immediately. For the failures, the agent
+   **re-proposes only those**, with the reasons in hand — not the whole batch
+4. **Cap it at two or three rounds.** If an item still won't validate, drop it,
+   log that it was dropped, and carry on with a smaller batch. An uncapped
+   reconcile loop is how a nightly job burns until morning
+
+Two things that make it work in practice: the script writes **why**, not just
+pass/fail, or round two repeats round one's mistake; and the registry it checks
+against is a file that survives runs — the workflow's `runs/index.csv`, its
+`crm.csv`, its `backlog.csv`, or a plain list of what's been used. That file is
+the memory the model doesn't have.
+
+Where this already exists in the repo, use it instead of writing another:
+`combo_check.py` is exactly this validator for video configs, and the CRM check
+before every outreach draft is the same idea by hand.
+
+**Say what got dropped.** A batch that quietly came back with six items instead
+of ten reads as success. One line in the report — *"3 dropped: 2 duplicates, 1
+over length"* — is what turns that into a signal about the queue.
+
+---
+
+## Housekeeping
+
+One optional job, worth adding once video is running weekly:
+
+| Label | When | What it does | Never |
+|---|---|---|---|
+| `engine-cleanup` | weekly or monthly | Delete artifacts older than N days (30 is a reasonable default) from each workflow's publish folder, report how much was reclaimed | touch `runs/`, `inputs.json`, any CSV, or anything outside those folders |
+
+A publish folder holds shipped artifacts and nothing else — no state, no
+configs, no metrics — which is exactly why it's the only thing safe to put on a
+timer. **Resolve the paths before you write the prompt**: each workflow's
+`published_dir` in its `workflow.json`, defaulting to `published/<workflow>/`,
+and skip any set to `"none"`. Then hardcode the resolved list into the prompt
+and say what's out of bounds — "clean up old files" is a dangerous instruction
+to give an agent with a shell, and a wildcard it resolves itself is worse.
+
+Ask before creating it. Some people want their year of videos on disk, and disk
+is cheap; the job is for the ones who'd rather not think about it.
+
 ## A sane starting set
 
 Don't create ten jobs on setup day. In order:

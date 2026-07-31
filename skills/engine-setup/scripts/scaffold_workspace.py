@@ -46,6 +46,7 @@ import workflows as wf  # noqa: E402
 REPO_ROOT = _HERE.parents[2]
 TEMPLATE = REPO_ROOT / "workspace"
 SHARED_SRC = TEMPLATE / "shared"
+PUBLISHED_SRC = TEMPLATE / "published"
 STARTERS = TEMPLATE / "workflows"
 # The parts every workflow folder has whatever its type — runs/index.csv,
 # inputs/queue/, reports/, templates/losers/, empty experiments and sources.
@@ -74,6 +75,10 @@ __pycache__/
 
 # video renders are large; keep the finished file, not the scratch
 **/runs/**/output/*.tmp.*
+
+# published/ is your archive of shipped artifacts — keep the folder, not the media
+published/*
+!published/README.md
 """
 
 
@@ -177,6 +182,15 @@ def main() -> int:
     skipped += s
     if c:
         print("  + shared/  (brand, channels, .env.example, assets/, docs/, insights.md)")
+
+    # published/ — artifacts that went out, one subfolder per workflow. Not
+    # state: the spine stays in each workflow folder, so this is safe to empty.
+    if PUBLISHED_SRC.is_dir():
+        c, s = copy_tree(PUBLISHED_SRC, dest / "published")
+        created += c
+        skipped += s
+        if c:
+            print("  + published/  (what actually shipped — safe to empty)")
 
     # One self-contained folder per workflow: type starter first (its
     # experiments/sources/templates win), then the base shell fills the gaps.

@@ -91,6 +91,45 @@ When a reply theme keeps recurring, it has stopped being a follow-up problem:
 
 ---
 
+---
+
+## Who to chase first: the click
+
+If the workflow is tracking clicks on its one link
+(`references/first-touch.md` → §2), it has a third state beyond replied and
+silent: **clicked but hasn't replied.** That person opened the thing, went and
+looked, and didn't write back — which is much closer to interested than to no.
+
+- Chase them **before** the silent ones, and it's fine for the follow-up to
+  reference what they looked at. It reads as attentive, not creepy, as long as
+  it's the thing you sent them
+- **Opens don't count.** Privacy-protecting mail clients prefetch images, so a
+  large share of "opens" are machines. Ignore that column and never sort on it
+- No click tracking? Nothing is lost — the sequence runs on time and replies
+  alone. This is a nice-to-have, not a prerequisite
+
+---
+
+## The trap that only shows up when this is scheduled
+
+**A draft doesn't change the thread.** Marking something as handled by creating a
+draft is invisible to the mailbox — the thread still has an inbound message as its
+last message tomorrow, and the day after. So an unattended reply-handling job that
+looks only at the mailbox will draft the same reply to the same person **every
+single day**, and the user finds twelve near-identical drafts sitting in their
+account.
+
+**One inbound message = at most one draft, ever.** Before drafting a reply, skip
+the thread when either is true:
+
+- the CRM row already says `replied` / `closed` and nothing newer has come in
+- a draft to that address already exists — list the drafts and check
+
+The same applies to sequence follow-ups: check for replies *first*, then draft, or
+you'll chase someone who already answered.
+
+---
+
 ## Rules that don't change
 
 - **Drafts only.** Replies to real people go out when a human clicks send. Same
@@ -105,11 +144,16 @@ When a reply theme keeps recurring, it has stopped being a follow-up problem:
 - **A "bumping this" follow-up is worse than nothing.** New information, a
   different angle, or don't send it
 - **Honour a no permanently.** `status=closed`, and never re-added by a future
-  import
+  import — **and it still counts as a response.** Closing someone is a CRM
+  decision; it doesn't make their reply stop existing
 
 ## What the loop needs from all this
 
-Unchanged, whoever writes the replies: a reply is `runlog.py metric --value 1`
-plus `replied_at` in the CRM; a closed sequence with no reply is `--value 0`.
+Unchanged, whoever writes the replies: **any** reply is `runlog.py metric
+--value 1` plus `replied_at` in the CRM — a polite no, a "wrong person", and a
+"yes let's talk" are all the same 1, because the metric asks whether the email
+got an answer. Only a **closed sequence with no reply at all** is `--value 0`.
 The zero is a real result — writing it is what marks the run analysed, and
-skipping it leaves the experiment reporting "no runs yet" forever.
+skipping it leaves the experiment reporting "no runs yet" forever. Whether the
+answers were any *good* is a second number (`metrics.json` → `secondary`), not a
+reinterpretation of this one.

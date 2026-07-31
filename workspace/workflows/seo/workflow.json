@@ -2,6 +2,8 @@
   "type": "seo",
   "goal": "",
   "primary_metric": "",
-  "_primary_metric_hint": "The one number THIS workflow optimises \u2014 commonly clicks from Search Console. A channel can still override it in shared/channels.json.",
+  "_primary_metric_hint": "The one number THIS workflow optimises — commonly clicks from Search Console. A channel can still override it in shared/channels.json.",
+  "published_dir": "",
+  "_published_dir_hint": "Where this workflow's shipped artifacts go. Empty = the default, <workspace>/published/<this-workflow>/. Accepts a workspace-relative path or an absolute one (an external drive, a synced folder, a shared team drive). Set to \"none\" to skip the copy and leave artifacts in runs/<run_id>/output/.",
   "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Want a second seo workflow with a different goal or audience? Copy this whole folder to a new name (e.g. seo-partners/), rewrite this file's goal and metric, and run it independently. The folder name is the workflow name; 'type' maps it to the engine-seo skill."
 }

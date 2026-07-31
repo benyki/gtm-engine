@@ -76,6 +76,22 @@ python3 …/combo_check.py fp --inputs <config.json>
 `runlog.py` records *that* a video was made and what it earned, `inputs.json`
 records *what it was made of*.
 
+### "Made" and "shipped" are different questions
+
+`combo_check.py` answers **have I built this before** — it reads every config,
+including queued ones that were never rendered and renders that were never
+posted. That's the right question before you spend a render.
+
+Before you *post*, the question is **did this already go out**, and the answer is
+this workflow's publish folder — `published_dir` in `workflow.json`, default
+`published/<workflow>/` (plus the run's `published_url` in `runs/index.csv`). It
+matters most when a video gets re-rendered: a fixed version and the original
+share a subject but differ in every fingerprint, so nothing flags them — and the
+older file is still sitting in the queue looking postable. Two habits cover it:
+name the artifact `<run_id>-<slug>` so a subject is greppable across the archive,
+and when you re-render something, remove the superseded file from the queue
+rather than leaving both.
+
 ---
 
 ## Rule 2 — re-shipping a winner: change ≥75% of the frames

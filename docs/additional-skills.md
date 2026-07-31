@@ -1,205 +1,83 @@
 # Additional skills
 
-Toolbox skills that pair with gtm-engine. `skills/engine-*` stay the product
-surface; everything else (ffmpeg, posting APIs, scrapers, …) is opt-in.
+Optional capabilities that pair with gtm-engine. `skills/engine-*` are the
+workflows; everything below is a tool one of them can reach for. Install only
+what the run you're doing actually needs.
 
----
+They live in **[`benyki/skills`](https://github.com/benyki/skills)**, one folder
+per skill. Three layers, and only the first installs itself:
 
-## Where they live
+| Layer | Source | Installed |
+|---|---|---|
+| Workflows | this repo, `skills/engine-*` | by `install_skills.sh` |
+| Capabilities | `benyki/skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
+| Builders / one-offs | `misc/` in this repo | never |
 
-Each additional skill is a folder in the **`benyki/skills`** repo on GitHub — one
-directory per skill:
+A workflow of type `N` maps to skill `engine-N` if it exists. Capabilities stay
+off that map — nothing pulls them but an `engine-*` step that needs a tool it
+doesn't have.
 
-```
-https://github.com/benyki/skills/tree/main/<skill-name>
-```
-
-Examples: [`ffmpeg`](https://github.com/benyki/skills/tree/main/ffmpeg),
-[`upload-post`](https://github.com/benyki/skills/tree/main/upload-post),
-[`elevenlabs`](https://github.com/benyki/skills/tree/main/elevenlabs).
-
-They are **not** shipped inside gtm-engine. The agent downloads only what the
-current workflow needs.
-
----
-
-## How the agent installs one
-
-`~/.agents/skills/` is the **only** place the skill files live. Download there,
-then symlink out to each agent that has a skills directory — same pattern as
-create-local-skill. Do **not** clone into `~/code/skills` or any other code tree.
-
-1. **Download** the skill folder straight into the canonical store:
+## Install one
 
 ```bash
 mkdir -p ~/.agents/skills
 SKILL=<skill-name>
 TMP=$(mktemp -d)
-git clone --depth 1 --filter=blob:none --sparse \
-  https://github.com/benyki/skills.git "$TMP"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/skills.git "$TMP"
 git -C "$TMP" sparse-checkout set "$SKILL"
-rm -rf ~/.agents/skills/"$SKILL"
-mv "$TMP/$SKILL" ~/.agents/skills/"$SKILL"
-rm -rf "$TMP"
+rm -rf ~/.agents/skills/"$SKILL" && mv "$TMP/$SKILL" ~/.agents/skills/"$SKILL" && rm -rf "$TMP"
+
+for d in ~/.claude/skills ~/.codex/skills ~/.cursor/skills; do
+  [ -d "$d" ] && ln -sfn "$HOME/.agents/skills/$SKILL" "$d/$SKILL"
+done
 ```
 
-Confirm `~/.agents/skills/<skill-name>/SKILL.md` exists.
+`~/.agents/skills/` holds the real files; everything else is a symlink. Re-run
+to update. Never `cp -R` into an agent folder.
 
-To refresh later, run the same download again (replaces the folder).
+## The list
 
-2. **Symlink into every coding agent directory that already exists.** Skip any
-   that don't — do not create them.
+Alphabetical. Each `engine-*` skill points at the ones its own steps can use —
+this page is just the inventory.
 
-```bash
-# Claude Code
-[ -d ~/.claude/skills ] && ln -sfn ~/.agents/skills/<skill-name> ~/.claude/skills/<skill-name>
-
-# Codex
-[ -d ~/.codex/skills ] && ln -sfn ~/.agents/skills/<skill-name> ~/.codex/skills/<skill-name>
-
-# Cursor
-[ -d ~/.cursor/skills ] && ln -sfn ~/.agents/skills/<skill-name> ~/.cursor/skills/<skill-name>
-```
-
-Use absolute paths in scripts (`$HOME/.agents/skills/...`), not a bare `~`.
-
-3. **Optional workspace link** when a project workspace is in use — link the
-   **whole** canonical folder (same as `install_skills.sh`):
-
-```bash
-ln -sfn ~/.agents/skills <project>/workflows/skills
-```
-
-Never `cp -R` a skill into an agent folder — always symlink from
-`~/.agents/skills/<skill-name>`.
-
----
-
-## Why not dump everything into `skills/`
-
-Toolbox skills are useful, but installing dozens of folders into
-`~/.agents/skills` drowns discovery. Keep:
-
-| Layer | Source | Installed when |
-|---|---|---|
-| Workflows | this repo `skills/engine-*` | `--workflow` / `install_skills.sh` |
-| Capabilities | `github.com/benyki/skills` → files in `~/.agents/skills/<name>` | agent downloads only what the run needs |
-| Builders / one-offs | `misc/` in this repo | never auto-installed |
-
-Convention: workflow `N` → skill `engine-N` if it exists (`workflows.py`).
-Capabilities stay off that map; the agent pulls them when an `engine-*` step
-needs a tool it doesn't have yet.
-
----
-
-## First capabilities (close gaps `engine-*` already documents)
-
-| Capability (`benyki/skills/…`) | Closes the gap in |
+| Skill | |
 |---|---|
-| `local-secrets` | every workflow that touches `.env` |
-| `ffmpeg` | `engine-video` render |
-| `elevenlabs` | `engine-video` voiceover |
-| `pexels` (or `pexel-video-downloader`) | `engine-video` footage fallback |
-| `ffmpeg-text-overlay` | `engine-video` locked text style — `references/ffmpeg-text-style.md` |
-| `yt-dlp` | `engine-video` clip sourcing from YouTube / Pinterest |
-| `social-video-downloader`, `pinterest-download-videos` | `engine-video` clip sourcing, per platform |
-| `video-duplicate-transformer` | `engine-video` republishing without duplicate collapse |
-| `upload-post` | `engine-video` posting |
-| `buffer` | `engine-video` posting |
-| `bluesky-post-manage` | `engine-social` when posting to Bluesky via API |
-| `no-ai-slop-writting` | `engine-seo` + `engine-social` — the full editor behind each skill's `references/anti-slop-writing.md` |
-| `clarity-api-seo` | `engine-seo` behavioural analytics **and** `engine-loop`'s "what to make next" — Microsoft Clarity's export API is free at any volume: scroll depth, dead/rage clicks, quick-backs, engaged pages. Needs `CLARITY_API_KEY` |
-| `phraser-thread-generate` + `phraser-thread-backstory` | `engine-social` threads — a worked write-then-post thread pipeline (hook → beats → chain, posted to X and Bluesky). Project-specific: read them as the shape and swap the backlog path and brand for the user's |
-| one Apify entrypoint | research / metrics at volume |
-| `prospect-finder` | `engine-outreach` list building — description → qualified list with one observable per row, deduped against the CRM |
-| `apify-ultimate-scraper` | `engine-outreach` lead sourcing at volume — `references/lead-sourcing.md` |
-| `agent-browser` | LinkedIn / X / Reddit when there's no API, and hand-built lead lists |
-| `video-structure-plan` | `engine-video` script → architecture |
-| `video-filter` | `engine-video` post-process look |
-| `launch-announcement` | day one — a shipped product and no users yet (see below) |
+| `agent-browser` | Reddit, SERPs, LinkedIn and X when there's no API — research, metrics, hand-built lead lists |
+| `apify-ultimate-scraper` | scraping at volume: leads, competitor and audience data |
+| `bluesky-post-manage` | posting to Bluesky via the AT Protocol API |
+| `buffer` | scheduling posts; needs media at a public URL |
+| `buffer-videos` | the video-specific Buffer path |
+| `clarity-api-seo` | Microsoft Clarity — free behavioural data on your own pages. Needs `CLARITY_API_KEY` |
+| `elevenlabs` | voiceover |
+| `ffmpeg` | render, trim, crop, concat |
+| `ffmpeg-text-overlay` | the shared text-overlay helper — read `engine-video/references/ffmpeg-text-style.md` first |
+| `launch-announcement` | day one: Reddit / HN / Product Hunt / directories, for a product with no audience. **Not in `benyki/skills` yet** |
+| `local-secrets` | handling `.env` without leaking values into chat |
+| `music-downloader` | music beds |
+| `app-video-study` | worked example: a study or finding turned into a vertical explainer |
+| `no-ai-slop-writting` | the full editor behind each skill's `references/anti-slop-writing.md` |
+| `pexel-video-downloader` | Pexels B-roll by keyword |
+| `app-remotion-learn-words` | worked example: a Remotion vocab/teaching format |
+| `app-thread-generate` + `app-thread-backstory` | a worked write-then-post thread pipeline — swap the backlog path and brand for yours |
+| `pinterest-download-videos` | video pins by keyword |
+| `prospect-finder` | description → qualified list, one observable per row, deduped against the CRM |
+| `remotion-best-practices` | the Remotion render path — captions, transitions, sync |
+| `social-video-downloader` | Reels / TikTok / Pinterest, per-platform handling |
+| `tiktok-post-finder` | finding posts and people to reach out to |
+| `upload-post` | posting to TikTok / YouTube / Instagram / X via official APIs |
+| `video-duplicate-transformer` | re-ship a winner without duplicate collapse |
+| `video-factory-floating-text-short` | batch floating-text production from one look |
+| `video-filter` | post-process look — makes stock or generated footage read as filmed |
+| `video-floating-text` | the full floating-text render engine |
+| `video-structure-plan` | concept → segment architecture |
+| `x-browser-post` | posting on X from the browser, threads included |
+| `yt-dlp` | clips and audio from YouTube, Pinterest and most other sites |
 
-Only install a capability when the workflow you're running actually needs it.
-Keep the default gtm-engine install small.
+## Credits
 
-### Credits — capabilities adapted from other people's work
+Some capabilities were adapted from other people's open-source skills. Each says
+so in its own `CREDITS.md` with links — read the originals, they go further than
+gtm-engine needs.
 
-Some capabilities were written by adapting open-source skill libraries rather
-than from scratch. Where that's true it's stated in the skill's own `CREDITS.md`
-with links, and it's worth reading the originals — they go considerably further
-than what gtm-engine needs.
-
-| Capability | Adapted from |
-|---|---|
-| `prospect-finder` | [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills) (MIT) — person-first vs company-first search, hit-rate benchmarks, qualify-before-scaling, the compliance checklist · [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0) — the signal-first research mindset, signal freshness, the "so what?" test |
-
----
-
-## `launch-announcement`
-
-The one capability that runs **before** the content workflows have anything to
-measure. Someone who just finished `engine-setup` has a product, no users and no
-audience — and the loop has nothing to score until traffic exists.
-
-It plans a launch across the places where follower count is irrelevant — Reddit,
-Hacker News, Product Hunt, Uneed and a ranked tail of ~100 directories — and
-writes the copy for each. It **writes; the user submits.** Every platform on that
-list bans accounts for automated submission.
-
-| Contents | |
-|---|---|
-| `references/platforms.md` | Tier 1–3 platforms: format, timing, what gets you removed |
-| `references/reddit.md` | Ten subreddits with sizes and fit, plus the one-subreddit rule |
-| `references/directories.md` | 107 directories and a 37-entry weighted worklist |
-| `references/sources.md` | The five posts everything traces to, and where the evidence is thin |
-| `CREDITS.md` | The authors behind those posts, with links — credit them by name when quoting a verdict |
-| `templates/` | Product Hunt, Show HN, Reddit, directory listing pack |
-
-Where it sits relative to the workflows:
-
-- Corrects the most common day-one mistake — launching to your own 40-follower X account instead of to platforms that don't care who you are
-- Logs to the `launch` channel so `engine-loop` scores it. Set `metric_delay_hours: 48` on that channel; directory traffic peaks and dies inside two days
-- Hands off after the spike: `engine-seo` for the alternatives directories (evergreen search, not launch traffic), `engine-social` to turn "#1 on Uneed" into posts, `engine-outreach` for the people who commented
-- Pairs with `no-ai-slop-writting` — launch copy is where AI phrasing gets spotted, and on Reddit and HN being spotted is fatal
-
-**Not yet in `benyki/skills`.** It currently lives in `~/.agents/skills/` and is
-mirrored in `_shared/skills/`. Push it to the skills repo before the download
-command above will work for anyone else.
-
----
-
-## Paths stay inside the workspace
-
-Capabilities read and write the **workspace** only:
-
-| Use |
-|---|
-| `runs/<run_id>/output/` |
-| `shared/assets/` |
-| `config/` (`.env.example` for names; `.env` sourced at run time, never read into chat) |
-| account tables as templates the user fills in |
-
-No hardcoded home-directory media trees. The join key for anything posted stays
-the run id / file stem the loop already uses — see `docs/workspace.md`.
-
----
-
-## Keep `engine-*` as orchestration
-
-`engine-video` still owns arm → script → voice → footage → render → runlog.
-Capabilities own the *how* (the ffmpeg flags, the Upload Post call). When a
-step needs one, the agent installs it from
-`https://github.com/benyki/skills/tree/main/<name>` as above, then follows that
-skill's `SKILL.md`.
-
----
-
-## Posting vs social text
-
-- **Video** — choose manual / Upload Post / Buffer:
-  [`skills/engine-video/references/posting-options.md`](../skills/engine-video/references/posting-options.md)
-- **LinkedIn / X** — post from the user's logged-in **browser** (no scheduler
-  required on day one)
-- **Bluesky** — post via the **AT Protocol API** after per-post approval
-  (`engine-social`); install `bluesky-post-manage` from
-  [`benyki/skills`](https://github.com/benyki/skills/tree/main/bluesky-post-manage)
-  when useful
+`prospect-finder` ← [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills)
+(MIT) · [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0)

@@ -266,7 +266,10 @@ def main() -> int:
         family = a.family or default_family(d)
         if not family:
             sys.exit(f"error: no family name readable in {d} — pass --family")
-        print(f"; fontsdir: {d}")
+        # The hint goes to stderr, never into the .ass. A comment line above
+        # [Script Info] makes libass reject the whole script: no styles, no
+        # font selection, no text — and it fails silently.
+        print(f"fontsdir: {d}", file=sys.stderr)
         print(style_block(family, a.width, a.height, a.weight))
         return 0
 

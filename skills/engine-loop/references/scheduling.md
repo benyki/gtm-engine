@@ -28,8 +28,9 @@ Claude Code and Codex both schedule themselves. **Ask the agent to create the
 job** — it knows its own scheduler; you only need to tell it what to run:
 
 ```
-Set up a daily scheduled task called gtm-metrics-daily that runs the
-engine-loop metric pass on ~/code/your-project/workflows at 08:05.
+Set up a daily scheduled task called engine-metrics-social that runs the
+engine-loop metric pass for the social workflow in
+~/code/your-project/workflows at 08:05.
 ```
 
 Four things are specific to this system. The rest is your agent's business:
@@ -107,9 +108,11 @@ output.
 ## Cadence
 
 Which jobs to create, at what cadence, and what each may and may not do:
-[`docs/scheduling.md`](../../../docs/scheduling.md). Two rules that don't
-change: **fetch before score, score before report**, and metrics run daily
-rather than weekly — runs clear their channel's window on a rolling basis, so a
+[`docs/scheduling.md`](../../../docs/scheduling.md) — one
+`engine-metrics-<workflow>` per workflow on that channel's clock, plus one
+`engine-weekly` for the workspace. Two rules that don't change: **fetch before
+score, score before report**, and metric jobs run on their own cadence rather
+than weekly — runs clear their channel's window on a rolling basis, so a
 weekly-only job always reads a few of them late.
 
 ---

@@ -36,6 +36,14 @@ different goals and metrics are two independent folders — scaffold with
 
 ## Before the first run
 
+**This workflow needs the browser extension** — *Claude in Chrome*, or the
+equivalent for whatever agent is running. LinkedIn and X have no free posting
+API worth using and their analytics sit behind the user's login, so without it
+every post is copy-paste and every number is typed in by hand. Check it's
+connected before starting (open a page, read the title back); if it isn't, set
+it up first — [`docs/preflight.md`](../../docs/preflight.md) §2b. Bluesky is the
+exception: it posts and reports through its own API.
+
 Pick **one** platform to start. LinkedIn, X and Bluesky reward different things, and splitting attention early means learning neither. `shared/channels.json` holds the accounts.
 
 If you run more than one, keep the accounting per channel: log each run with the channel it actually shipped to, and give each its own `primary_metric` / `metric_delay_hours` in `shared/channels.json` where they differ.
@@ -180,7 +188,7 @@ write and ship one without installing anything. Install these when you want more
 |---|---|
 | `x-browser-post` | the frozen element map with fallback queries, the clipboard image script, the staged-thread loop as pseudocode, and a quirks file |
 | `bluesky-post-manage` | Bluesky chains, images, multi-account, delete |
-| `phraser-thread-generate` + `phraser-thread-backstory` | a worked **write-then-post** pipeline: research the material, write it as hook plus beats, keep a backlog, post the chain, mark it done. Project-specific as shipped — take the shape, swap the backlog path and brand |
+| `app-thread-generate` + `app-thread-backstory` | a worked **write-then-post** pipeline: research the material, write it as hook plus beats, keep a backlog, post the chain, mark it done. Take the shape and swap the backlog path and brand for the user's |
 
 When a verdict here teaches you something bigger than this workflow — a hook
 style, an audience truth — add one line to `shared/insights.md`; a reusable

@@ -11,7 +11,7 @@ per render, and don't hand-copy it either — `scripts/text_style.py` emits it.
 
 | | Value |
 |---|---|
-| Font | the family in the resolved fonts dir — **read it, don't assume it** (below) |
+| Font | **TikTok Sans 12pt** once installed (Plan A), or the family in the resolved fonts dir — **read it, don't assume it** (below) |
 | Weight | an ASS `\b` override, not a separate bold family |
 | Fill / outline | white `&H00FFFFFF` on black `&H00000000` |
 | Border style | `1` (outline + shadow), shadow `0` |
@@ -62,16 +62,53 @@ block grows symmetrically around 33% instead of pushing downward.
 
 ## The font
 
-### Where it comes from
+### Plan A — install it once, then forget about it
 
-Resolution order, first hit wins — so a user with a brand face never has to
-edit this file:
+The fonts ship with this skill under the OFL. Copy them into the system font
+folder and every renderer on the machine resolves them by name, with no
+`fontsdir`, no path juggling and no per-command flags:
+
+```bash
+# macOS
+cp ~/.agents/skills/engine-video/assets/fonts/*.ttf ~/Library/Fonts/
+
+# Linux
+mkdir -p ~/.local/share/fonts
+cp ~/.agents/skills/engine-video/assets/fonts/*.ttf ~/.local/share/fonts/
+fc-cache -f
+```
+
+The family is then **`TikTok Sans 12pt`** — that's what the files declare, not
+what their names suggest. Put that in the ASS `Fontname` and burn without a
+fonts flag:
+
+```bash
+ffmpeg -y -i base.mp4 -vf "subtitles=filename='overlay.ass'" … final.mp4
+```
+
+Do this for a brand font too. One install beats threading a directory through
+every render call, and it's what makes the font available to anything else the
+user renders with — a design tool, a Remotion project, a screenshot script.
+
+**Verify once, and expect a lag.** The font cache takes a moment to notice new
+files; a probe run seconds after the copy can still report Helvetica and then
+resolve correctly on a retry. Run it twice before believing a failure:
+
+```bash
+python3 ~/.agents/skills/engine-video/scripts/text_style.py probe \
+  --video base.mp4 --ass overlay.ass
+```
+
+### Plan B — carry the directory instead
+
+Use this when installing isn't an option — a CI box, a server, a locked-down
+machine — or when a brand font must stay scoped to one project. The style
+script resolves a directory, first hit wins:
 
 1. `--fonts <dir>`
 2. `$GTM_FONTS_DIR`
 3. **`<workspace>/shared/assets/fonts/`** — the user's own font, if they have one
-4. **`<this skill>/assets/fonts/`** — TikTok Sans 12pt (Regular + Bold), shipped
-   here under the OFL so a fresh clone renders on-brand with no downloads
+4. **`<this skill>/assets/fonts/`** — the bundled TikTok Sans 12pt
 
 ```bash
 python3 ~/.agents/skills/engine-video/scripts/text_style.py fonts
@@ -82,19 +119,24 @@ It prints the resolved directory, every family the files declare, and
 font file, not out of a doc**, which is the point: filenames lie, and a family
 you assume is a family libass will silently replace.
 
+Then pass `fontsdir` on every burn (below). This path is more moving parts for
+the same result, which is why it's Plan B.
+
 ### Verify, every machine, every font change
 
-libass never fails loudly on a missing font. It substitutes, the render looks
-plausible, and you find out weeks later that half the channel is Helvetica:
+Whichever plan you're on, this is the check. libass never fails loudly on a
+missing font: it substitutes, the render looks plausible, and you find out weeks
+later that half the channel is Helvetica.
 
 ```bash
 python3 ~/.agents/skills/engine-video/scripts/text_style.py probe \
   --video runs/<run_id>/output/base.mp4 --ass runs/<run_id>/overlay.ass
 ```
 
-Exit 0 means every face came from the fonts dir. Exit 1 prints `SUB` lines
-naming the system font that got used instead — the family name in the ASS
-doesn't match what the directory offers, so run `fonts` and use what it says.
+Exit 0 means every face resolved to the font you meant. Exit 1 prints `SUB`
+lines naming the system font that got used instead — either the family in the
+ASS doesn't match what's installed or in the directory, or (Plan A, just after
+installing) the font cache hasn't caught up. Re-run once before debugging.
 
 This is not TikTok-Sans trivia you can skip for another face. Two things that
 bite whatever you burn:
@@ -119,6 +161,17 @@ maths. Redirect it to the `.ass` and append your cues with `printf` or a quoted
 heredoc — **not** `echo`, which eats `\a` and `\b` in the override tags and
 leaves you with `{n5\q2…700}` and a silently unstyled line. Then burn:
 
+**Plan A** — the font is installed, so there's nothing to point at:
+
+```bash
+ffmpeg -y -i runs/<run_id>/output/base.mp4 \
+  -vf "subtitles=filename='runs/<run_id>/overlay.ass'" \
+  -c:v libx264 -preset slow -crf 18 -c:a copy -movflags +faststart \
+  runs/<run_id>/output/final.mp4
+```
+
+**Plan B** — carry the directory:
+
 ```bash
 FONTS=$(python3 ~/.agents/skills/engine-video/scripts/text_style.py fonts | \
   python3 -c 'import json,sys; print(json.load(sys.stdin)["fonts_dir"])')
@@ -129,7 +182,8 @@ ffmpeg -y -i runs/<run_id>/output/base.mp4 \
   runs/<run_id>/output/final.mp4
 ```
 
-`fontsdir` is not optional — and it is not sufficient either. Probe the result.
+There, `fontsdir` is not optional — and it is not sufficient either. Probe the
+result either way.
 
 ### One hook line
 
@@ -146,9 +200,8 @@ not required — everything above works with ffmpeg alone.
 
 Three things to know if you install it:
 
-- Its default family name does **not** resolve from a directory load on a
-  machine where the family isn't installed system-wide. Point its style JSON at
-  the family `text_style.py fonts` reports, then probe
+- Its default family name does **not** resolve from a directory load. Install
+  the fonts (Plan A) and point its style JSON at `TikTok Sans 12pt`, then probe
 - Its `SKILL.md` prose disagrees with its own JSON on line height and the
   char-per-line limits. The JSON wins; this page follows the JSON
 - Its bundled font smoke test looks for a fixture path from the author's
@@ -156,8 +209,9 @@ Three things to know if you install it:
 
 ## In the workspace
 
-- A brand font goes in **`shared/assets/fonts/`** — every video workflow picks
-  it up automatically, no config
+- A brand font: install it (Plan A) so everything on the machine sees it, and
+  keep a copy in **`shared/assets/fonts/`** so the workspace carries it to the
+  next machine — every video workflow picks that up automatically, no config
 - Overlay copy comes from the config (`references/structure-plan.md` →
   `segments[].textOverlay.lines`); this file only decides how it looks. What it
   should *say* is `references/hook-guide.md`

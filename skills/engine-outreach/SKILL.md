@@ -56,6 +56,16 @@ Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pas
 ten-lead test that tells you whether a source is any good, and the scraping and
 personal-data limits. The list moves the reply rate more than the copy does.
 
+For B2B with nothing to start from, the fastest honest path to the first twenty
+is three steps in one afternoon: **search LinkedIn with the agent driving the
+browser** (title, headcount, geography, something that changed recently),
+capturing name, role, profile URL and the observable → **turn the profile URLs
+into verified email addresses** with a finder tool (Dux-Soup, Lusha, Apollo,
+Hunter, Prospeo — expect a 50–70% hit rate, so search thirty to land twenty) →
+**run this workflow normally**. Full version, including which tool to pick and
+the LinkedIn-terms caution to raise with the user, is in
+`references/lead-sourcing.md`.
+
 A usable list before normalisation looks like this — the `notes` column is the
 part that decides whether the email is worth sending:
 
@@ -85,6 +95,12 @@ If it returns `action: write_template`, write the template it names using the hy
 starter experiments ship paused on purpose. Ship one sequence until the user is
 happy with the format, then start testing. `engine-loop/references/ab-testing.md`
 → R0 has the three conditions for flipping an experiment live.
+
+When you do flip one live, decide **what** is worth testing before writing a
+second template — the wording, or the offer itself. The offer is often the bigger
+variable and its answer also changes the landing page, but it isn't always the
+right call and it isn't yours to decide alone: recommend one, and let the user
+pick. `references/first-touch.md` → §6 has the choice and what to hold constant.
 
 ### 3. Research each person
 
@@ -167,18 +183,43 @@ The rules that never change:
 The metric is replies and the source is the same mailbox the drafts came from — no analytics page, no browser reading. Replies settle faster than social distribution: if the 72h default feels slow here, set `metric_delay_hours` on the email channel in `shared/channels.json` (24–48 is reasonable). On each loop pass, `due_metrics.py` lists the sent runs past that window with no number yet. For each one, check the thread:
 
 - **A reply landed** → `runlog.py metric --run <id> --value 1 --source api`, set `replied_at` in the CRM, stop the follow-ups
+- **A decline is a reply.** "Not interested", "wrong person", a polite no — all
+  `--value 1` with `replied_at` set, *and* `status=closed` so they're never
+  contacted again. The metric asks whether the email made someone write back, not
+  whether they said yes. Scoring a no as a zero quietly punishes the arm that
+  provoked a real answer, and both arms end up measuring politeness
 - **No reply, sequence still open** → leave the cell empty. It stays on the due list and gets checked again next pass
 - **No reply, sequence closed** — three touches done and 72h past the last → record the zero: `--value 0 --source api`. A zero is a real result, and writing it is what marks the run analysed
 
 A reply that arrives after a zero was recorded: run `metric` again with `--value 1`. Later information beats earlier.
 
+If the user wants "did they say yes" as well — and they usually do — that's a
+second number, not a redefinition of this one: put calls booked or deals opened
+in the run's `metrics.json` under `secondary`. An arm can win on replies and lose
+on conversations, and you only see that when both are recorded.
+
+**The window is a property of the audience, not just the channel.** 24–48h is
+right for people who live in their inbox; it is wrong for anyone who answers mail
+weekly. Set `metric_delay_hours` from how fast *these* people actually answer —
+if the first cohort's replies are still trickling in on day nine, the window is
+too short and every zero written before then is a lead you wrote off early.
+
+**Read the recent slice, not just the running total.** `score_arms.py`'s cohort is
+every measured run since the experiment's `started` date, and it only grows — by
+week twelve the number is dominated by weeks one to eleven, so a fix made in week
+nine barely moves it. Two habits fix that: look at the last ~20 runs next to the
+cumulative figure before believing a flat result, and **when the email changes
+mid-experiment, bump `started` (or open a new experiment) rather than letting the
+old runs vote on the new version.**
+
 ## Rules
 
 - **Drafts only.** Never send, never schedule a send
 - **Never contact anyone twice.** Check the CRM before every draft
+- **One inbound message gets at most one draft, ever.** A draft doesn't change the thread, so a scheduled reply job that trusts the mailbox alone re-drafts the same reply daily. Check the CRM row *and* the existing drafts first — `references/followups.md`
 - **Never invent a fact about a person.** If the research is thin, say so — a made-up detail in a cold email is unrecoverable
-- **Never put a key or personal data in a URL**
-- Honour unsubscribes and "not interested" permanently — mark them `status=closed` and never re-add them from a fresh import
+- **Never put a key or personal data in a URL**, and never a bare URL as visible link text — send an anchor (`references/first-touch.md` → §2)
+- Honour unsubscribes and "not interested" permanently — mark them `status=closed` and never re-add them from a fresh import. Closing them doesn't retract the metric: a decline was still a reply
 
 ## Make it run without you
 
@@ -189,16 +230,18 @@ unedited:
 
 | Label | When | What |
 |---|---|---|
-| `engine-metrics-outreach` | daily, working days | read the mailbox: a reply is `--value 1` plus `replied_at`, a closed sequence with no reply is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any workflow |
+| `engine-metrics-outreach` | daily, working days | read the mailbox: any reply — including a no — is `--value 1` plus `replied_at`, a closed sequence with no reply at all is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any workflow |
 | `engine-outreach-daily` | daily, working days | draft `<n>` personalised emails into their mail system, update the CRM |
 
 **Reading replies *is* the metric fetch** — don't add a separate weekly
 "check replies" job. Two jobs writing the same `runs/index.csv` and the same
 `crm.csv` is how rows get silently lost.
 
-Two things to get right when setting them up: **`<n>` is a number they'll
-actually review** — 50 drafts a day is the same as no outreach — and **neither
-job sends**, including the follow-ups. Catalogue:
+Three things to get right when setting them up. **`<n>` is a number they'll
+actually review** — 50 drafts a day is the same as no outreach. **Neither job
+sends**, including the follow-ups. And if either job drafts *replies*, its prompt
+has to carry the one-draft-per-inbound rule explicitly — that failure is invisible
+in a single run and obvious after a week. Catalogue:
 [`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
 `engine-loop/references/scheduling.md`.
 

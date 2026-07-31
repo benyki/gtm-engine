@@ -22,6 +22,9 @@ owns everything it depends on, rewriting one can never break another.
 │   ├── assets/              logos, fonts, b-roll — anything any workflow reuses
 │   ├── docs/                write-ups that benefit every workflow
 │   └── insights.md          cross-workflow learnings, one line each
+├── published/               what actually shipped — one subfolder per workflow
+│                            (artifacts only, gitignored, safe to empty —
+│                             and relocatable per workflow, see below)
 ├── skills → ~/.agents/skills   (symlink, from install_skills.sh)
 ├── outreach/                one folder per workflow — fully self-contained
 │   ├── workflow.json        type, goal, primary_metric (the loop optimises this)
@@ -34,7 +37,8 @@ owns everything it depends on, rewriting one can never break another.
 │   └── reports/             weekly report + latest.json for the next agent
 ├── seo/                     same shape (a seo workflow adds site/ on demand)
 ├── social/                  same shape
-└── video/                   same shape
+└── video/                   same shape — rename per format once you pick one:
+                             video-app/ · video-vibe/ · video-info/
 ```
 
 ## The shape is yours to change
@@ -68,6 +72,20 @@ Folders keep the *mechanics* apart; `shared/` is where the *learning* flows:
   a proof point) moves up here instead of being re-made by the next workflow
 - `shared/docs/` — longer write-ups any workflow benefits from
 - Cross-feeding queues: one workflow's report justifying an idea for another
+
+`published/` is the one other top-level folder, and it's the exception that
+proves the rule: it pools *artifacts* (the mp4 that went out, the image that
+went with a post) so you have one place to look at your own work and one place
+to reclaim disk. It holds no state — the runs, metrics, experiments and configs
+all stay inside their workflow — so emptying it can't cost you a verdict.
+
+**Where it lives is per workflow.** `published_dir` in a `workflow.json` sends
+that workflow's artifacts wherever they belong: inside the workflow folder, onto
+an external drive, into a synced folder an editor can reach, or nowhere at all
+(`"none"` leaves them in `runs/<run_id>/output/`). The default — one shared
+`published/` at the workspace root — is just the answer that suits most people
+on day one. `published/README.md` has the options, the naming convention and the
+cleanup command.
   → write it into *that* workflow's `inputs/queue/` with the source run
 
 ## The three files that matter most

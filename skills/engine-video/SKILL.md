@@ -10,13 +10,23 @@ Script to rendered 9:16 mp4. The heaviest workflow in the repo — it needs disk
 This skill runs any workflow folder of **type `video`**. The default folder is
 `video/`; paths below (`templates/`, `runs/`, `inputs/`) are inside it, while
 brand, accounts, keys and **reusable footage/fonts/logos live in `shared/`**
-(`shared/assets/` — any workflow can use them). **Several video workflows are a
-normal shape** — `video/` for product demos and `video-founder/` for talking-head
-content, each with its own templates, experiments and metric — scaffold with
-`--merge --workflow video-founder:video`, or copy a folder and empty its
-`runs/` and `reports/` (history belongs to the original). Render knobs (`resolution`, `target_seconds`,
-voice id) live in each folder's `workflow.json` under `video`, so two video
-workflows can render differently.
+(`shared/assets/` — any workflow can use them).
+
+**Several video workflows are the normal shape, one per format**, each with its
+own templates, experiments and metric. Name them after the format they run:
+
+| Folder | Format |
+|---|---|
+| `video-app/` | viral product |
+| `video-vibe/` | viral vibe |
+| `video-info/` | informative |
+
+All of them are type `video` — scaffold one with
+`--merge --workflow video-vibe:video`, or copy a folder and empty its `runs/`
+and `reports/` (history belongs to the original). Running a single format? Keep
+the shipped `video/` folder and ignore the rest. Render knobs (`resolution`,
+`target_seconds`, voice id) live in each folder's `workflow.json` under `video`,
+so two video workflows can render differently.
 
 ## Three formats, by default
 
@@ -47,9 +57,9 @@ Your read on how your audience watches beats this table. Change one thing per
 experiment so the verdict means something, and give a genuinely new format its
 own workflow folder. `references/formats.md` covers how.
 
-Running two formats means **two workflow folders** (`video/` and `video-vibe/`),
-not one folder with two kinds of run: different metrics, different experiments,
-different queues.
+Running two formats means **two workflow folders** (`video-app/` and
+`video-vibe/`), not one folder with two kinds of run: different metrics,
+different experiments, different queues.
 
 **How (not just what):** the run below is the spine. The recipes live in `references/` — read the one for the step you're on instead of improvising ffmpeg or shot lists.
 
@@ -76,6 +86,7 @@ different queues.
 | Thing | Why | Free? |
 |---|---|---|
 | `ffmpeg` | rendering | yes — `brew install ffmpeg` |
+| the overlay font, **installed** | text resolves by name, no `fontsdir` — `cp assets/fonts/*.ttf ~/Library/Fonts/`, once per machine (`references/ffmpeg-text-style.md`) | yes — bundled, OFL |
 | `PEXELS_API_KEY` | background footage | yes |
 | `ELEVENLABS_API_KEY` | voiceover | free tier |
 | `UPLOADPOST_API_KEY` | posting, optional | free to 10 posts/month |
@@ -198,6 +209,47 @@ Two records, two jobs: the run row says a video was made and what it earned;
 next `combo_check` mean anything. Keep the config with the run — it's the only
 memory this workflow has of what has already been built.
 
+**When a video has to get specific things right, write a checker.** Some formats
+carry a factual payload — exact words, numbers, prices, names, a claim that has
+to match a source — and the mistakes are always the same handful. When that's
+true, a twenty-line script that reads the run's `inputs.json` and exits non-zero
+beats a checklist in a prompt: it runs the same way every time, it can't be
+skipped when the batch is late, and **it blocks the post rather than reporting
+after the fact**. Give it the failure path too — skip that clip, move it aside,
+take the next one — or an unattended job stalls on the first bad file. Optional,
+and only worth it for a format you're producing repeatedly.
+
+### The caption
+
+Separate craft from the on-screen text, and easy to forget because the video
+feels finished without it. It matters most in the formats where the product
+never appears on screen — then the caption is the *only* place attribution
+happens.
+
+Keep the workflow's captions in one file, `<workflow>/templates/captions.md`,
+grouped by which kind of video each one fits. Four rules:
+
+- **Short, and written like a person, not an ad.** If the product belongs in it,
+  one first-person mention — "the app I use for this is X" — never "Download now,
+  link in bio". A caption that reads as promo gets treated as promo
+- **Not the first line.** The first line is what shows before *"…more"*. Lead with
+  the hook or the context; the mention goes in the middle or at the end
+- **Rotate.** Keep three or four phrasings and cycle them. The identical sentence
+  on two hundred posts is a pattern, to the platform and to a returning viewer
+- **Match the caption to what's actually on screen.** A caption written for a
+  different kind of clip is worse than a generic one — it signals nobody watched
+  the video before posting it
+
+Start with two or three per video type and don't agonise over them. **Then tell
+the user the thing that actually improves this file:**
+
+> *"Paste me your best-performing captions — yours or ones you've saved from
+> accounts you like — and I'll rewrite `captions.md` around what actually
+> works for you."*
+
+Written captions are guesses until real ones replace them. Same principle as
+`inputs/best/` for post voice: copied from examples, never from a description.
+
 Posting mode: manual, Upload Post, or Buffer —
 `references/posting-options.md` (decision) and `references/posting-api.md` (how).
 Device posting: `references/advanced.md` (account-risk first). Record the URL:
@@ -206,13 +258,58 @@ Device posting: `references/advanced.md` (account-risk first). Record the URL:
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
 ```
 
+Then move the mp4 to the workspace archive so you can find it later and delete it
+easily — `<published_dir>/<run_id>-<slug>.mp4`, which defaults to
+`published/<workflow>/` and is set per workflow in `workflow.json`. Leave
+`runs/<run_id>/inputs.json` where it is; that one is never disposable.
+`published/README.md`.
+
+### How often to post
+
+There's no script for this and there shouldn't be, but it's the rule that
+protects the account:
+
+- **Four or five posts a day per account is the ceiling**, and most accounts do
+  better well under it. Space them out — several hours apart, not a batch at
+  09:00 — and vary the theme and the hook between them
+- A burst reads as automation to the platform and to the audience, and the
+  penalty is silent: reach drops, and you read it as "the format stopped working"
+- **Three good posts a week beats twenty in a day**, every time
+- If a scheduler is queueing posts, set the spacing *in the queue* rather than
+  trusting the render pace. One video every 12 hours is a safe floor for a new
+  account
+
+Same rule per *account*, not per workflow — two workflows feeding one TikTok
+handle share that ceiling.
+
 ## Getting the numbers back
 
-Read them off the platform's own analytics screen in the browser:
+Two routes, and which one you have decides what this workflow's metric can be.
+
+**With the browser extension** — the creator dashboard, where watch-through
+lives:
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py metric --run <run_id> --value 12400 --source browser
 ```
+
+**Without it** — `yt-dlp` reads the public counters off your own posted URL, no
+login and no extension. Verified on YouTube and TikTok: views, likes, comments
+(and reposts on TikTok):
+
+```bash
+yt-dlp -J --no-warnings "<the url you recorded on publish>" | python3 -c \
+  "import json,sys; print(json.load(sys.stdin)['view_count'])"
+# then: runlog.py metric --run <run_id> --value <views> --source yt-dlp
+```
+
+**What yt-dlp cannot give you on any platform is watch-through** — average view
+duration, retention, impressions and traffic source exist only behind the
+account login. So if there's no extension, set this workflow's `primary_metric`
+to `views` rather than leaving a `watch_through_rate` column that never fills.
+Say that out loud to the user; a weak measured signal beats an empty one, and
+the loop works identically either way. (YouTube-only exception: its Analytics
+API returns real average view duration for your own channel over OAuth.)
 
 Views alone are a weak signal. Watch-through rate is the one that tells you whether the hook worked. `index.csv` holds only the primary metric — put the second number in the run's `metrics.json` under `secondary` (e.g. `"secondary": {"watch_through_rate": 0.41}`), which is open for exactly this; every re-read of the primary is appended to its `history` automatically, so a 3-week read never erases the 72-hour one.
 
@@ -227,7 +324,8 @@ Views alone are a weak signal. Watch-through rate is the one that tells you whet
   decide. `references/clip-sourcing.md`
 - **Never clone a real person's voice** without their explicit permission
 - **Never render a config that reuses both the same inputs and the same durations.** `references/duplicate-safety.md`
-- Delete the intermediate files after a successful render. Video fills a disk faster than anyone expects — but **never delete `runs/<run_id>/inputs.json`**. It's two kilobytes and it's the only record of what this workflow has already made
+- **Never exceed four or five posts a day on one account**, and space them out
+- Delete the intermediate files after a successful render. Video fills a disk faster than anyone expects — but **never delete `runs/<run_id>/inputs.json`**. It's two kilobytes and it's the only record of what this workflow has already made. Shipped mp4s live in this workflow's `published_dir` and *are* safe to delete
 - If a render fails, fix it — don't ship a broken or half-length file
 
 A hook verdict here usually says something about the social workflow's hooks
@@ -241,12 +339,13 @@ is cheapest. What's worth scheduling is everything around it:
 
 | Label | When | What |
 |---|---|---|
-| `engine-metrics-video` | daily | read watch-through and views off the platform in the browser and record them. Daily because the 72h window clears on a rolling basis |
+| `engine-metrics-video` | daily | record what each published video earned. Daily because the 72h window clears on a rolling basis |
 | `engine-video-app-hooks` | weekly | read what earned watch-through, rewrite the hook library from it |
 | `engine-video-info-source` | daily | pull new items from the text source into `inputs/source-texts/` — only when the informative workflow *fetches* its source rather than being handed one |
+| `engine-cleanup` | monthly | delete artifacts older than 30 days from wherever this workflow publishes and report what was reclaimed. Optional, and ask first — some people want the year of videos on disk |
 
-Neither renders and neither uploads — rendering stays manual, and so does
-posting. Without the metric job this workflow accumulates videos and no
+Neither of the first two renders and neither uploads — rendering stays manual,
+and so does posting. Without the metric job this workflow accumulates videos and no
 verdicts, which is the most common way a video channel goes quiet. Catalogue:
 [`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
 `engine-loop/references/scheduling.md`.

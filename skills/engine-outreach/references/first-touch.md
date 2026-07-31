@@ -56,6 +56,39 @@ Placeholders that stay in the template are fine — `{{FIRST_NAME}}`,
 with something real and recent. If it can't be filled honestly, that person is
 the wrong target: skip them rather than writing filler.
 
+### The link — one, and never a bare URL
+
+Most first-touch emails carry at most one link. How it's rendered matters more
+than it should:
+
+- **Never put a bare URL in as visible text.** Gmail auto-linkifies it and
+  rewrites what the reader sees into `google.com/url?q=…&source=gmail&ust=…`.
+  It looks like tracking spam, and it's the reader's first impression of the
+  sender
+- **Send an anchor instead** — `<a href="https://the.real/url">the actual thing,
+  named</a>` in the HTML body, with the raw URL kept in the plain-text part. The
+  visible text is a phrase, the `href` is untouched
+- **Build it in one place.** A small renderer that takes the lead's row and emits
+  `to` / `subject` / `body` / `htmlBody` is worth writing on day one: every draft
+  goes through it, so the anchor can't be hand-assembled wrong on run forty.
+  It's also where the per-language template lookup and the link constant live
+- **One link.** Two links in a cold email is a newsletter
+
+### Opens are noise; clicks are signal
+
+The "no tracking pixels" rule above is not squeamishness, it's that **open rates
+stopped meaning anything**: privacy-protecting mail clients prefetch remote
+images, so a large share of "opens" are machines. Don't report them, and don't
+let the user make decisions on them.
+
+A **click** is different — a person chose to go somewhere. If the user wants one
+extra signal beyond replies, a self-hosted redirect on the single link is the one
+worth having: it's cheap, and *clicked but hasn't replied* is a real state that
+changes what you do next (`references/followups.md`). Say the trade-off out loud
+before adding it — a redirect domain is visible to the recipient and is one more
+thing that can hurt deliverability — and if they'd rather stay clean, replies
+alone are a complete metric. The primary metric doesn't change either way.
+
 ## 3. Run the anti-slop pass
 
 Every draft, before the user sees it. The patterns that make writing sound
@@ -95,3 +128,76 @@ that renders it.
 → R0: testing starts once the user is happy with the format and 5–10 emails
 have numbers on them. Until then, changing the template by hand from what you
 learn beats splitting a thin stream between two versions that both need work.
+
+## 6. When testing does start: the offer, or the wording?
+
+The default first experiment is two phrasings of the same email. Sometimes
+that's right. Often the bigger variable is **what's being offered**, and it's
+worth raising before defaulting to copy.
+
+The difference is what the result is good for. A wording test tells you about
+that email. An **offer** test answers a question the user also has to answer on
+the landing page, on the pricing page, and out loud on the first call:
+
+> **Which true half of what we're offering makes the right person answer?**
+
+That finding outlives the experiment that produced it.
+
+**Which one to run is a judgement call, and the user gets the final say.** Put
+the choice to them in one sentence with a recommendation — they know things
+about their market that aren't in the workspace. Roughly:
+
+| Test the **offer** when | Test the **wording** when |
+|---|---|
+| There are genuinely two true propositions and nobody knows which this audience wants | The offer is fixed — a set price, a role with agreed terms, one thing you do |
+| It's a new audience or a new channel | The offer is settled and replies are coming, but the user winces at how it reads |
+| The user is still deciding how to position the thing | The gap is getting opened at all — subject line, first line, length |
+| Both previous attempts got replies, and you want to know *why* | The wording carries a specific risk: register, jargon, a claim that lands badly |
+
+If the honest answer is "we only have one offer", that settles it — test the
+wording, and note in `experiments.json` that the offer wasn't testable rather
+than inventing a second one to have a test.
+
+### If it's the offer
+
+Splits that work:
+
+| Arm A leads with | Arm B leads with |
+|---|---|
+| free access to the paid tier, no strings | a revenue split with one launch partner |
+| speed — a result in days, not a quarter | reach — the work in front of a much bigger audience |
+| independence and credit for the work | the platform handling the part they don't want to do |
+
+Design them by writing down **every genuine upside** of the thing first, then
+splitting that list: each arm leads with a different one, everything else
+identical.
+
+### What gets held constant — either way
+
+Both kinds of test are easy to run badly, and a badly-run one is worse than no
+test: it produces a confident number that means nothing. Four rules, whichever
+variable you picked:
+
+- **One dimension.** Same skeleton, same length within about fifteen words, same
+  voice, same single ask, same sign-off. If arm B is also warmer and longer, a
+  win tells you nothing about the thing you meant to test
+- **The subject line belongs to the arm.** It carries the same headline as the
+  body. A subject shared across arms mutes the variable; an unrelated one adds a
+  second variable
+- **The personalised hook is not part of the test.** The observation about that
+  specific person is researched and written just as hard for both arms. It's
+  what earns the read — holding it constant is what leaves the tested variable
+  as the only real difference
+- **Both arms have to be true** (offer tests especially). They describe the same
+  thing the user actually does. An arm that promises what they can't deliver
+  wins the test and loses the call — and now there's a number telling you to
+  send more of it
+
+Put what each arm is leading with in the template's header comment *and* in the
+experiment's hypothesis. In six weeks that sentence is the only reason anyone
+will remember what the two files were for.
+
+**A won offer test doesn't stay in this workflow.** If leading with the revenue
+split beat leading with free access, that's a claim about what this audience
+wants — it belongs in `shared/insights.md`, and it should change the landing
+page the emails point at, not just the next template.
