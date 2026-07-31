@@ -14,6 +14,8 @@ owns everything it depends on, rewriting one can never break another.
 
 ```
 <your-project>/workflows/
+├── AGENTS.md                how any agent should work in here — read first
+├── CLAUDE.md                a pointer to AGENTS.md, for Claude Code
 ├── shared/                  THE one cross-workflow folder
 │   ├── brand.md             who you are, who you're for, what you'll never say
 │   ├── channels.json        all your accounts, one place (open set)
@@ -40,6 +42,20 @@ owns everything it depends on, rewriting one can never break another.
 └── video/                   same shape — rename per format once you pick one:
                              video-app/ · video-vibe/ · video-info/
 ```
+
+## AGENTS.md and CLAUDE.md
+
+The scaffold writes both at the workspace root, and never overwrites them
+afterwards — they're yours to edit. `AGENTS.md` is the real one: what this
+folder is, what to read before producing anything, that every piece made gets a
+run row, the boundaries that don't move (drafts only, nothing published without
+a yes, `.env` never read), and the house habit of **ending every message with
+the possible next steps and which of them the agent can start now**.
+`CLAUDE.md` just points at it, so Claude Code, Codex and Cursor all read one
+file instead of three that drift.
+
+Anything you want every agent in this workspace to do goes in `AGENTS.md`.
+Anything that belongs to one workflow goes in that workflow's skill, not here.
 
 ## The shape is yours to change
 

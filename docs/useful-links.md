@@ -31,7 +31,17 @@ Python is already on macOS. This repo needs no Python packages.
 **Gmail** connected to your agent with permission to create drafts — no Google
 Cloud project, no API key.
 
-- Gmail — <https://mail.google.com>
+| What | Where | Notes |
+|---|---|---|
+| Gmail | <https://mail.google.com> | the account your agent drafts into |
+| **Claude Code** — connect Gmail | <https://claude.ai> → **Settings → Connectors** → Gmail | It can't be authorised from the terminal; connect it here and it appears in `/mcp` on its own |
+| **Codex** — connect Gmail | a third-party MCP server (Composio, Smithery, Nylas, or self-hosted), then `codex mcp login gmail` | No first-party connector. Self-hosting is the route that does need a Google Cloud OAuth client |
+
+Either way, prove it with one draft addressed to yourself before drafting a batch.
+
+Your list can be in any format — CSV, spreadsheet, a pasted block of addresses,
+a CRM export, even a screenshot. The workflow converts it; don't reformat
+anything first.
 
 ### engine-seo
 

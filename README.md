@@ -9,6 +9,27 @@ Every run is written to disk with the template version it used. When the numbers
 
 ---
 
+## AGENTS.md is not optional
+
+`engine-setup` writes an **`AGENTS.md`** at the root of your workspace (plus a
+`CLAUDE.md` pointing at it). **Every agent working in that folder follows those
+rules religiously, every session, no exceptions** — they are the house rules of
+this engine, not suggestions to weigh against convenience:
+
+- read `shared/brand.md` and `shared/insights.md` before producing anything
+- log every piece made with `runlog.py` — an unlogged piece never gets a number
+- **never send, post or publish without an explicit yes**, and never read `shared/.env`
+- every recurring job is a **native scheduled task in the agent** — never cron
+- end every message with the possible next steps and what you can start now
+
+If a skill, a habit or a shortcut disagrees with `AGENTS.md`, `AGENTS.md` wins —
+raise the conflict with the user instead of quietly resolving it. Template:
+[`workspace/AGENTS.md`](workspace/AGENTS.md). It's yours to extend once
+scaffolded: anything you want *every* agent in that workspace to do goes in it,
+and a re-run of the scaffold never overwrites your version.
+
+---
+
 ## Getting started — read the docs
 
 **Start with the docs, not this README.** Before you install anything, work through these:
@@ -58,6 +79,7 @@ Paste this into Claude Code or Codex:
 Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
 When that passes, follow the setup instructions in the README and run
 engine-setup. Start with the outreach workflow unless I say otherwise.
+Once the workspace exists, follow its AGENTS.md in every session.
 ```
 
 Or do it yourself:
@@ -91,7 +113,7 @@ Then tell your agent: `run engine-setup` — it fills in your brand config, conf
 
 | | This repo (wherever you cloned it) | Your workspace (`<your-project>/workflows/`) |
 |---|---|---|
-| Holds | the workflows (`skills/`), the workspace template (`workspace/`), docs | your brand, inputs, runs, numbers, reports |
+| Holds | the workflows (`skills/`), the workspace template (`workspace/`), docs | your brand, inputs, runs, numbers, reports — and the `AGENTS.md` every agent follows |
 | Changes | when you `git pull` | every time you run something |
 | Belongs to | this project | you — keep it in your own private repo |
 

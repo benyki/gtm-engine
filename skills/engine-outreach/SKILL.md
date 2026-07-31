@@ -1,6 +1,6 @@
 ---
 name: engine-outreach
-description: Personalised cold outreach that ends in mail drafts, never sends. Reads the user's audience list, researches each person, writes a genuinely specific email from the workflow's current template (or the assigned A/B arm once one is live), records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
+description: Personalised cold outreach that ends in mail drafts, never sends. Takes the user's audience list in whatever format they already have it (CSV, spreadsheet, pasted text, screenshot, CRM export) and converts it, researches each person, writes a genuinely specific email from the workflow's current template (or the assigned A/B arm once one is live), records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
 ---
 
 # engine-outreach
@@ -43,13 +43,65 @@ The mail contract is provider-neutral, and it's three capabilities, not a vendor
 
 **Gmail is the default** because its connector is the least setup — no Google Cloud project, no API keys, no OAuth consent screen. But map the contract onto whatever the user actually has: an Outlook / Microsoft 365 connector satisfies it identically, and much of B2B lives there. If no mail connector is available at all, the degraded mode is honest and workable — write the drafts to `runs/<run_id>/output/` as files the user copies into their mail client, and ask them to report replies; record those with `--source manual`.
 
+**Not connected yet? Do that before anything else:**
+
+- **Claude Code** — connect Gmail at [claude.ai](https://claude.ai) → **Settings
+  → Connectors**, not from the terminal (Google only accepts the redirect URL
+  claude.ai registered). It then appears in `/mcp` by itself
+- **Codex** — no first-party Gmail: add a Gmail MCP server (Composio, Smithery,
+  Nylas, or self-hosted) and run `codex mcp login gmail`
+
+Then **prove it with one draft addressed to the user themselves** before
+building a batch on top of it. `/mcp` and `codex mcp login` are the user's to
+run — they're interactive.
+
 If a managed Workspace or tenant blocks the connector at the admin level, that's an IT conversation, not a workaround hunt. Don't steer a company toward routing work mail through a personal account — for an individual using their own address it's a fine fallback, for an organisation it's a data-governance problem. Name the block, offer the file-based degraded mode, and let them take it up with their admin.
 
 ## The run
 
-### 1. Load the list
+### 1. Load the list — in whatever shape it arrives
 
-Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pasted text — and normalise it into `crm.csv`. Dedupe on email, falling back to LinkedIn URL then name+company.
+**Take the list in the format the user already has it in.** Never ask them to
+reformat, re-export, rename a column or "put it in a CSV with these headers"
+first — converting it is your job, and a user who has to reshape a spreadsheet
+before anything happens often just doesn't come back. Whatever lands in
+`inputs/audience/`, or gets pasted into the chat, or is a file somewhere else on
+their machine, is a valid starting point:
+
+| What they hand you | How you take it |
+|---|---|
+| `.csv`, `.tsv`, any delimiter, any encoding | read it; sniff the delimiter rather than assuming a comma |
+| `.xlsx` / `.numbers` / Google Sheets export | read the sheet — if there are several, ask which one, and say what you found in each |
+| a Google Sheet / Airtable / Notion **link** | open it in the browser and read it, or ask them to export if it's private |
+| pasted text — a block of emails, a list of names, a signature dump | parse it; a bare list of addresses is a usable list |
+| a markdown or HTML table, JSON, an email thread, vCards | parse it |
+| a screenshot or PDF of a list | read it, then **show what you extracted for confirmation** — this one is worth checking |
+| a CRM / LinkedIn Sales Navigator / Apollo export with 60 columns | keep the five that matter, drop the rest |
+| nothing at all | build it — `references/lead-sourcing.md` |
+
+Then **convert it into `crm.csv`**, which is the one format everything
+downstream reads:
+
+- **Map their columns onto the header**, however they're named — `Email
+  Address` / `work_email` / `E-Mail` all become `email`; `Full Name`, or
+  `First` + `Last` joined, becomes `name`; `Organisation` / `Account` becomes
+  `company`. Map silently when it's obvious, and ask **once, in one message**
+  about everything genuinely ambiguous rather than one question per column
+- **Keep an observable if the file has one** — it goes in `research` with
+  wherever it came from in `research_source` (step 3)
+- **Preserve anything you can't map** by folding it into `notes`. Don't discard
+  a column just because the header has nowhere to go
+- **Fill the columns you own**: `id`, `first_seen`, `status=new`,
+  `outreach_count=0`. Leave the rest empty rather than guessing
+- **Fix the ordinary mess without being asked** — trim whitespace, strip
+  mailto:, lowercase addresses, drop obvious role accounts (`info@`, `noreply@`)
+  after saying you did, flag rows with no contact route instead of dropping them
+  silently
+- **Dedupe on email**, falling back to LinkedIn URL, then name + company
+
+Then say what came out the other end in one line — how many rows, how many with
+an email, how many duplicates merged, what you couldn't map — so they can catch
+a bad import before fifty drafts are built on it.
 
 **No list yet?** Building one is part of this workflow, not a prerequisite —
 `references/lead-sourcing.md` covers the sources in the order worth trying, the
@@ -66,8 +118,9 @@ Hunter, Prospeo — expect a 50–70% hit rate, so search thirty to land twenty)
 the LinkedIn-terms caution to raise with the user, is in
 `references/lead-sourcing.md`.
 
-A usable list before normalisation looks like this — the `notes` column is the
-part that decides whether the email is worth sending:
+What a usable list *contains* — not a shape it has to arrive in, since you
+convert whatever they hand you. The observable is the part that decides whether
+the email is worth sending:
 
 ```csv
 id,name,company,email,linkedin,source,notes
@@ -297,16 +350,19 @@ unedited:
 |---|---|---|
 | `engine-metrics-outreach` | daily, working days | read the mailbox: any reply — including a no — is `--value 1` plus `replied_at`, a closed sequence with no reply at all is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any workflow |
 | `engine-outreach-daily` | daily, working days | draft `<n>` personalised emails into their mail system, update the CRM |
+| `engine-outreach-leads` | weekly | keep the list alive: find new leads from `sources.json` and dedupe them against the CRM, enrich thin rows (no email or role, empty or stale `research`), retire the ones that no longer fit as `status=closed` with a reason. List hygiene only — it writes `crm.csv`, never a draft, and never deletes a row |
 
 **Reading replies *is* the metric fetch** — don't add a separate weekly
 "check replies" job. Two jobs writing the same `runs/index.csv` and the same
 `crm.csv` is how rows get silently lost.
 
-Three things to get right when setting them up. **`<n>` is a number they'll
-actually review** — 50 drafts a day is the same as no outreach. **Neither job
-sends**, including the follow-ups. And if either job drafts *replies*, its prompt
+Four things to get right when setting them up. **`<n>` is a number they'll
+actually review** — 50 drafts a day is the same as no outreach. **No job
+sends**, including the follow-ups. If a job drafts *replies*, its prompt
 has to carry the one-draft-per-inbound rule explicitly — that failure is invisible
-in a single run and obvious after a week. Catalogue:
+in a single run and obvious after a week. And **the leads job runs at a
+different hour from the drafting job** — they both write `crm.csv` — with the
+user's own definition of who no longer fits written into its prompt. Catalogue:
 [`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
 `engine-loop/references/scheduling.md`.
 

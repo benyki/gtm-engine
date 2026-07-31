@@ -156,7 +156,10 @@ and its own backlog. The publishing end is the platform, not GitHub.
 ## 6. Outreach — `outreach/`
 
 - [ ] Workflow folder, goal, metric = replies [file `outreach/workflow.json` to fill]
-- [ ] A lead list on disk, or a workflow step that produces one — hand-build the first 20–50. B2B shortcut: LinkedIn search in the browser → a finder tool (Dux-Soup, Lusha, Apollo, Hunter) for the addresses → this workflow [folder `outreach/inputs/audience/` to create] [skill `prospect-finder` to install]
+- [ ] Mailbox connected and proved with one draft to yourself — claude.ai → Settings → Connectors on Claude Code, `codex mcp login` on Codex [check]
+- [ ] A lead list on disk **in any format you already have it** — the workflow converts it, so don't reformat first — or a workflow step that produces one; hand-build the first 20–50. B2B shortcut: LinkedIn search in the browser → a finder tool (Dux-Soup, Lusha, Apollo, Hunter) for the addresses → this workflow [folder `outreach/inputs/audience/` to create] [skill `prospect-finder` to install]
+- [ ] Weekly job that keeps the list alive — finds new leads from `sources.json`, enriches thin rows (no email or role, empty or stale `research`), and retires the ones that no longer fit as `status=closed` with a reason. Never deletes a row, never drafts; runs at a different hour from the drafting job since both write `crm.csv` [weekly scheduler `engine-outreach-leads` to create]
+- [ ] Written down, in that job's prompt, who counts as "no longer fits" for this business — left undefined it prunes nobody, or the wrong people [check]
 - [ ] Ten sampled leads each yield one real, recent observation — if not, the source is wrong, not the copy [check]
 - [ ] Every lead you drafted to has its observation, source URL and date in the CRM — not only in the sent email, or the follow-up starts from nothing [file `outreach/crm.csv` → `research`, `research_source`, `researched_at`]
 - [ ] Leads normalised and deduped into the CRM, nobody in it twice [file `outreach/crm.csv` to fill]

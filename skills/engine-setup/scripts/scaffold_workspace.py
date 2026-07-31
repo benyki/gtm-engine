@@ -7,6 +7,9 @@ own workflow.json, experiments.json, sources.json, templates/, inputs/,
 runs/, reports/. Workflows never reach into each other's folders,
 so an agent rewriting one can't break another.
 
+At the root it also writes AGENTS.md (how any agent works in this workspace)
+and CLAUDE.md (a pointer to it), copied from the template's top-level files.
+
 Usage:
     scaffold_workspace.py                       # default: all four starters
     scaffold_workspace.py . --workflow seo,outreach
@@ -182,6 +185,19 @@ def main() -> int:
     skipped += s
     if c:
         print("  + shared/  (brand, channels, .env.example, assets/, docs/, insights.md)")
+
+    # Workspace-root docs — AGENTS.md (the instructions every agent reads) and
+    # CLAUDE.md (a pointer to it). Every top-level FILE in the template comes
+    # across; dotfiles don't, which is what keeps .gtm-template out of a real
+    # workspace.
+    for item in sorted(TEMPLATE.iterdir()):
+        if not item.is_file() or item.name.startswith("."):
+            continue
+        c = write_if_missing(dest / item.name, item.read_text())
+        created += c
+        skipped += 0 if c else 1
+        if c:
+            print(f"  + {item.name}")
 
     # published/ — artifacts that went out, one subfolder per workflow. Not
     # state: the spine stays in each workflow folder, so this is safe to empty.

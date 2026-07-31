@@ -160,11 +160,19 @@ the step where a human eye is cheapest.
 | Label | When | What it does | Never |
 |---|---|---|---|
 | `engine-outreach-daily` | daily, working days | Drafts `<n>` personalised emails into the user's mail system, updates the CRM | send. Not with permission, not "just this once" |
+| `engine-outreach-leads` | weekly | Keeps the list alive: **finds** new leads from this workflow's `sources.json` and dedupes them against the CRM, **enriches** thin rows (missing email or role, empty or stale `research` / `research_source` / `researched_at`), and **retires** the ones that no longer fit — `status=closed` with the reason in `notes` | delete a row, contact anyone, or re-add someone with a `sent_at` or `status=closed` |
 
 Pick `<n>` deliberately — a daily job drafting 50 emails produces a mailbox
 nobody reviews, which is the same as not doing outreach.
 
-**Outreach has no second job here.** Reading the replies *is* the metric fetch,
+The leads job is what stops the drafting job running dry, and it's list hygiene
+only — it writes `crm.csv` and nothing else. Give it a different hour from
+`engine-outreach-daily` so two jobs never write that file at once, and tell it
+what "no longer fits" means for this business; left undefined, an agent prunes
+either nobody or the wrong people. Retiring is a status change, never a
+deletion — a deleted row is a person who gets contacted again next quarter.
+
+**Outreach has no second *reply* job.** Reading the replies *is* the metric fetch,
 so it belongs to `engine-metrics-outreach` above: a reply is `--value 1` plus
 `replied_at`, a closed sequence with no reply is the zero. Running a separate
 weekly job to "check replies" means two jobs writing the same `runs/index.csv`

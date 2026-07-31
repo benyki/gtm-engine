@@ -248,6 +248,13 @@ def check_workspace(ws: Path | None) -> str:
     else:
         add("fail", "  shared/channels.json missing")
 
+    if (ws / "AGENTS.md").is_file():
+        add("pass", "  AGENTS.md" + ("  + CLAUDE.md" if (ws / "CLAUDE.md").is_file() else ""))
+    else:
+        add("warn", "  AGENTS.md missing",
+            "how agents work in this workspace — restore it with "
+            "scaffold_workspace.py --merge")
+
     # One self-contained folder per workflow.
     wds = [p for p in sorted(ws.iterdir())
            if p.is_dir() and (p / "workflow.json").is_file()]

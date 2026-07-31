@@ -21,26 +21,32 @@ Two separate things, and keeping them separate is the point:
 
 Settle this **before** you clone. Moving it later means re-running the installer and fixing every symlink.
 
-The default layout — use it unless they have a reason not to:
+**The workspace goes in the folder this session is already running in.** They
+opened that directory on purpose — it's their project — so `workflows/` is
+created inside it and everything stays reachable from where they already work.
+No new home to invent, no path to remember.
 
 ```
-~/code/                          ← create it if it doesn't exist
-├── gtm-engine/                  ← the clone (read-only, updated by git pull)
-└── <their-project>/
-    └── workflows/               ← the workspace: brand, runs, numbers
+<the session's working directory>/
+└── workflows/                   ← the workspace: brand, runs, numbers
 
+~/code/gtm-engine/               ← the clone (read-only, updated by git pull)
 ~/.agents/skills/                ← the skills themselves (step 4)
 
 ~/Desktop/                       ← two symlinks, so neither is buried (step 5)
-├── workflows  →  ~/code/<their-project>/workflows
+├── workflows  →  <that project>/workflows
 └── skills     →  ~/.agents/skills
 ```
 
-`workflows/` is the folder they open in Claude Code or Codex day to day — it's the default working directory, and everything the agent needs is reachable from it (`shared/`, each workflow folder, and `skills/` via the symlink).
+The clone is the one thing that doesn't follow the cwd: it's shared across every
+project, so it keeps its own durable home (step 2 defaults to `~/code/gtm-engine`).
 
-**`workflows/` can live anywhere.** The path above is a suggestion, not a requirement:
+`workflows/` is also the folder they can open directly in Claude Code or Codex day to day — everything the agent needs is reachable from it (`shared/`, each workflow folder, and `skills/` via the symlink).
 
-- **Inside an existing repo** — if they already centralise their work in one repo, scaffold `workflows/` there (`<their-repo>/workflows/`) and they keep editing from the working directory they already know. Nothing about the engine assumes a standalone folder
+**`workflows/` can live anywhere.** The cwd is the default, not a requirement:
+
+- **Inside an existing repo** — the common case, and it's exactly what the default does: scaffold `workflows/` in the repo they already work in. Nothing about the engine assumes a standalone folder
+- **Somewhere else entirely** — if the session happens to be running in a scratch directory, a home directory, or the gtm-engine clone itself, ask for a durable path instead. Those three are the only cwds worth overriding
 - **In several places at once** — one workspace per product, per client, per language. That's supported and normal
 - When they want more than one, **scaffold the full thing each time** — a complete `shared/` plus its own workflow folders, not one shared `shared/` referenced from two places. The whole point is that editing a template, a brand file or an experiment in one workspace can't reach a project that didn't need the change. Duplication here is the isolation
 
@@ -94,16 +100,24 @@ Two questions, and both already have their answer chosen. Ask them as
 **yes-or-something-else**, not as open ones — an open question here costs a user
 who doesn't yet know the options five minutes and a wrong guess.
 
-**Where it goes:**
+**Where it goes** — name the actual folder this session is running in, don't
+say "the current directory":
 
-> The default is `~/code/<project>/workflows/`. Is that okay, or would you
-> prefer a different folder on your computer?
+> I'll create `workflows/` right here, in `<your current working directory>`.
+> Is that okay, or would you prefer a different folder?
 
-"Yes" is a complete answer and the usual one. Anything else is equally fine — an
-existing repo they already work in, `~/Documents`, a fresh directory; the
-scripts find a workspace by its `shared/` folder, not by its path. If you don't
-know what `<project>` is yet, fold that into this same question rather than
-asking a second one.
+**The default is the working directory the agent is already in.** They opened it
+on purpose; it's almost always the project they want to grow, and it means the
+workspace is reachable from the session with no path juggling. "Yes" is a
+complete answer and the usual one.
+
+Anything else is equally fine — a subfolder, a fresh directory, `~/code/acme/`,
+anywhere at all; the scripts find a workspace by its `shared/` folder, not by
+its path. Two cases worth catching before you scaffold: the cwd is the
+**gtm-engine clone itself** (never scaffold there — it's the repo, and a
+`.gtm-template` marker already stops the scripts treating `workspace/` as one),
+or it's a **home directory or a scratch folder** they'll clean out. In both,
+say so and ask for somewhere durable.
 
 **Which workflow:**
 
@@ -142,6 +156,14 @@ Other shapes, when they ask for them:
 
 Each workflow folder's `workflow.json` carries its `type` (which skill runs
 it), its `goal`, and its `primary_metric`. `site/` is never pre-created.
+
+It also writes **`AGENTS.md`** at the workspace root — how any agent should work
+in there (what to read first, that every piece made gets a run row, the
+boundaries that don't move, and ending every message with the possible next
+steps) — plus a **`CLAUDE.md`** that points at it, so Claude Code, Codex and
+Cursor read one file rather than three that drift. Both are the user's to edit;
+a re-run never overwrites them. Mention them at handover: that file is where
+they put anything they want every agent in this workspace to do.
 
 It refuses to overwrite an existing `workflows/`. That refusal is correct — use
 `--merge --workflow <new>` to add another workflow later, or `--name` for a

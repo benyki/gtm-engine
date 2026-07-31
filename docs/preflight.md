@@ -78,9 +78,13 @@ Two things worth knowing before you install it:
 
 - **A Gmail account** for the agent to draft in. Drafts only; nothing sends
   without you. Managed Workspace accounts sometimes block the connector — a
-  personal Gmail works
+  personal Gmail works. Connecting it takes two minutes on the day and your
+  agent walks you through it: on Claude Code it's claude.ai → Settings →
+  Connectors → Gmail; on Codex it's a Gmail MCP server plus `codex mcp login`
 - **Who you'd reach** — prospects, creators, investors, journalists, partners.
-  Bring a list or CRM export if you have one
+  Bring a list or CRM export if you have one, **in whatever format it's already
+  in** — spreadsheet, CSV, a pasted block of addresses, a screenshot. Don't
+  reformat it; the workflow converts it
 - **Three examples** of content you'd like output to resemble — inspiration
   material for finding ideas on the day; the workflows don't ingest them
 - **What you sell**, and the promise you make
@@ -149,8 +153,9 @@ Keys go in `shared/.env` — copy `shared/.env.example` and fill it in yourself.
 
 ### Outreach (`engine-outreach`)
 
-Covered under §3 — Gmail drafts only. Later: a domain and sending API when
-drafts stop scaling — `skills/engine-outreach/references/advanced.md`.
+Covered under §3 — Gmail drafts only, connected on the day, and your list in
+whatever format you already have it. Later: a domain and sending API when drafts
+stop scaling — `skills/engine-outreach/references/advanced.md`.
 
 ### The improvement loop (`engine-loop`)
 
