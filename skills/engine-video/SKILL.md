@@ -57,6 +57,7 @@ different queues.
 |---|---|
 | Which format, and its rules | `references/formats.md` |
 | Shot list / segments | `references/structure-plan.md` |
+| Hook and overlay copy — what the text says | `references/hook-guide.md` |
 | Voiceover | `references/voiceover.md` |
 | Where clips come from (and the rights call) | `references/clip-sourcing.md` |
 | Footage / Pexels | `references/footage-pexels.md` |
@@ -96,7 +97,7 @@ These are the **defaults**, not requirements — each row is one way to satisfy 
 python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow video
 ```
 
-The hook is the variable worth testing — question versus claim, face versus text, first-second payoff versus slow build. Everything else is noise by comparison, and it converges fastest. If it returns `write_template`, write that template from the hypothesis.
+The hook is the variable worth testing — question versus claim, face versus text, first-second payoff versus slow build. Everything else is noise by comparison, and it converges fastest. If it returns `write_template`, write that template from the hypothesis. How to actually write one: `references/hook-guide.md`.
 
 **On a fresh workflow this returns `use_template` and that's correct** — the
 starter experiments ship paused on purpose. Ship one video until the user is
@@ -138,6 +139,11 @@ Vertical video is decided in the first second and a half.
 
 Voice and constraints from `shared/brand.md`. Put the full VO text on
 `inputs.json` → `voiceOverlay.fullScript`.
+
+**On-screen text is a separate craft from the VO** — written for the eye, muted,
+at speed. Its rules (hook formats, word counts, lowercase, punctuation,
+localization) are in `references/hook-guide.md`; the copy goes on
+`inputs.json` → `segments[].textOverlay.lines`.
 
 ### 4. Voiceover
 

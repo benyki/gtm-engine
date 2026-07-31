@@ -89,7 +89,9 @@ happy with the format, then start testing. `engine-loop/references/ab-testing.md
 
 Five to seven posts. Short-form is cheap to write and expensive to judge in isolation — a batch lets the user see the pattern and reject a direction rather than a sentence.
 
-- The first line decides everything. It's the only part most people read
+- The first line decides everything. It's the only part most people read — the
+  hook angles and openers in `engine-video/references/hook-guide.md` → §2 port
+  over; its overlay rules (casing, word counts, punctuation) do not
 - One idea per post
 - No engagement bait, no "agree?", no fake vulnerability, no thread of platitudes
 - Formatting matches what's in `inputs/best/` — if they don't use line breaks between every sentence, don't start

@@ -159,7 +159,8 @@ Three things to know if you install it:
 - A brand font goes in **`shared/assets/fonts/`** — every video workflow picks
   it up automatically, no config
 - Overlay copy comes from the config (`references/structure-plan.md` →
-  `segments[].textOverlay.lines`); this file only decides how it looks
+  `segments[].textOverlay.lines`); this file only decides how it looks. What it
+  should *say* is `references/hook-guide.md`
 - Deviated from the default on a run (a different anchor, a different weight)?
   Note it with the run. A style you can't reconstruct is a run you can't repeat
 

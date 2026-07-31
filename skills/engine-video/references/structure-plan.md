@@ -29,7 +29,7 @@ run.
 | **Reaction** | Commentary | hook → context → reaction → verdict → cta |
 
 Rules of thumb:
-- Hook segment ≤ 5s and must carry the payoff or the tension
+- Hook segment ≤ 5s and must carry the payoff or the tension — what to *write* in it: `references/hook-guide.md`
 - One idea per video; lists still serve one promise ("3 mistakes…")
 - Scale segment durations so they sum to `meta.targetDuration`
 
@@ -83,6 +83,8 @@ Rules of thumb:
   (`references/formats.md`). The bed either carries the video or stays out of the
   voice's way; the middle ground just makes both harder to hear once the platform
   normalises loudness
+- `segments[].textOverlay.lines` — the on-screen copy, and the only place it
+  belongs. Word counts, casing, punctuation and the hook rules: `references/hook-guide.md`
 - `backgroundFootage.source` — prefer `assets` (`shared/assets/`); `pexels` is fallback
 - Speaking rate estimate: ~14 characters/second; `len(fullScript) / 14 ≤ targetDuration`
 - Omit `voiceOverlay` for silent / music-only concepts

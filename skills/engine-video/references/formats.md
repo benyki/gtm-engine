@@ -76,7 +76,8 @@ free and encouraged from day one. Running one as a **measured A/B against a
 format that's already working** is a different, slower exercise with entry
 conditions — chiefly that you freeze the champion while it runs.
 `references/advanced.md` → *A/B testing whole formats* has the mechanics. Until
-a format is working, the hook is still the variable worth testing.
+a format is working, the hook is still the variable worth testing —
+`references/hook-guide.md` is how to write the arms.
 
 ---
 
@@ -97,7 +98,8 @@ The volume format. One hook, one thing the product does, done.
   the second result. A single 12s take reads as a tutorial
 - Screen recordings beat everything else here — `references/clip-sourcing.md`
 - The hook is the A/B variable. Hold the demo constant across arms or you're
-  testing two things at once
+  testing two things at once. Formats and word counts for the hook line itself:
+  `references/hook-guide.md`
 
 **With a voiceover instead** (the shape the example uses): keep the 4s hook
 silent-but-loud, then let the VO carry the demo, burn captions, and drop the

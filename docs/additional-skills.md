@@ -116,6 +116,7 @@ needs a tool it doesn't have yet.
 | `agent-browser` | LinkedIn / X / Reddit when there's no API, and hand-built lead lists |
 | `video-structure-plan` | `engine-video` script → architecture |
 | `video-filter` | `engine-video` post-process look |
+| `launch-announcement` | day one — a shipped product and no users yet (see below) |
 
 Only install a capability when the workflow you're running actually needs it.
 Keep the default gtm-engine install small.
@@ -130,6 +131,39 @@ than what gtm-engine needs.
 | Capability | Adapted from |
 |---|---|
 | `prospect-finder` | [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills) (MIT) — person-first vs company-first search, hit-rate benchmarks, qualify-before-scaling, the compliance checklist · [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0) — the signal-first research mindset, signal freshness, the "so what?" test |
+
+---
+
+## `launch-announcement`
+
+The one capability that runs **before** the content workflows have anything to
+measure. Someone who just finished `engine-setup` has a product, no users and no
+audience — and the loop has nothing to score until traffic exists.
+
+It plans a launch across the places where follower count is irrelevant — Reddit,
+Hacker News, Product Hunt, Uneed and a ranked tail of ~100 directories — and
+writes the copy for each. It **writes; the user submits.** Every platform on that
+list bans accounts for automated submission.
+
+| Contents | |
+|---|---|
+| `references/platforms.md` | Tier 1–3 platforms: format, timing, what gets you removed |
+| `references/reddit.md` | Ten subreddits with sizes and fit, plus the one-subreddit rule |
+| `references/directories.md` | 107 directories and a 37-entry weighted worklist |
+| `references/sources.md` | The five posts everything traces to, and where the evidence is thin |
+| `CREDITS.md` | The authors behind those posts, with links — credit them by name when quoting a verdict |
+| `templates/` | Product Hunt, Show HN, Reddit, directory listing pack |
+
+Where it sits relative to the workflows:
+
+- Corrects the most common day-one mistake — launching to your own 40-follower X account instead of to platforms that don't care who you are
+- Logs to the `launch` channel so `engine-loop` scores it. Set `metric_delay_hours: 48` on that channel; directory traffic peaks and dies inside two days
+- Hands off after the spike: `engine-seo` for the alternatives directories (evergreen search, not launch traffic), `engine-social` to turn "#1 on Uneed" into posts, `engine-outreach` for the people who commented
+- Pairs with `no-ai-slop-writting` — launch copy is where AI phrasing gets spotted, and on Reddit and HN being spotted is fatal
+
+**Not yet in `benyki/skills`.** It currently lives in `~/.agents/skills/` and is
+mirrored in `_shared/skills/`. Push it to the skills repo before the download
+command above will work for anyone else.
 
 ---
 

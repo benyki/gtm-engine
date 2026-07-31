@@ -149,7 +149,7 @@ into deliberately.
 
 | Label | When | What it does | Never |
 |---|---|---|---|
-| `engine-video-app-hooks` | weekly | Reads what earned watch-through and rewrites the hook library from it | promote a template to default |
+| `engine-video-app-hooks` | weekly | Reads what earned watch-through and rewrites the hook library from it, against the rules in `engine-video/references/hook-guide.md` | promote a template to default |
 | `engine-video-info-source` | daily | Pulls new items from the text source (RSS, subreddit, your own blog) into `inputs/source-texts/` — only if the informative workflow *fetches* its source rather than being handed one | render or upload anything |
 
 Rendering is deliberately not on a scheduler: it's slow, disk-hungry, and it's

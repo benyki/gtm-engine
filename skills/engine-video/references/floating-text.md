@@ -62,6 +62,8 @@ Starter template in the workflow folder: `templates/floating-text-default.json`
 
 - Max 1–3 on-screen text blocks; if it needs four, the script is wrong
 - Hook in the first 1.5s of *screen time*, not after a fade
+- What the blocks say — word counts, casing, punctuation, hook formats:
+  `references/hook-guide.md`
 - High-contrast text; outline or solid box if the B-roll is busy
   (`references/looks.md` → solid-box captions)
 - Prefer landscape B-roll center-cropped to 9:16 over letterboxing

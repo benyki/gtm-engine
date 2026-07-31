@@ -50,7 +50,7 @@ everything else is production.
 - [ ] Workflow folder exists, `type: video`, metric `watch_through_rate` [file `video-app/workflow.json` to create]
 - [ ] ≥5 hook clips, each ≤5s, 9:16, each with its source and rights noted — own footage, generated, or downloaded; the options are in `engine-video/references/clip-sourcing.md` [folder `shared/assets/hooks-5s/` to create] [skill `yt-dlp` to install]
 - [ ] ≥10 screen recordings of the app, 9:16, trimmed, named by what they show [folder `shared/assets/screen-recordings/` to create]
-- [ ] Hook library: ≥30 text hooks that work for this product, event- and bump-style hooks removed [file `video-app/inputs/hooks.md` to create]
+- [ ] Hook library: ≥30 text hooks that work for this product, event- and bump-style hooks removed — formats, word counts and the ranked angles are in `engine-video/references/hook-guide.md` [file `video-app/inputs/hooks.md` to create]
 - [ ] Text overlay style locked once — font, size, weight, position, outline — and the `fontselect` probe run so libass isn't silently substituting [file `video-app/templates/floating-text-app.json` to create] [folder `shared/assets/fonts/` to create] [skill `ffmpeg-text-overlay` to install]
 - [ ] Format doc: what this video is, every input a config must supply (hook, footage 1, footage 2, music), the exact shape of each, and the duration of each slot [file `video-app/inputs/format.md` to create]
 - [ ] 10 configs queued for the next 10 videos, each naming its hook, footage and per-scene durations [folder `video-app/inputs/queue/` to create — 10 files]

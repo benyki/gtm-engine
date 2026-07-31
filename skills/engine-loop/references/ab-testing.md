@@ -143,7 +143,8 @@ decides whether anything else in the video is seen, which makes it the only
 variable that pays back at low volume. Two shapes of the same test:
 
 - **Hook text** — same footage, same durations, different opening line. Question
-  versus claim, payoff-first versus tension-first, number versus promise
+  versus claim, payoff-first versus tension-first, number versus promise.
+  `engine-video/references/hook-guide.md` has the formats to draw the arms from
 - **Hook clip** — same script and body, different first 4 seconds. A face versus
   a screen, motion versus stillness, product-visible versus product-hidden
 
