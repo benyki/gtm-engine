@@ -14,8 +14,8 @@ Each line ends with what you have to create for it:
 
 | Tag | Meaning |
 |---|---|
-| `[daily scheduler <label> to create]` | a launchd job that fires every day |
-| `[weekly scheduler <label> to create]` | same, weekly |
+| `[daily scheduler <id> to create]` | a scheduled task that fires every day |
+| `[weekly scheduler <id> to create]` | same, weekly |
 | `[file <path> to create]` | a config / input / db file at that exact path |
 | `[folder <path> to create]` | a directory with real content in it, not a `.gitkeep` |
 | `[skill <name> to install]` | already exists — download it from `benyki/skills` |
@@ -23,8 +23,10 @@ Each line ends with what you have to create for it:
 | `[check]` | nothing to create; verify the statement is true |
 
 - Paths are relative to your workspace (`<your-project>/workflows/`).
-- Scheduler labels are launchd labels → `~/Library/LaunchAgents/<label>.plist`.
-  How to write one: [`skills/engine-loop/references/scheduling.md`](../skills/engine-loop/references/scheduling.md).
+- Schedulers are **your agent's own scheduled tasks** — ask it to create one by
+  name and it does. Catalogue: [`scheduling.md`](scheduling.md); mechanics and
+  the OS-level fallback:
+  [`skills/engine-loop/references/scheduling.md`](../skills/engine-loop/references/scheduling.md).
 - Installing a skill: [`additional-skills.md`](additional-skills.md).
 
 ---
@@ -57,7 +59,7 @@ everything else is production.
 - [ ] A re-shipped winner changes ≥75% of its frames, so TikTok's duplicate detection doesn't collapse it [skill `video-duplicate-transformer` to install]
 - [ ] One video rendered, logged, published, URL recorded [check: a row in `video-app/runs/index.csv` with a `url`]
 - [ ] **One** hook template you'd ship unedited — not two. The A/B stays paused until the format is settled [file `video-app/experiments.json` to create — leave `status: paused`]
-- [ ] Weekly job that reads the numbers and rewrites `hooks.md` from what earned watch-through [weekly scheduler `com.gtm-engine.video-app-hooks` to create]
+- [ ] Weekly job that reads the numbers and rewrites `hooks.md` from what earned watch-through [weekly scheduler `engine-video-app-hooks` to create]
 
 ---
 
@@ -68,7 +70,7 @@ explainer.
 
 - [ ] Workflow folder exists, `type: video`, its own goal and metric [file `video-info/workflow.json` to create]
 - [ ] A named text source — your own blog, an RSS feed, a subreddit, Wikipedia, industry news [file `video-info/sources.json` to create]
-- [ ] If the source is fetched rather than picked: a job that pulls new items daily [daily scheduler `com.gtm-engine.video-info-source` to create]
+- [ ] If the source is fetched rather than picked: a job that pulls new items daily [daily scheduler `engine-video-info-source` to create]
 - [ ] ≥2 real text items on disk, ready to build from [folder `video-info/inputs/source-texts/` to create]
 - [ ] A template the agent chose — scenes, text hierarchy, which words get highlighted — decided from the two worked examples and the two texts, not from taste [file `video-info/templates/<name>.json` to create] [skill `phraser-remotion-learn-words` to install] [skill `neura-video-study` to install]
 - [ ] Footage source set — Pexels by default — and a keyword fetch that actually returned clips [check: `PEXELS_API_KEY` set, files in `shared/assets/pexels/`] [skill `pexel-video-downloader` to install]
@@ -82,18 +84,18 @@ explainer.
 ## 3. SEO — `seo/`
 
 - [ ] Workflow folder, goal, metric (clicks from Search Console) [file `seo/workflow.json` to create]
-- [ ] Weekly job that finds the Reddit posts your audience actually engages with [weekly scheduler `com.gtm-engine.seo-subjects` to create]
+- [ ] Weekly job that finds the Reddit posts your audience actually engages with [weekly scheduler `engine-seo-subjects` to create]
 - [ ] The question-mining query grid written down — `how <product type>`, `why <product type>`, `where <product type>`, … — and where each gets validated (Google, YouTube, Reddit) [file `seo/inputs/query-patterns.md` to create]
 - [ ] Ahrefs / Semrush wired only if already paid for; otherwise the free path is the path [file `seo/sources.json` to create]
 - [ ] A subject-quality rule written down: ultra-localisation and ultra-segmentation of what already performs [file `seo/inputs/subject-rules.md` to create]
 - [ ] ≥20 validated titles in the backlog, each with its source, a potential score, and the low-potential ones already removed [file `seo/inputs/backlog.csv` to create]
-- [ ] Weekly job that keeps the backlog at ≥20, re-validates what's in it, and drops what died [weekly scheduler `com.gtm-engine.seo-backlog` to create]
+- [ ] Weekly job that keeps the backlog at ≥20, re-validates what's in it, and drops what died [weekly scheduler `engine-seo-backlog` to create]
 - [ ] ≥3 markdown articles you like, in the workflow, as the voice reference [folder `seo/inputs/best/` to create]
 - [ ] The question → article prompt flow written down, including whatever internal knowledge enriches it [file `seo/templates/article-default.md` to create]
 - [ ] Anti-slop pass runs over every draft before you see it [check: `engine-seo/references/anti-slop-writing.md`] [skill `no-ai-slop-writting` to install]
 - [ ] A site that builds from markdown and deploys on git push [folder `seo/site/` to create]
 - [ ] OG metadata, dynamic sitemap, canonical URLs and RSS verified on one live URL [check]
-- [ ] Weekly job that takes everything in the publishing folder, pushes it, and triggers the rebuild [weekly scheduler `com.gtm-engine.seo-publish` to create]
+- [ ] Weekly job that takes everything in the publishing folder, pushes it, and triggers the rebuild [weekly scheduler `engine-seo-publish` to create]
 - [ ] Optional manual gate: the builder only reads an approved subfolder, and you move articles into it yourself [folder `seo/site/src/content/blog/` to create]
 - [ ] One article live, with its `run_id` and URL recorded [check]
 
@@ -109,9 +111,8 @@ and its own backlog. The publishing end is the platform, not GitHub.
 - [ ] ≥20 validated rows in this workflow's own backlog, each with a claim, its proof and a score [file `social/inputs/backlog.csv` to create]
 - [ ] The top rows moved into the queue, each with the source that justifies it [folder `social/inputs/queue/` to create]
 - [ ] ≥5 of your own best-performing posts on disk as the voice reference [folder `social/inputs/best/` to create]
-- [ ] A thread format template — opener, beats, close [file `social/templates/thread-default.txt` to create]
 - [ ] Anti-slop pass runs before you see the batch [check: `engine-social/references/anti-slop-writing.md`] [skill `no-ai-slop-writting` to install]
-- [ ] Weekly job that drafts the batch and prepares the publish step (drafts for LinkedIn/X, API for Bluesky after your yes) [weekly scheduler `com.gtm-engine.social-weekly` to create]
+- [ ] Weekly job that drafts the batch and prepares the publish step (drafts for LinkedIn/X, API for Bluesky after your yes) [weekly scheduler `engine-social-weekly` to create]
 - [ ] 5–7 posts drafted, ≥1 published, logged, URL recorded [check]
 - [ ] One post format the user would publish unedited. No live A/B on day one [file `social/experiments.json` to create — leave `status: paused`]
 
@@ -120,22 +121,22 @@ and its own backlog. The publishing end is the platform, not GitHub.
 ## 5. Outreach — `outreach/`
 
 - [ ] Workflow folder, goal, metric = replies [file `outreach/workflow.json` to create]
-- [ ] A lead list on disk, or a workflow step that produces one — hand-build the first 20–50 [folder `outreach/inputs/audience/` to create] [skill generic prospect-finder `to create`]
+- [ ] A lead list on disk, or a workflow step that produces one — hand-build the first 20–50 [folder `outreach/inputs/audience/` to create] [skill `prospect-finder` to install]
 - [ ] Ten sampled leads each yield one real, recent observation — if not, the source is wrong, not the copy [check]
 - [ ] Leads normalised and deduped into the CRM, nobody in it twice [file `outreach/crm.csv` to create]
 - [ ] **One** first-touch message, written with you and short enough that you'd send it unedited [file `outreach/templates/first-touch.txt` to create — the agent writes it, nothing ships] [file `outreach/experiments.json` to create — leave `status: paused`]
-- [ ] Daily job that drafts `<n>` personalised emails — drafts only, never sends [daily scheduler `com.gtm-engine.outreach-daily` to create]
+- [ ] Daily job that drafts `<n>` personalised emails — drafts only, never sends [daily scheduler `engine-outreach-daily` to create]
 - [ ] Decided whether you're handling replies yourself or the agent drafts them — both are complete answers [check]
 - [ ] *If the agent drafts them:* a starting block library, and a habit of adding a block every time a reply arrives that nothing covers [file `outreach/templates/followups/blocks.md` to create]
-- [ ] Weekly job that reads the replies and reports what's working — it scores arms later, once an experiment goes live [weekly scheduler `com.gtm-engine.outreach-weekly` to create]
+- [ ] Daily job that reads the replies and records them — a reply is a 1, a closed sequence with no reply is a 0. That *is* this workflow's metric job; don't add a second one [daily scheduler `engine-metrics-outreach` to create]
 - [ ] ≥10 drafts sitting in your mailbox with CRM rows to match [check]
 
 ---
 
 ## 6. The loop — true for every workflow above
 
-- [ ] Daily job that lists what's owed a number and records what it can [daily scheduler `com.gtm-engine.metrics-daily` to create]
-- [ ] Weekly job that renders the reports (and scores arms later, once anything is live) [weekly scheduler `com.gtm-engine.weekly` to create]
+- [ ] **One metric job per workflow you ran today**, on that channel's clock — daily for outreach replies and social, weekly or slower for Search Console [daily scheduler `engine-metrics-<workflow>` to create — one each]
+- [ ] Weekly job that renders the reports (and scores arms later, once anything is live) — **one for the whole workspace**, because reading the sibling reports together is the point [weekly scheduler `engine-weekly` to create]
 - [ ] **No live experiments yet — that's correct.** Every workflow ships one template and `experiments.json` stays paused until its format is settled and 5–10 pieces have numbers. `engine-loop/references/ab-testing.md` → R0 [check]
 - [ ] Every workflow has a `reports/latest.json` from a real run [check]
 - [ ] Nothing posts, sends or promotes an arm without you [check]
@@ -144,15 +145,17 @@ and its own backlog. The publishing end is the platform, not GitHub.
 
 ## End-of-day proof
 
-Five commands. If they all answer, the day worked.
+Four commands and one question. If they all answer, the day worked.
 
 ```bash
 python3 <repo>/skills/engine-setup/scripts/doctor.py
-launchctl list | grep gtm-engine
 python3 <repo>/skills/engine-loop/scripts/due_metrics.py
 python3 <repo>/skills/engine-loop/scripts/score_arms.py
 find . -name index.csv -path '*/runs/*' -exec wc -l {} +
 ```
+
+Then ask your agent: **"list my scheduled tasks"** — every job you created today
+should be there, active, with a next run time.
 
 One published thing per workflow beats five folders of drafts. The schedulers
 are what make tomorrow happen without you.

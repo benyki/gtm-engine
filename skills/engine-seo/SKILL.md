@@ -151,6 +151,25 @@ If Clarity is set up, turn behavior into the next rewrite with
 - Don't write ten pieces in a batch. One good piece, published, measured, beats ten in a folder
 - An objection or question that keeps appearing in other workflows' replies is your next article — check `shared/insights.md` and the siblings' `reports/latest.json` when picking topics, and add a line back when an article's numbers teach something general
 
+## Make it run without you
+
+Subject finding, backlog upkeep and publishing are the three steps people stop
+doing by hand, and a backlog nobody tops up is an empty queue in a month. Once
+this workflow is producing articles the user is happy with, put them on a
+schedule:
+
+| Label | When | What |
+|---|---|---|
+| `engine-metrics-seo` | **weekly or fortnightly** | record what published articles earned. Search Console needs weeks to mean anything, so a daily job here finds nothing 27 days a month — this is the one workflow whose metric job is *not* daily |
+| `engine-seo-subjects` | weekly | mine communities for real questions → `inputs/queue/` |
+| `engine-seo-backlog` | weekly | keep ≥20 validated titles, re-validate, drop what died |
+| `engine-seo-publish` | weekly | push what's in the **approved** folder and trigger the rebuild |
+
+The publish job never publishes something the user hasn't moved into the
+approved folder themselves. Catalogue and rules:
+[`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
+`engine-loop/references/scheduling.md`.
+
 ## Going further
 
 - `references/advanced.md` — site that generates from `runs/`

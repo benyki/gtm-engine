@@ -17,113 +17,100 @@ Be clear about this before wiring anything up, because it decides which kind of 
 | Write a challenger template | **no** | needs judgement |
 | Generate next week's inputs | **no** | same |
 
-So there are two shapes. Most people want both.
+Most of the list is judgement or browser work, which means **most gtm-engine
+jobs are agent jobs**. That decides the mechanism.
 
 ---
 
-## Shape 1 — the deterministic job
+## Create them as local scheduled tasks
 
-`weekly.sh` scores and reports from whatever numbers are already recorded. It never posts, sends or promotes anything, so it's safe to leave running.
+Claude Code and Codex both schedule themselves. **Ask the agent to create the
+job** — it knows its own scheduler; you only need to tell it what to run:
 
-```bash
-~/code/gtm-engine/skills/engine-loop/scripts/weekly.sh /path/to/your-project/workflows
+```
+Set up a daily scheduled task called gtm-metrics-daily that runs the
+engine-loop metric pass on ~/code/your-project/workflows at 08:05.
 ```
 
-### macOS: launchd
+Four things are specific to this system. The rest is your agent's business:
 
-macOS is aggressive about killing cron jobs, so use launchd. Save as `~/Library/LaunchAgents/com.gtm-engine.weekly.plist`:
+1. **Local, never cloud.** A cloud-run task gets a fresh clone and no browser;
+   these jobs read your workspace off disk and your analytics from behind your
+   own login. Not the in-session kind either (`/loop`, automations that live in
+   one conversation) — those die with the session
+2. **No isolated worktree.** That default is right for code and wrong here: the
+   workspace is *data*, and a run whose `runs/index.csv` lands in a throwaway
+   copy has measured nothing. Point the task at the folder containing
+   `workflows/` and let it write in place
+3. **Pre-approve the tools.** Run the task once by hand and grant what it asks
+   for permanently, or it stalls mid-run on an approval nobody is there to give
+   — which looks exactly like a job that's working. Permissions are capability,
+   not intent: the never-post, never-send, never-promote rules go in the prompt
+4. **The prompt stands alone.** Each run is a fresh session with no memory of
+   the conversation that created it, so name the workspace path, the commands in
+   order, and the boundaries. `<workflow>/reports/latest.json` and
+   `shared/insights.md` are the handover between runs
 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
-  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key><string>com.gtm-engine.weekly</string>
-  <key>ProgramArguments</key>
-  <array>
-    <string>/bin/bash</string>
-    <string>/Users/YOU/code/gtm-engine/skills/engine-loop/scripts/weekly.sh</string>
-    <string>/Users/YOU/code/YOUR-PROJECT/workflows</string>
-  </array>
-  <key>StartCalendarInterval</key>
-  <dict>
-    <key>Weekday</key><integer>1</integer>
-    <key>Hour</key><integer>8</integer>
-    <key>Minute</key><integer>0</integer>
-  </dict>
-  <key>StandardOutPath</key><string>/tmp/gtm-engine-weekly.log</string>
-  <key>StandardErrorPath</key><string>/tmp/gtm-engine-weekly.err</string>
-</dict>
-</plist>
-```
+### Late runs are fine here
 
-```bash
-launchctl load ~/Library/LaunchAgents/com.gtm-engine.weekly.plist
-launchctl start com.gtm-engine.weekly     # test it now
-tail /tmp/gtm-engine-weekly.log
-```
+A missed run catches up whenever the machine wakes, so a "9am" job may fire at
+11pm. Harmless: `due_metrics.py` selects by how long ago a run published against
+its channel's window, not by the clock, and re-rendering a report regenerates
+that week in place. **So write prompts in terms of what's due, never "today".**
 
-Absolute paths only — launchd has almost no environment, so `~` won't expand. Replace `/Users/YOU/...` with the output of `echo $HOME` plus your real paths before loading.
-
-### Linux: cron
-
-```cron
-0 8 * * 1 /home/you/code/gtm-engine/skills/engine-loop/scripts/weekly.sh /home/you/project/workflows >> /tmp/gtm-weekly.log 2>&1
-```
+On a server with no agent app, `claude -p` and `codex exec` run the same prompt
+non-interactively.
 
 ---
 
-## Shape 2 — the agent job
+## The weekly task's prompt
 
-This is the one that actually closes the loop, because it can open a browser and read the numbers.
+Paste this as the task's instructions. It names the workspace, the order, and
+the boundaries, because none of that survives from the conversation that
+created it:
 
-The contract: **any coding agent that can run headlessly on a schedule, read the installed skills, and drive a logged-in browser.** Claude Code's headless mode (`claude -p`) is the worked example below; other agents have equivalents — swap the invocation, keep the prompt:
-
-```bash
-cd /path/to/your-project && claude -p "$(cat <<'EOF'
-Run the engine-loop weekly cycle for this workspace.
+```
+Run the engine-loop weekly cycle for the workspace at
+~/code/your-project/workflows.
 
 1. python3 ~/code/gtm-engine/skills/engine-loop/scripts/due_metrics.py
 2. For each run it lists as READY: fetch its number the way its channel
-   allows — analytics in the browser for social posts, the Gmail thread for
-   outreach — and record it with runlog.py metric and the right --source.
-   Skip anything due_metrics lists as too early — leave those for next week.
+   allows — analytics in the browser for social posts, the mailbox for
+   outreach, Search Console for articles — and record it with
+   runlog.py metric and the right --source. Skip anything due_metrics
+   lists as too early; it will come round.
 3. python3 ~/code/gtm-engine/skills/engine-loop/scripts/score_arms.py
-4. For any DECIDED experiment: move the losing template to that
-   workflow's templates/losers/, write a challenger with its hypothesis as a
-   header comment, register it in the workflow's experiments.json. Do NOT
-   promote the challenger to default — leave that for me.
+4. For any DECIDED experiment: move the losing template to that workflow's
+   templates/losers/, write a challenger with its hypothesis as a header
+   comment, register it in the workflow's experiments.json. Do NOT promote
+   the challenger to default — leave that for me.
 5. python3 ~/code/gtm-engine/skills/engine-loop/scripts/render_report.py
-6. Fill in sections 5 and 6 of the report.
+6. Fill in sections 5 and 6 of each report.
 7. Write next week's content ideas into each workflow's inputs/queue/, each
-   with the run that justifies it. If a finding generalises across workflows,
-   add one line to shared/insights.md.
+   with the run that justifies it. If a finding generalises across
+   workflows, add one line to shared/insights.md.
 
-Never post, never send, never promote an arm. Stop and tell me if anything
-looks wrong.
-EOF
-)"
+Never post, never send, never promote an arm. If anything looks wrong, stop
+and write it into the report rather than guessing.
 ```
 
-Schedule that the same way as shape 1 — same plist, different `ProgramArguments`.
+Note what it doesn't say: nothing about "today" or "this morning". The task may
+fire late after the machine was asleep, and every step above is defined by what
+is *due*, not by the clock.
 
-**Read the report before trusting it** for the first month. An unattended agent that drifts is worse than no automation, and you only notice by reading the output.
+**Read the report before trusting it** for the first month. An unattended agent
+that drifts is worse than no automation, and you only notice by reading the
+output.
 
 ---
 
-## Suggested cadence
+## Cadence
 
-| Job | When | Which shape |
-|---|---|---|
-| `due_metrics` + record numbers | daily or every other day | agent |
-| `score_arms` + challenger | weekly, Monday morning | agent |
-| `render_report` | weekly, after the above | either |
-| generate next week's inputs | weekly | agent |
-
-Order matters: fetch before score, score before report. Reporting on stale numbers produces confident, wrong verdicts.
-
-Daily metric collection isn't about speed — it's that runs come due on a rolling basis as they clear their channel's window, and a weekly-only job will always have a few that aged past it and got read late.
+Which jobs to create, at what cadence, and what each may and may not do:
+[`docs/scheduling.md`](../../../docs/scheduling.md). Two rules that don't
+change: **fetch before score, score before report**, and metrics run daily
+rather than weekly — runs clear their channel's window on a rolling basis, so a
+weekly-only job always reads a few of them late.
 
 ---
 

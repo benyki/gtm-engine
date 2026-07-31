@@ -61,11 +61,15 @@ like in this niche. Automating before that just produces wrong leads faster.
   opt-out line in the email, and honour it permanently. Don't play lawyer beyond
   that; flag it and let the user decide
 
-Optional capabilities that do the fetching —
-[`docs/additional-skills.md`](../../../docs/additional-skills.md) has the
-install steps: `apify-ultimate-scraper` for platform scraping at volume,
-`agent-browser` for reading platforms that have no API, `tiktok-post-finder`
-for creator-style outreach.
+**`prospect-finder`** is the capability that does all of this end to end —
+description → search shape → ten-lead test → qualified list with one observable
+per row, deduped against the CRM. Install it when list-building is the step
+you're spending real time on;
+[`docs/additional-skills.md`](../../../docs/additional-skills.md) has the steps.
+
+Other optional capabilities: `apify-ultimate-scraper` for platform scraping at
+volume, `agent-browser` for reading platforms that have no API,
+`tiktok-post-finder` for creator-style outreach.
 
 ## Landing it in the CRM
 
@@ -80,6 +84,24 @@ when a cell is empty (`engine-outreach` SKILL step 1 has the shape).
   and `runs/index.csv` can answer it per source once the column is there
 - **A `status=closed` row is permanent.** Unsubscribes and "not interested"
   survive every future import
+
+## Credits
+
+Parts of this page were adapted from open-source sales skill libraries, and the
+`prospect-finder` capability draws on them more heavily — its `CREDITS.md` has
+the full attribution. Specifically:
+
+- The **person-first vs company-first** distinction, the **hit-rate benchmarks**,
+  and the **qualify-a-sample-before-scaling** check come from
+  [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills)
+  (MIT), built from patterns across 1,000+ real B2B campaigns
+- The **signal-first research mindset** — look for what's happening in their
+  world now, not for fields to fill a template with — comes from
+  [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0)
+
+Both go far beyond what this workflow needs — sequencing, deliverability,
+campaign grading, CRM sync. Worth reading in full if outreach becomes your main
+channel.
 
 ## Reading it back
 

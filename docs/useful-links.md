@@ -91,7 +91,22 @@ required; browser reading is free and works.
 
 | What | Where | Getting the token | Cost |
 |---|---|---|---|
+| **Microsoft Clarity** *(optional)* | <https://clarity.microsoft.com> | Add your site → project → Settings → **Data Export** → generate token | free at any volume |
 | **Apify** *(optional)* | <https://apify.com> · console: <https://console.apify.com> | Console → Settings → Integrations → API token | paid |
+
+Clarity is optional like everything else here, but it's the only free source
+that shows what people did *on* the page — scroll depth, rage clicks,
+quick-backs — which is what decides what to make next rather than grading what
+you already made.
+
+**What it needs is a website**, with the Clarity snippet on it — any site you
+control: an existing product site, a landing page, a blog you already run, or
+one `engine-seo` built for you. That's the only requirement. It's useful to any
+workflow that sends traffic somewhere: a social post's click-through lands on a
+page, and Clarity is what tells you whether that page worked.
+
+If there's no site at all, Clarity has nothing to record — skip it until there
+is one.
 
 ---
 
@@ -180,6 +195,7 @@ first, then paste your own keys in — never into a chat window.
 | `UPLOADPOST_API_KEY` | <https://www.upload-post.com/> → dashboard | posting (optional) |
 | `BUFFER_ACCESS_TOKEN` | <https://developers.buffer.com> | posting (optional) |
 | `RESEND_API_KEY` | <https://resend.com> → API Keys | engine-outreach (optional, advanced) |
+| `CLARITY_API_KEY` | <https://clarity.microsoft.com> → project → Settings → Data Export | engine-seo + engine-loop (optional, free) |
 | `AHREFS_API_KEY` | <https://ahrefs.com/api> | engine-seo (optional) |
 | `SEMRUSH_API_KEY` | <https://www.semrush.com/api-documentation/> | engine-seo (optional) |
 | `APIFY_API_TOKEN` | <https://console.apify.com> → Integrations | engine-loop (optional) |

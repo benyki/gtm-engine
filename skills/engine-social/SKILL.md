@@ -31,7 +31,7 @@ different goals and metrics are two independent folders — scaffold with
 | Find and validate subjects | `references/subject-finding.md` |
 | Platforms / threads in the browser | `references/browser-research.md` |
 | Cut AI slop / keep voice | `references/anti-slop-writing.md` |
-| Post on X (browser) | `references/x-browser-post.md` |
+| Write a thread + post on X / LinkedIn (browser) | `references/threads-and-x.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
 
 ## Before the first run
@@ -110,7 +110,9 @@ One run per post. That's what makes the arm comparison work.
 ### 5. Publish
 
 **LinkedIn and X** — logged-in browser. Hand them the draft, or drive the UI per
-`references/x-browser-post.md` (X checklist; LinkedIn same contract). Then:
+`references/threads-and-x.md` (X checklist; LinkedIn same contract). Threads are
+staged in full and published together, so that file is also where the thread
+gets written — a thread is not a long post cut into pieces. Then:
 
 ```bash
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
@@ -149,10 +151,34 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py metric --run <run_id> --v
 - **Never copy a competitor's post.** Take the structure if it works, never the words
 - One platform until the loop says something useful about it
 
+## Make it run without you
+
+Short-form dies from irregularity faster than from bad posts — a burst then
+three quiet weeks teaches the loop nothing and the algorithm less. Once the
+voice is right, schedule the drafting:
+
+| Label | When | What |
+|---|---|---|
+| `engine-metrics-social` | daily | read each published post's numbers off the platform in the browser and record them. Daily because the 72h window clears on a rolling basis — a weekly-only job always reads a few late |
+| `engine-social-weekly` | weekly | draft the batch from `inputs/queue/`, run the anti-slop pass, leave them for review |
+
+**It drafts; it never posts.** LinkedIn and X drafts go to the user, and Bluesky
+publishes only after per-post approval — the scheduler doesn't relax that
+boundary. Catalogue: [`docs/scheduling.md`](../../docs/scheduling.md); how to
+create one: `engine-loop/references/scheduling.md`.
+
 ## Going further
 
-Optional installs from `benyki/skills`: `x-browser-post`, `bluesky-post-manage` —
-see `docs/additional-skills.md`.
+Optional installs from `benyki/skills` — see `docs/additional-skills.md`:
+
+Threads and X posting are covered in `references/threads-and-x.md` — enough to
+write and ship one without installing anything. Install these when you want more:
+
+| Skill | What it adds beyond the reference |
+|---|---|
+| `x-browser-post` | the frozen element map with fallback queries, the clipboard image script, the staged-thread loop as pseudocode, and a quirks file |
+| `bluesky-post-manage` | Bluesky chains, images, multi-account, delete |
+| `phraser-thread-generate` + `phraser-thread-backstory` | a worked **write-then-post** pipeline: research the material, write it as hook plus beats, keep a backlog, post the chain, mark it done. Project-specific as shipped — take the shape, swap the backlog path and brand |
 
 When a verdict here teaches you something bigger than this workflow — a hook
 style, an audience truth — add one line to `shared/insights.md`; a reusable

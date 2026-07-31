@@ -1,6 +1,6 @@
 ---
 name: engine-setup
-description: Install gtm-engine and build the user's workspace. Clones the repo, scaffolds a workflow-scoped <project>/workflows/, copies selected skills into ~/.agents/skills/ then symlinks them into Claude/Codex/Cursor and links the whole skills folder into the workspace, interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
+description: Install gtm-engine and build the user's workspace. Sets up the ~/code layout, clones the repo, scaffolds a workflow-scoped <project>/workflows/, copies selected skills into ~/.agents/skills/ then symlinks them into Claude/Codex/Cursor and links the whole skills folder into the workspace, puts Desktop shortcuts on both, interviews the user to fill in brand and channel config, and runs the doctor check. Use when the user says "run engine-setup", "set up gtm-engine", "install the growth workflows", or points you at the gtm-engine repo for the first time.
 ---
 
 # engine-setup
@@ -17,6 +17,35 @@ Two separate things, and keeping them separate is the point:
   Nothing personal in it.
 - **The workspace** (`<their-project>/workflows/`) — their brand, inputs, templates, runs, numbers. Never touched by an update.
 
+## Where everything lives
+
+Settle this **before** you clone. Moving it later means re-running the installer and fixing every symlink.
+
+The default layout — use it unless they have a reason not to:
+
+```
+~/code/                          ← create it if it doesn't exist
+├── gtm-engine/                  ← the clone (read-only, updated by git pull)
+└── <their-project>/
+    └── workflows/               ← the workspace: brand, runs, numbers
+
+~/.agents/skills/                ← the skills themselves (step 4)
+
+~/Desktop/                       ← two symlinks, so neither is buried (step 5)
+├── workflows  →  ~/code/<their-project>/workflows
+└── skills     →  ~/.agents/skills
+```
+
+`workflows/` is the folder they open in Claude Code or Codex day to day — it's the default working directory, and everything the agent needs is reachable from it (`shared/`, each workflow folder, and `skills/` via the symlink).
+
+**`workflows/` can live anywhere.** The path above is a suggestion, not a requirement:
+
+- **Inside an existing repo** — if they already centralise their work in one repo, scaffold `workflows/` there (`<their-repo>/workflows/`) and they keep editing from the working directory they already know. Nothing about the engine assumes a standalone folder
+- **In several places at once** — one workspace per product, per client, per language. That's supported and normal
+- When they want more than one, **scaffold the full thing each time** — a complete `shared/` plus its own workflow folders, not one shared `shared/` referenced from two places. The whole point is that editing a template, a brand file or an experiment in one workspace can't reach a project that didn't need the change. Duplication here is the isolation
+
+The scripts locate a workspace by its `shared/` folder, not by its name or path — so wherever it sits, set `GTM_WORKSPACE` or pass `--workspace` when you're working from outside its tree.
+
 ## Steps
 
 Do these in order. Confirm each one before moving on — a wrong path here is annoying to unpick later.
@@ -28,16 +57,14 @@ Otherwise give them the link and let them click.
 
 ### 2. Clone
 
-**Ask where they want the clone.** Suggest one of:
-
-- **Desktop** — easy to find (`~/Desktop/gtm-engine`)
-- **A personal folder that is not often cleaned up** — e.g. `~/Documents/gtm-engine`, `~/Projects/gtm-engine`, or whatever durable path they already use for code
-
-Let them pick (or name their own path). Do **not** put it in Downloads, a scratch folder, or anything that gets emptied regularly — the clone is pulled for updates over months.
+Default to `~/code/gtm-engine`:
 
 ```bash
-git clone https://github.com/benyki/gtm-engine.git <path-they-chose>/gtm-engine
+mkdir -p ~/code
+git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
 ```
+
+If they already keep code somewhere else, use that instead — any durable personal folder works (`~/Documents`, `~/Projects`, `~/Desktop`). Do **not** put it in Downloads, a scratch folder, or anything that gets emptied regularly; the clone is pulled for updates over months.
 
 If that directory already exists, `git -C <path>/gtm-engine pull` instead. Use that path for every later command in this setup (scaffold, install, doctor).
 
@@ -49,7 +76,8 @@ rewrite workflows over time; because each lives in its own folder (its own
 `workflow.json`, `experiments.json`, `sources.json`, `templates/`, `inputs/`,
 `runs/`, `reports/`), changing one can never break another.
 
-Ask which project they want to grow. Then, from that directory:
+Ask which project they want to grow — a folder under `~/code/`, an existing repo
+they already work in, or a fresh directory. Then, from that directory:
 
 ```bash
 python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py .
@@ -81,9 +109,9 @@ second workspace.
 
 **One workspace per brand / ICP / language is the intended pattern.** Two
 products or two audiences don't share a `brand.md` — scaffold each its own
-workspace (`--name growth-de`, `--name acme-b2b`) and run them independently.
-The scripts find a workspace by its `shared/` folder, not its folder name;
-set `GTM_WORKSPACE` or pass `--workspace` when working outside its tree.
+workspace, either in its own project folder or side by side (`--name growth-de`,
+`--name acme-b2b`), and run them independently. See *Where everything lives*
+above: scaffold each one in full so an edit in one can't reach the other.
 
 If they already created an empty `workflows/` folder during preflight, run with
 `--merge` so the scaffold fills it without touching what they already have.
@@ -145,7 +173,26 @@ What it does:
 Without `--workspace`, it still does the canonical copy + agent mirrors.
 Re-run with `--workspace` once `workflows/` is ready.
 
-### 5. Fill in the config
+### 5. Put shortcuts on the Desktop
+
+Both folders are now buried a few levels deep and both get opened constantly —
+the workspace to read runs and drop inputs in, the skills folder to tweak a
+workflow. Symlink them where they can't be missed:
+
+```bash
+ln -s <project>/workflows ~/Desktop/workflows
+ln -s ~/.agents/skills ~/Desktop/skills
+```
+
+These are links, not copies — the files stay where they are, and dropping an
+asset into `~/Desktop/workflows/shared/assets/` lands it in the real workspace.
+
+If either name is already taken, look at what's there before touching it, and
+either pick a different name or confirm the replacement with them. With more
+than one workspace, name them per project (`~/Desktop/acme-workflows`) —
+`workflows` on its own stops meaning anything at two.
+
+### 6. Fill in the config
 
 This is the part that decides whether the output is any good, so don't rush it into a single question. Interview them, then write the files. Global config is deliberately minimal — `shared/` holds only what every workflow uses (brand, accounts, keys, assets, docs, insights); everything else lives in each workflow's own folder.
 
@@ -198,7 +245,7 @@ Then ask them to drop material into the inputs:
 
 And point out `shared/insights.md` — the cross-workflow learnings file every loop pass reads and adds to. It starts empty; that's expected.
 
-### 6. Keys
+### 7. Keys
 
 ```bash
 cp shared/.env.example shared/.env
@@ -208,7 +255,7 @@ Have **them** paste the keys in. Never ask a user to give you a key in chat, and
 
 Which keys they need depends on the workflow — see `docs/preflight.md` §4. For `seo`, `social` and `outreach`, usually none.
 
-### 7. Check
+### 8. Check
 
 ```bash
 python3 <repo>/skills/engine-setup/scripts/doctor.py
@@ -216,9 +263,24 @@ python3 <repo>/skills/engine-setup/scripts/doctor.py
 
 Walk through anything red. Warnings are usually fine to leave. Doctor checks the canonical store, each agent mirror it can see, and `workflows/skills/` when a workspace is found.
 
-### 8. Hand over
+### 9. Hand over
 
 Tell them the one next thing to do — run their chosen content workflow and ship one piece. Not three. The loop needs real runs more than it needs breadth.
+
+Then flag what comes right after the first published piece: **two schedulers** —
+`engine-metrics-<their-workflow>` (one per workflow, on that channel's clock)
+and `engine-weekly` (one for the workspace). Don't create them during setup —
+there's nothing to measure yet — but say plainly that without them the numbers
+never come back and every report reads "no runs measured". The full catalogue,
+mandatory and optional, is
+[`docs/scheduling.md`](../../docs/scheduling.md).
+
+Both are **scheduled tasks in the agent itself** — Claude Code's scheduled
+tasks, or the equivalent in whatever agent they use. They need a browser and
+judgement, so an OS-level cron job can't do them. Creating one is a sentence
+("create a daily scheduled task `engine-metrics-social` that…"), and the prompt has
+to stand alone because each run starts with no memory of the conversation:
+`engine-loop/references/scheduling.md`.
 
 ## Rules
 
@@ -227,6 +289,10 @@ Tell them the one next thing to do — run their chosen content workflow and shi
 - **Never read `shared/.env`.** Names come from `.env.example`
 - **Copy skills into `~/.agents/skills/`, then symlink out** to agent folders and
   the workspace — never leave the only copy inside an agent-specific directory
+- **The clone is read-only.** Customised instructions go in `~/.agents/skills/`
+  (everywhere) or in the workspace (one project). An edit in the clone is lost
+  at the next `git pull` and never reaches the skills the agent loads — tell
+  them this before they're tempted
 - If they're not on Apple Silicon, say what will and won't work rather than pretending it's fine. The workspace scripts are plain stdlib Python and run anywhere; Linux is fully workable. On Windows, run the bash installer and symlinks under WSL — native Windows needs developer mode for symlinks and has no supported installer yet. Video rendering is slow on Intel Macs
 
 ## Going further

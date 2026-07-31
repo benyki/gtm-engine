@@ -108,8 +108,10 @@ needs a tool it doesn't have yet.
 | `buffer` | `engine-video` posting |
 | `bluesky-post-manage` | `engine-social` when posting to Bluesky via API |
 | `no-ai-slop-writting` | `engine-seo` + `engine-social` — the full editor behind each skill's `references/anti-slop-writing.md` |
-| `clarity-api-seo` | `engine-seo` behavioural analytics |
+| `clarity-api-seo` | `engine-seo` behavioural analytics **and** `engine-loop`'s "what to make next" — Microsoft Clarity's export API is free at any volume: scroll depth, dead/rage clicks, quick-backs, engaged pages. Needs `CLARITY_API_KEY` |
+| `phraser-thread-generate` + `phraser-thread-backstory` | `engine-social` threads — a worked write-then-post thread pipeline (hook → beats → chain, posted to X and Bluesky). Project-specific: read them as the shape and swap the backlog path and brand for the user's |
 | one Apify entrypoint | research / metrics at volume |
+| `prospect-finder` | `engine-outreach` list building — description → qualified list with one observable per row, deduped against the CRM |
 | `apify-ultimate-scraper` | `engine-outreach` lead sourcing at volume — `references/lead-sourcing.md` |
 | `agent-browser` | LinkedIn / X / Reddit when there's no API, and hand-built lead lists |
 | `video-structure-plan` | `engine-video` script → architecture |
@@ -118,17 +120,16 @@ needs a tool it doesn't have yet.
 Only install a capability when the workflow you're running actually needs it.
 Keep the default gtm-engine install small.
 
-### Gaps worth filling
+### Credits — capabilities adapted from other people's work
 
-Capabilities `engine-*` documents a need for, where nothing generic exists yet:
+Some capabilities were written by adapting open-source skill libraries rather
+than from scratch. Where that's true it's stated in the skill's own `CREDITS.md`
+with links, and it's worth reading the originals — they go considerably further
+than what gtm-engine needs.
 
-| Gap | What exists today |
+| Capability | Adapted from |
 |---|---|
-| **A generic creator/prospect finder** — "find N people matching this description on <platform>, with one observable each, deduped against a CRM" | `tiktok-post-finder` finds *posts* to comment on, not people to contact, and the per-project outreach skills are wired to one product's CRM and templates. A generic one still has to be written |
-
-Until it exists, `references/lead-sourcing.md`'s hand-build-the-first-fifty path
-plus `agent-browser` or `apify-ultimate-scraper` covers it — and the hand-built
-first fifty is the recommended start regardless of what's installed.
+| `prospect-finder` | [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills) (MIT) — person-first vs company-first search, hit-rate benchmarks, qualify-before-scaling, the compliance checklist · [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0) — the signal-first research mindset, signal freshness, the "so what?" test |
 
 ---
 

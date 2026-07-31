@@ -180,6 +180,28 @@ A reply that arrives after a zero was recorded: run `metric` again with `--value
 - **Never put a key or personal data in a URL**
 - Honour unsubscribes and "not interested" permanently — mark them `status=closed` and never re-add them from a fresh import
 
+## Make it run without you
+
+Outreach is the workflow where irregularity costs most: a sequence that pauses
+for two weeks is a sequence that never gets its follow-up, and the CRM quietly
+fills with people mid-thread. Once the first email is one the user would send
+unedited:
+
+| Label | When | What |
+|---|---|---|
+| `engine-metrics-outreach` | daily, working days | read the mailbox: a reply is `--value 1` plus `replied_at`, a closed sequence with no reply is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any workflow |
+| `engine-outreach-daily` | daily, working days | draft `<n>` personalised emails into their mail system, update the CRM |
+
+**Reading replies *is* the metric fetch** — don't add a separate weekly
+"check replies" job. Two jobs writing the same `runs/index.csv` and the same
+`crm.csv` is how rows get silently lost.
+
+Two things to get right when setting them up: **`<n>` is a number they'll
+actually review** — 50 drafts a day is the same as no outreach — and **neither
+job sends**, including the follow-ups. Catalogue:
+[`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
+`engine-loop/references/scheduling.md`.
+
 ## Going further
 
 `references/advanced.md` — Cloudflare Email Routing for inbound, sending automatically from your own domain via Resend (with the review gate that replaces the human click), and the deliverability rules that decide whether any of it lands.

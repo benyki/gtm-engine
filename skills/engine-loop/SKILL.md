@@ -56,6 +56,16 @@ Three common ways to get the number, in this order. **Always record which one yo
 
 **1. Platform API** — where it's free and already connected. Gmail for replies, Search Console for clicks and impressions, YouTube Data API. Exact and cheap. Use it when it's there.
 
+**Free behavioural data, whenever a workflow sends traffic to a page you control:** Microsoft Clarity's export API is free at any volume and tells you what Search Console can't — scroll depth, dead and rage clicks, quick-backs, which sections people actually reach. It's the cheapest signal for *what to write next*, not just how the last piece did: a page with traffic and a 30% scroll depth is a rewrite, and a rage-click cluster is a fix. Install `clarity-api-seo` (`docs/additional-skills.md`), set `CLARITY_API_KEY`, and read it alongside the metrics — `engine-seo/references/clarity-rewrite.md` turns the findings into the next article.
+
+**Other free APIs an agent can call directly**, when the user already has the account — no scraping, no browser, usually one token:
+
+| Own site | Search & discovery | Social & channel |
+|---|---|---|
+| Google Analytics 4 (Data API) · Cloudflare Web Analytics (GraphQL) · PostHog (free tier) · Plausible, Umami, Matomo (free self-hosted) | Google Search Console · YouTube Data API · Google Trends · Reddit | Bluesky (AT Protocol) · Mastodon · Discord · Telegram · GitHub · Buffer · Upload-Post |
+
+Same rules as everything else: name the real system in `--source`, and check what each one counts before comparing its number to another's. `references/fetching-data.md`.
+
 **2. Browser** — the normal case, and it works well. TikTok, Instagram, LinkedIn and X all show analytics behind the user's own login, and reading them off the page is reliable. No API keys, no developer accounts, no cost.
 
 Open the post's analytics view, read the numbers, then:
@@ -131,6 +141,22 @@ Per workflow: read its `runs/index.csv`, the recent metrics, and its last report
 - What the winning arm implies for the next ten pieces
 - Adjacent angles not yet tried
 
+**Free sources that tell you what to make, not just how it did.** The primary
+metric grades the past; these point at the next subject, and none of them costs
+anything:
+
+| Source | What it decides |
+|---|---|
+| **Microsoft Clarity** (`clarity-api-seo`) | Where readers stop, what they rage-click, which pages get quick-backs. A page with traffic and 30% scroll depth is a rewrite brief; a section everyone reaches is the next article's topic |
+| **Search Console** | Queries you already rank 8–20 for — the cheapest wins on the board, and each one is a title |
+| **Replies and comments** | The objection that keeps recurring in outreach is an article; the question asked twice under a post is a video |
+| **The sibling reports** | A hook that won on social usually says something about the video hook — `reports/latest.json` across workflows |
+
+Clarity is worth calling out because it's free at any volume and behavioural
+rather than positional — it answers "what did they do on the page", which no
+rank or view count will. `engine-seo/references/clarity-rewrite.md` turns its
+output into the next brief.
+
 The user reviews the queue and approves. They never start from a blank page, and they don't have to remember what worked in March.
 
 ---
@@ -175,7 +201,18 @@ Self-contained does not mean isolated. The folders keep the *mechanics* apart so
 
 The loop only compounds if it runs without you remembering. `weekly.sh` is the unattended half — it scores and reports from existing numbers, and never posts, sends or promotes anything.
 
-The half that reads TikTok and LinkedIn analytics needs a browser, so it needs an agent session. `references/scheduling.md` has both: a launchd plist for the deterministic job, and the headless `claude -p` invocation that does the fetching too.
+The half that reads TikTok and LinkedIn analytics needs a browser and judgement, so these run as **the agent's own local scheduled tasks** — ask it to create them. `references/scheduling.md` covers which kind to pick (local, never a cloud routine), the permission and worktree settings that stop a task stalling, and the self-contained prompt each one needs.
+
+**Two schedulers are mandatory for the loop to be a loop**, and creating them is part of running it — not a later nicety:
+
+| Label | When | Why it can't wait |
+|---|---|---|
+| `engine-metrics-<workflow>` — **one per workflow** | on that workflow's clock | Runs come due on a rolling basis as each clears its channel's window. A job that reads late records a distorted number |
+| `engine-weekly` — one for the workspace | weekly | Scores, reports, fills the queue. Without it the spine grows and nothing reads it |
+
+**Metrics are per workflow; the weekly pass is not.** Each workflow reads a different system (browser, mailbox, Search Console) on a different clock, so `due_metrics.py --workflow <name>` per job keeps the prompts short and stops one dead browser session from costing you the outreach numbers too. The weekly pass stays whole-workspace because reading the sibling reports together is the only place cross-workflow learning happens — split it and each job knows a quarter of the story.
+
+If they don't exist yet, say so and offer to set them up. The full catalogue — including the optional per-workflow content jobs — is [`docs/scheduling.md`](../../docs/scheduling.md).
 
 ---
 

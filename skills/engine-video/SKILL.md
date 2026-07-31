@@ -228,6 +228,23 @@ A hook verdict here usually says something about the social workflow's hooks
 too — when a finding generalises, add a line to `shared/insights.md`, and put
 reusable clips or end-cards in `shared/assets/` so siblings don't re-make them.
 
+## Make it run without you
+
+Rendering stays manual — it's slow, disk-hungry, and the step where a human eye
+is cheapest. What's worth scheduling is everything around it:
+
+| Label | When | What |
+|---|---|---|
+| `engine-metrics-video` | daily | read watch-through and views off the platform in the browser and record them. Daily because the 72h window clears on a rolling basis |
+| `engine-video-app-hooks` | weekly | read what earned watch-through, rewrite the hook library from it |
+| `engine-video-info-source` | daily | pull new items from the text source into `inputs/source-texts/` — only when the informative workflow *fetches* its source rather than being handed one |
+
+Neither renders and neither uploads — rendering stays manual, and so does
+posting. Without the metric job this workflow accumulates videos and no
+verdicts, which is the most common way a video channel goes quiet. Catalogue:
+[`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
+`engine-loop/references/scheduling.md`.
+
 ## Going further
 
 - `references/advanced.md` — dedicated phone + mobilerun (read account-risk first)

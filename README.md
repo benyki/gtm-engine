@@ -23,6 +23,7 @@ Later, when you need it:
 
 | Doc | Why |
 |---|---|
+| [`docs/scheduling.md`](docs/scheduling.md) | Every scheduler you should have — one metric job per workflow, one weekly job for the workspace, and the optional content jobs |
 | [`skills/engine-video/references/posting-options.md`](skills/engine-video/references/posting-options.md) | Video posting: manual, Upload Post, or Buffer |
 | [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/skills`](https://github.com/benyki/skills) — download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
 
@@ -60,16 +61,21 @@ and run engine-setup.
 
 Or do it yourself:
 
-Pick a durable location first — Desktop, or a personal folder you don't clean out
-often (not Downloads). Then:
+Pick a durable location first. `~/code/` is the suggested home — any personal
+folder you don't clean out works (not Downloads). Then:
 
 ```bash
-git clone https://github.com/benyki/gtm-engine.git ~/Desktop/gtm-engine   # or your path
-python3 ~/Desktop/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
-~/Desktop/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
+mkdir -p ~/code && git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
+python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
 ```
 
-Replace `~/Desktop/gtm-engine` with wherever you cloned. Replace `seo` with
+Run the last two from the project you want to grow — a folder under `~/code/`,
+or an existing repo you already work in; `workflows/` can live anywhere, and a
+Desktop symlink to it is worth the ten seconds. Keep one full workspace per
+project rather than sharing one between them.
+
+Replace `~/code/gtm-engine` with wherever you cloned. Replace `seo` with
 `social`, `video`, `outreach`, a comma list, `all` — or any name of your own
 for a custom workflow (the loop treats it like the built-ins; you supply the
 templates).
@@ -93,6 +99,13 @@ agent's skills folder and as one `workflows/skills` → `~/.agents/skills` link.
 Re-run `install_skills.sh` after `git pull` to refresh the copies. Nothing you
 own lives in this repo, so an update can never clobber your data.
 
+**Want to customise the instructions? Do it in `~/.agents/skills/` or in your
+workflows — never in this clone.** Edit the running skill for a change that
+applies everywhere, or your workspace (`shared/brand.md`, a workflow's
+templates and `workflow.json`) for a change scoped to one project. Edits made
+in the clone are overwritten by the next `git pull` and never reach the skills
+your agent actually loads.
+
 Full layout: [`docs/workspace.md`](docs/workspace.md). The workspace is one self-contained folder per workflow (own experiments, templates, runs, reports — copy a folder to run a second outreach or video workflow with a different goal) plus one `shared/` folder (brand, accounts, keys, assets, cross-workflow insights). Each workflow keeps its own spine at `<workflow>/runs/index.csv` — one row per thing it ever made, with the arm it used and the number it earned.
 
 ---
@@ -101,7 +114,9 @@ Full layout: [`docs/workspace.md`](docs/workspace.md). The workspace is one self
 
 Not a separate growth channel — the framework that makes your existing workflows
 (seo, social, video, outreach, or a custom one) learn, grow, and compound.
-Four jobs you schedule once:
+Four jobs you schedule once — metric fetching **per workflow**, on that
+channel's clock; the rest once for the whole workspace
+([`docs/scheduling.md`](docs/scheduling.md)):
 
 | Job | Cadence | What happens |
 |---|---|---|
