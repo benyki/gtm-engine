@@ -50,10 +50,24 @@ The scripts locate a workspace by its `shared/` folder, not by its name or path 
 
 Do these in order. Confirm each one before moving on — a wrong path here is annoying to unpick later.
 
-### 1. Ask about starring the repo
+**Before you scaffold, there are exactly two questions, and both already have
+their answer:** the folder (default `~/code/`) and the workflow (default
+outreach). Both are yes-or-something-else. Everything else in step 1 is a
+statement, not a choice — nothing about the repo link blocks the setup. Don't
+present a user with a numbered list of "required choices" on their first
+screen; ask, take the default, keep going.
 
-Ask the user whether they'd like to star it. If yes and `gh` is authenticated: `gh repo star benyki/gtm-engine`
-Otherwise give them the link and let them click.
+### 1. Point them at the repo
+
+Not a question — a statement, made once, before anything is installed:
+
+> Everything we'll use is in the git repo at
+> <https://github.com/benyki/gtm-engine>. Open it and save it if you like — and
+> if you spot anything that could be better, leave a comment or raise an issue.
+
+That's the whole ask. Don't gate the setup on it, don't turn it into a
+required choice, and don't ask for a star as a favour. If *they* say they'd
+like to star it and `gh` is authenticated: `gh repo star benyki/gtm-engine`.
 
 ### 2. Clone
 
@@ -76,16 +90,42 @@ rewrite workflows over time; because each lives in its own folder (its own
 `workflow.json`, `experiments.json`, `sources.json`, `templates/`, `inputs/`,
 `runs/`, `reports/`), changing one can never break another.
 
-Ask which project they want to grow — a folder under `~/code/`, an existing repo
-they already work in, or a fresh directory. Then, from that directory:
+Two questions, and both already have their answer chosen. Ask them as
+**yes-or-something-else**, not as open ones — an open question here costs a user
+who doesn't yet know the options five minutes and a wrong guess.
+
+**Where it goes:**
+
+> The default is `~/code/<project>/workflows/`. Is that okay, or would you
+> prefer a different folder on your computer?
+
+"Yes" is a complete answer and the usual one. Anything else is equally fine — an
+existing repo they already work in, `~/Documents`, a fresh directory; the
+scripts find a workspace by its `shared/` folder, not by its path. If you don't
+know what `<project>` is yet, fold that into this same question rather than
+asking a second one.
+
+**Which workflow:**
+
+> The first workflow is **outreach**. Would you like me to set it up now?
+
+**Default to yes** and scaffold it. It's the fastest one to a real signal —
+drafts today, replies this week — and it needs no keys and no site. Something
+else is a fine answer: `seo`, `social`, `video`, a custom name, or a comma list.
+
+Then, from the project directory:
 
 ```bash
-python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py .
+python3 <repo>/skills/engine-setup/scripts/scaffold_workspace.py . --workflow outreach
 ```
 
-With no `--workflow` it creates one folder for each shipped workflow —
-`outreach/`, `seo/`, `social/`, `video/` — plus `shared/`. That default is a
-**starting point, not the shape**; customise it to what they actually need:
+**One workflow, not four.** Set up only the one they're running — the others are
+folders nobody fills, and the loop learns from runs, not from scaffolding. (With
+no `--workflow` at all the script creates one folder per shipped workflow;
+that's the script's default, not this step's.) Adding a second later is
+`--merge --workflow <name>`, which is the normal way to grow into it.
+
+Other shapes, when they ask for them:
 
 - `--workflow seo,outreach` — only those folders
 - `--workflow outreach-investors:outreach` — a **second workflow of an

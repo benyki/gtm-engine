@@ -93,6 +93,25 @@ When a reply theme keeps recurring, it has stopped being a follow-up problem:
 
 ---
 
+## The "something new" comes out of the CRM
+
+A follow-up needs something the first email didn't have, and the row already
+holds most of it. Read `research`, `research_source` and `researched_at` before
+drafting touch two or three:
+
+- **Don't restate the observation.** They read it three weeks ago. Half a
+  sentence of callback at most, then whatever is actually new
+- **If `researched_at` is more than a few weeks old, look once more** — a new
+  post, a launch, a hire, a job change. That second look *is* the something new;
+  if there's nothing, the touch is a "bumping this" and shouldn't go
+- **Write what you find back into the row**, same three columns, new date. Touch
+  three reads touch two's work instead of starting over
+- **A job change isn't a follow-up, it's a new conversation** — new company, new
+  problem, often a better one. Update `company` and `email`, note the move, and
+  treat it as a first touch
+
+---
+
 ## Who to chase first: the click
 
 If the workflow is tracking clicks on its one link

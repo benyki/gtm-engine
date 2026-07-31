@@ -31,7 +31,7 @@ owns everything it depends on, rewriting one can never break another.
 │   ├── experiments.json     THIS workflow's A/B tests — paused until its format is settled
 │   ├── sources.json         where its ideas come from
 │   ├── templates/           versions competing; losers/ keeps what lost
-│   ├── inputs/              queue/ always; audience/ best/ swipe/ per type
+│   ├── inputs/              queue/ always; audience/ best/ swipe/ images/ per type
 │   ├── runs/                index.csv — THIS workflow's spine — + one dir per run
 │   ├── crm.csv              people, not runs — outreach types only
 │   └── reports/             weekly report + latest.json for the next agent

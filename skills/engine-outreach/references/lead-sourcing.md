@@ -128,6 +128,11 @@ when a cell is empty (`engine-outreach` SKILL step 1 has the shape).
 - **Keep `source` and `notes` populated.** In two months "where did these 300
   people come from and were they any good?" is a question you'll actually ask,
   and `runs/index.csv` can answer it per source once the column is there
+- **The observable belongs in `research`, with its URL in `research_source`
+  and the date in `researched_at`** — the same three columns the run fills
+  (`engine-outreach` SKILL step 3). A list that arrives with an observable per
+  row lands straight into them, and the next agent verifies it from the URL
+  instead of researching the person again
 - **A `status=closed` row is permanent.** Unsubscribes and "not interested"
   survive every future import
 

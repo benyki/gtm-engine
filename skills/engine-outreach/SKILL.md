@@ -76,8 +76,12 @@ id,name,company,email,linkedin,source,notes
 ```
 
 `crm.csv` adds the tracking columns on top (`status`, `arm`, `template_used`,
-`drafted_at`, `sent_at`, `next_followup_at`, `replied_at`) — its header is the
-contract, so keep every column even when a cell is empty.
+`drafted_at`, `sent_at`, `next_followup_at`, `replied_at`) and the three
+research columns step 3 fills (`research`, `research_source`, `researched_at`)
+— its header is the contract, so keep every column even when a cell is empty.
+An observable that arrived with the list goes into `research` on
+normalisation, with wherever it came from in `research_source`; `notes` is for
+everything else about the person.
 
 **Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this workflow can make, and it's silent unless you check.
 
@@ -102,11 +106,48 @@ variable and its answer also changes the landing page, but it isn't always the
 right call and it isn't yours to decide alone: recommend one, and let the user
 pick. `references/first-touch.md` → §6 has the choice and what to hold constant.
 
-### 3. Research each person
+### 3. Research each person — and write what you find into the CRM
 
 This is where the whole thing is won or lost. A merge field is not personalisation and every recipient knows it.
 
-Look for something specific and recent: what they shipped, what they wrote, what they're hiring for, what they said publicly. One real observation beats three generic compliments. Budget about a minute per person; if there's genuinely nothing to find, that's a signal they're the wrong target, not a reason to write filler.
+**Go and look before you write a word about them.** Don't work from what's
+already in the row — a title and a company name are not research. Search, in
+roughly this order, and stop as soon as you have one real thing:
+
+- **their own site** — changelog, blog, pricing page, "what's new"
+- **their LinkedIn activity** — what they *posted*, not the profile blurb
+- **X / Bluesky / Mastodon**, **GitHub**, a podcast they went on, a talk, a press mention
+- **their job posts** — what a company is hiring for is what it's struggling with
+- **a Reddit or HN comment** where they described the problem in their own words
+
+The browser is the tool for most of this — `engine-social/references/browser-research.md`
+covers reading platforms that have no API. Look for something specific and
+recent: what they shipped, what they wrote, what they're hiring for, what they
+said publicly. One real observation beats three generic compliments. Budget
+about a minute per person; if there's genuinely nothing to find, that's a signal
+they're the wrong target, not a reason to write filler.
+
+**Then write it into their CRM row, before you draft.** Three columns:
+
+| Column | What goes in it |
+|---|---|
+| `research` | the observation itself — one or two plain sentences, a fact you could quote back to them |
+| `research_source` | the URL you read it on |
+| `researched_at` | the date, so a later pass knows how stale it is |
+
+Putting it in the row and not only in the email is what makes this compound:
+
+- the **follow-up** three weeks later reuses it instead of re-researching from scratch
+- the **user can read it and correct you** before anything goes out — they often know the person
+- a second workflow, or the same one next quarter, starts warm
+- an observation with **no source URL is unverifiable**, and an unverifiable claim in a cold email is the one mistake you can't take back
+
+What goes in the cell: what they *did*, not what you think of them. No adjectives
+about them, no inference dressed as fact, no "seems like you're scaling fast".
+If a minute of searching turns up nothing, write that — `research=nothing found`
+with the date — and flag the row to the user as a wrong-target candidate. An
+empty `research` cell and a written "nothing found" mean different things on the
+next pass.
 
 Pull the voice and the constraints from `shared/brand.md` — especially the banned claims.
 
@@ -122,6 +163,29 @@ After that, render the current template (or the assigned arm once an experiment
 is live) with the research. Keep it short. The opening line has to prove you
 looked, the middle has to be about them and not you, and the ask has to be small
 enough to say yes to on a phone.
+
+**When the research turned up something genuinely good, offer the user the
+personalisation before you commit to it.** Not for every row — for the ones
+where the finding is strong enough to change the email: they shipped the exact
+thing the product helps with, they wrote publicly about the problem, they just
+raised or just moved, there's a shared connection or a mutual customer. Show the
+finding, its source and what you'd do with it, in one line, and give them three
+ways out:
+
+> **Ana Sørensen (Kitewave)** — shipped v2 last month and posted about their
+> onboarding drop-off ([link]). I'd open on the drop-off post rather than the
+> launch. Want that, do you have something of your own to add, or keep it
+> generic?
+
+Ask because they know things that aren't on the internet — they met at a
+conference, a mutual customer already told them about it, the "recent" post is
+two jobs out of date — and because their name is on the email. One line from
+them beats your best inference from a profile.
+
+Keep it non-blocking: **one batch, not one question per lead.** Draft everything
+with the research you have, list the two or three rows worth a human line, and
+carry on if they don't bite. Anything they add goes into the CRM row's
+`research` (or `notes`) so the follow-up keeps it.
 
 Create it as a **draft in the user's mail system** (Gmail, Outlook — whatever the connector is).
 
@@ -218,6 +282,7 @@ old runs vote on the new version.**
 - **Never contact anyone twice.** Check the CRM before every draft
 - **One inbound message gets at most one draft, ever.** A draft doesn't change the thread, so a scheduled reply job that trusts the mailbox alone re-drafts the same reply daily. Check the CRM row *and* the existing drafts first — `references/followups.md`
 - **Never invent a fact about a person.** If the research is thin, say so — a made-up detail in a cold email is unrecoverable
+- **Research lands in the CRM, not only in the email.** An observation that exists only in a sent draft is lost to the follow-up, to the user's review, and to every later pass. With it goes the source URL — an unverifiable claim doesn't go in an email
 - **Never put a key or personal data in a URL**, and never a bare URL as visible link text — send an anchor (`references/first-touch.md` → §2)
 - Honour unsubscribes and "not interested" permanently — mark them `status=closed` and never re-add them from a fresh import. Closing them doesn't retract the metric: a decline was still a reply
 

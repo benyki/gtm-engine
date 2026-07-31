@@ -2,8 +2,9 @@
 
 **This is the workshop checklist** — deliberately rigid and ordered so a room
 full of different machines reaches the same working state. Do the steps in
-sequence; pick one workflow and set up only that one. (Everywhere else in this
-repo, instructions are defaults you may adapt — here they're steps to follow.)
+sequence, and set up **one** workflow only — outreach unless you'd rather start
+somewhere else. (Everywhere else in this repo, instructions are defaults you may
+adapt — here they're steps to follow.)
 
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
@@ -87,7 +88,10 @@ Two things worth knowing before you install it:
 
 ## 4. Your workflow
 
-Only set up the one you're running. Links in [useful-links.md](useful-links.md).
+Only set up the one you're running. **Outreach is the default first one** — its
+section is below, and it needs nothing but a Gmail your agent can reach. Start
+somewhere else if you have a reason to; do that section instead of this one.
+Links in [useful-links.md](useful-links.md).
 
 ### A. SEO and written content (`engine-seo`)
 
@@ -117,6 +121,13 @@ Settings → Privacy and Security → App Passwords (format `xxxx-xxxx-xxxx-xxxx
 Never use your account password. It goes in `shared/.env` as `BSKY_HANDLE`
 and `BSKY_APP_PASSWORD`. The agent posts via the Bluesky API after you approve
 each post.
+
+**Images?** Optional both ways. Drop screenshots, charts and photos into
+`social/inputs/images/` before the session and the agent can pick one per post
+— no key needed for that. Only *editing* one (crop, background swap,
+aspect-ratio variants) needs a key: [AI Studio](https://aistudio.google.com/apikey)
+→ `GEMINI_API_KEY`, or [OpenAI](https://platform.openai.com/api-keys) →
+`OPENAI_API_KEY`, in `shared/.env`. Either one, not both.
 
 Video posting (manual / Upload Post / Buffer):
 [engine-video/references/posting-options.md](../skills/engine-video/references/posting-options.md).

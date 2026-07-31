@@ -31,6 +31,7 @@ different goals and metrics are two independent folders — scaffold with
 | Find and validate subjects | `references/subject-finding.md` |
 | Platforms / threads in the browser | `references/browser-research.md` |
 | Cut AI slop / keep voice | `references/anti-slop-writing.md` |
+| Pick an image, or edit one via an image API *(optional)* | `references/images.md` |
 | Write a thread + post on X / LinkedIn (browser) | `references/threads-and-x.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
 
@@ -106,6 +107,35 @@ Five to seven posts. Short-form is cheap to write and expensive to judge in isol
 
 Before showing the batch, run `references/anti-slop-writing.md` over it (edit or detect).
 
+### 3b. Pick an image — optional
+
+`inputs/images/` is where the user drops screenshots, product shots, photos and
+charts. After the drafts exist, read what's in there and propose **one image for
+one post**, with a line on why. Nothing in that folder is ever modified, and an
+empty folder is a fine answer — say so once and ship the text.
+`references/images.md` → Step A: what actually works, what to check is in frame
+before proposing it, where the file goes.
+
+### 3c. Edit that image through an image API — optional
+
+Crops, background swaps, aspect-ratio variants, image A/B arms — starting from
+an image the user already owns. `references/images.md` → Step B, and:
+
+```bash
+python3 ~/.agents/skills/engine-social/scripts/edit_image.py \
+  --image inputs/images/dashboard.png --prompt "..." \
+  --out runs/<run_id>/output/post-1.png
+```
+
+Gemini ("nano banana") by default, `--provider openai` for GPT Image. Needs
+`GEMINI_API_KEY` or `OPENAI_API_KEY` in `shared/.env` — the reference has the
+key pages ([AI Studio](https://aistudio.google.com/apikey),
+[OpenAI](https://platform.openai.com/api-keys)) and the steps. **Ask before the
+first call in a run** — it's paid per image, and usually the original is fine.
+Output lands in the run folder; `inputs/` stays untouched. Look at what came
+back before showing it: these models rewrite chart numbers and re-letter UI
+without being asked.
+
 ### 4. Log each one
 
 Use the arm and template `assign_arm.py` returned — for example, when it picks the question opener:
@@ -159,6 +189,7 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py metric --run <run_id> --v
 - **Never publish without the user's yes.** On LinkedIn and X, drafts go to the user to post; on Bluesky the agent may post via the API — after an explicit approval per post, not instead of one
 - **Never claim something the user hasn't done.** Invented anecdotes are the fastest way to burn a personal brand, and they're unrecoverable once someone notices
 - **Never copy a competitor's post.** Take the structure if it works, never the words
+- **Never generate an image that functions as proof** — a metrics screenshot, a revenue chart, a testimonial. Same rule as the one above, and an image is what people screenshot back at you. `inputs/images/` is read-only; edits go to the run folder
 - One platform until the loop says something useful about it
 
 ## Make it run without you

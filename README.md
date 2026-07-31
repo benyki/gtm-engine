@@ -44,8 +44,9 @@ Then install (below) and tell your agent: `run engine-setup`.
 **`engine-loop` is not a fifth workflow.** It is the framework that sits under the
 ones above (and any custom workflow you add): it makes them learn, grow, and
 compound over time — metrics in, A/B verdicts out, weekly report, next week's
-plan. Pick one content workflow to start; the loop only has something to say
-once there are runs on the board.
+plan. Start with **one** content workflow — outreach unless you have a reason to
+start elsewhere; the loop only has something to say once there are runs on the
+board.
 
 ---
 
@@ -55,8 +56,8 @@ Paste this into Claude Code or Codex:
 
 ```
 Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
-When that passes, pick a workflow, follow the setup instructions in the README,
-and run engine-setup.
+When that passes, follow the setup instructions in the README and run
+engine-setup. Start with the outreach workflow unless I say otherwise.
 ```
 
 Or do it yourself:
@@ -66,8 +67,8 @@ folder you don't clean out works (not Downloads). Then:
 
 ```bash
 mkdir -p ~/code && git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
-python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow seo
-~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow seo
+python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow outreach
+~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow outreach
 ```
 
 Run the last two from the project you want to grow — a folder under `~/code/`,
@@ -75,12 +76,12 @@ or an existing repo you already work in; `workflows/` can live anywhere, and a
 Desktop symlink to it is worth the ten seconds. Keep one full workspace per
 project rather than sharing one between them.
 
-Replace `~/code/gtm-engine` with wherever you cloned. Replace `seo` with
-`social`, `video`, `outreach`, a comma list, `all` — or any name of your own
-for a custom workflow (the loop treats it like the built-ins; you supply the
-templates).
+Replace `~/code/gtm-engine` with wherever you cloned. `outreach` is the
+suggested first workflow — replace it with `seo`, `social`, `video`, a comma
+list, `all` — or any name of your own for a custom workflow (the loop treats it
+like the built-ins; you supply the templates).
 
-Then tell your agent: `run engine-setup` — it fills in your brand config, picks your workflow, and runs the checks.
+Then tell your agent: `run engine-setup` — it fills in your brand config, confirms the workflow, and runs the checks.
 
 ---
 

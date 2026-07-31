@@ -66,6 +66,17 @@ logged-in browser. Bluesky uses its API (app password), not a scheduler.
 |---|---|---|
 | **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `shared/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
 
+Images are optional. Picking one out of `social/inputs/images/` needs nothing.
+*Editing* one — crop, background swap, aspect-ratio variants — needs one key,
+either provider, in `shared/.env`:
+
+| What | Where | Getting the key | Cost |
+|---|---|---|---|
+| **Google AI Studio** — Gemini image models, "nano banana" | <https://aistudio.google.com> · docs: <https://ai.google.dev/gemini-api/docs/image-generation> | <https://aistudio.google.com/apikey> → **Create API key**, pick a project | free tier, then per image |
+| **OpenAI** — GPT Image | <https://platform.openai.com> · docs: <https://developers.openai.com/api/docs/guides/image-generation> | <https://platform.openai.com/api-keys> → **Create new secret key** (shown once). Image edits may need org verification | prepaid credits, no free tier |
+
+How it's used: [engine-social/references/images.md](../skills/engine-social/references/images.md).
+
 ### engine-video
 
 | What | Where | Getting the key | Cost |
