@@ -3,9 +3,14 @@
 ## Order
 
 1. **`shared/assets/`** — product recordings, licensed B-roll, brand clips
-2. **Pexels** — only when assets can't cover the segment (`plan.json` → `backgroundFootage`)
+2. **Pexels** — the default fallback when assets can't cover the segment
+   (`inputs.json` → `backgroundFootage`)
 
-Never scrape someone else's TikTok/Reel as "footage." Rights matter; Pexels is licensed.
+Pexels is the default because it's free, licensed and needs one key. It is not
+the only option: generated clips, YouTube, Pinterest and short-form platforms
+are all on the table, each with its own trade-off. **`references/clip-sourcing.md`
+lays the options out and helps you pick with the user** — read it before
+deciding a source, and come back here for the Pexels mechanics.
 
 ## Pexels download (portrait)
 
@@ -31,7 +36,7 @@ Prefer **medium** quality for B-roll; re-encode to 1080×1920 with
 
 Save downloads under `shared/assets/` (or `shared/assets/pexels/`), **not**
 home-directory media trees. For a run-specific pull, you may also write to
-`runs/<run_id>/assets/` and reference those paths from `plan.json`.
+`runs/<run_id>/assets/` and reference those paths from `inputs.json`.
 
 ## Naming
 

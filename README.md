@@ -84,7 +84,7 @@ Then tell your agent: `run engine-setup` — it fills in your brand config, pick
 
 | | This repo (wherever you cloned it) | Your workspace (`<your-project>/workflows/`) |
 |---|---|---|
-| Holds | the workflows, templates, docs | your brand, inputs, runs, numbers, reports |
+| Holds | the workflows (`skills/`), the workspace template (`workspace/`), docs | your brand, inputs, runs, numbers, reports |
 | Changes | when you `git pull` | every time you run something |
 | Belongs to | this project | you — keep it in your own private repo |
 

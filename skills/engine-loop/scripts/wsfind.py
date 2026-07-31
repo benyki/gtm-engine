@@ -32,8 +32,14 @@ WF_MARKER = "workflow.json"
 # Files that identify shared/ as ours (any one is enough).
 _SHARED_FILES = ("channels.json", "brand.md", ".env.example")
 
+# The engine repo's own workspace/ folder is the scaffold SOURCE, not a
+# workspace. This marker at its root keeps it from ever being picked up.
+TEMPLATE_MARKER = ".gtm-template"
+
 
 def is_workspace(p: Path) -> bool:
+    if (p / TEMPLATE_MARKER).is_file():
+        return False
     shared = p / SHARED
     return shared.is_dir() and any((shared / f).is_file() for f in _SHARED_FILES)
 

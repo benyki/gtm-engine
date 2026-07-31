@@ -1,0 +1,135 @@
+{
+  "_comment": "INFORMATIVE — DATA RECAP. One config drives the script, the on-screen numbers, the durations and the footage per scene. Generalised from a production config; every project-specific value is a <placeholder>. Compile this from a tokenised template + a vars file (see _authoring) rather than hand-writing it. See references/formats.md §3b.",
+  "_startingPoint": "A proven starting point, not a spec. The scene order, the kinds and the pacing worked for someone else's audience — tweak them for yours, one variable per experiment. references/formats.md covers running a format that isn't here.",
+  "meta": {
+    "title": "<slug-for-this-edition>",
+    "concept": "<what this edition found — the single most striking thing in the data>",
+    "format": "informative-recap",
+    "aspectRatio": "9:16",
+    "platform": "<tiktok | reels | shorts>"
+  },
+  "_authoring": {
+    "_comment": "THE RULE THAT MATTERS: never hand-type numbers into a config. They're only right for one edition.",
+    "template": "<workflow>/templates/recap.template.json — the copy and structure, with {{tokens}} where numbers go. Edit this to change the format for EVERY edition.",
+    "vars": "<workflow>/inputs/<edition>/vars.json — this edition's numbers, derived from your source data, not typed. Edit this to change ONE edition.",
+    "compile": "template + vars → this config → render",
+    "_why": "A number that's right this edition and stale the next is worse than no number, and nobody notices until a viewer does."
+  },
+  "brand": "<the recurring name in the corner — this is a series, make it look like one>",
+  "accent": "<hex — one accent colour for every number, bar and highlight>",
+  "voice": {
+    "id": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "fallback": "<a second voice id, used if the first errors — and then for the rest of the run, so one edition never mixes two voices>",
+    "settings": {
+      "stability": "<0–1: higher is steadier and flatter, lower is more expressive>",
+      "similarity": "<0–1: closeness to the original timbre>",
+      "style": "<0–1: exaggeration. 0 is safest>",
+      "speaker_boost": true
+    }
+  },
+  "gap": 0.28,
+  "_gapNote": "Silence added after each scene's speech. Small, but it's the difference between a recap and a machine gun.",
+  "scenes": [
+    {
+      "id": "hook",
+      "kind": "hook",
+      "min": 5,
+      "vo": "<the opening line — lead with whatever is genuinely most striking THIS edition. Never reuse last edition's angle.>",
+      "kicker": "<small label above the title>",
+      "title": "<the giant opening line. \\n forces a break>",
+      "query": "<footage that matches the mood, not the data>"
+    },
+    {
+      "id": "scale",
+      "kind": "counters",
+      "vo": "<one or two sentences setting the scale. Flowing prose — see the voiceover rule below.>",
+      "kicker": "<label>",
+      "title": "<what these numbers are>",
+      "counters": [
+        {
+          "label": "<what it counts>",
+          "to": "{{a number from vars, never typed here}}"
+        },
+        {
+          "label": "<what it counts>",
+          "to": "{{…}}",
+          "suffix": "<%, k, whatever>"
+        }
+      ],
+      "clip_dir": "<a folder of on-brand clips — a random one per render keeps editions from looking identical>"
+    },
+    {
+      "id": "ranking",
+      "kind": "bars",
+      "vo": "<what the ranking says, in sentences. Do NOT read the bars aloud as a list.>",
+      "title": "<what's being ranked>",
+      "bars": [
+        {
+          "label": "<item>",
+          "value": "{{…}}",
+          "hot": true
+        },
+        {
+          "label": "<item>",
+          "value": "{{…}}"
+        }
+      ],
+      "_barsNote": "Only genuine, comparable categories belong in one chart. A meta-flag ('this repeats', 'unclassified') is not a category — charting it double-counts and buries a real one. Give it its own scene instead."
+    },
+    {
+      "id": "standout",
+      "kind": "bignum",
+      "vo": "<the one statistic worth remembering, and why it's surprising>",
+      "title": "<framing line>",
+      "bignum": "<e.g. '1 in 9' — one oversized figure, not a table>",
+      "sub": "<the serif line under it>"
+    },
+    {
+      "id": "surprising",
+      "kind": "list",
+      "vo": "<what makes these worth hearing>",
+      "title": "<label for the list>",
+      "items": [
+        {
+          "title": "<the standout example in a few words>",
+          "desc": "<one line on what it actually was>"
+        },
+        {
+          "title": "<second>",
+          "desc": "<…>"
+        },
+        {
+          "title": "<third>",
+          "desc": "<…>"
+        }
+      ],
+      "_authorFresh": "AUTHOR THIS SCENE FROM SCRATCH EVERY EDITION by reading the actual source material. It is the video's originality — everything else is derived, this is the part a template cannot fill."
+    },
+    {
+      "id": "outro",
+      "kind": "outro",
+      "vo": "<the CTA, spoken as a person would say it>",
+      "title": "<the follow line>",
+      "query": "<a closing scene>"
+    }
+  ],
+  "_sceneFields": {
+    "vo": "the spoken line. Empty string = a silent card.",
+    "seconds": "force this scene to exactly N seconds — never cuts speech, extends if the VO is longer",
+    "min": "floor in seconds when not forcing; scene = max(spoken, min) + gap",
+    "query": "stock search for the background",
+    "clip_file": "your own footage — takes priority over query",
+    "clip_dir": "random clip from a folder each render — priority: clip_file > clip_dir > query"
+  },
+  "musicBackground": {
+    "file": "<shared/assets/music/ — optional>",
+    "volume": 0.03
+  },
+  "_rules": [
+    "VOICEOVER: never write a comma-separated list in a `vo` line. TTS reads enumerations as clipped fragments with the pauses in the wrong places. Unfold anything list-like into sentences a person would say aloud. On-screen text may stay terse; the spoken line may not.",
+    "ON-SCREEN TEXT: no middle-dot or bullet characters as separators — use an em dash or rephrase.",
+    "Every number spoken or shown must match the source data. Recompile rather than edit.",
+    "The template is a scaffold, not a script: a fresh hook and freshly-authored standouts every edition, or the series flattens into a format nobody finishes.",
+    "Promote phrasings that worked back into the template so the baseline improves — without letting the baseline erase this edition's voice."
+  ]
+}

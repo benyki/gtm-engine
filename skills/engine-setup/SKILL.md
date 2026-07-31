@@ -120,7 +120,9 @@ Other agents: set `GTM_AGENT_DIRS` (colon-separated skill dirs). `doctor.py`
 honours the same variable.
 
 Run the installer for the **same workflows** (always includes `engine-setup` +
-`engine-loop`):
+`engine-loop`, plus any skill a chosen one depends on — `engine-social` reads
+`engine-seo`'s subject-finding and browser-research references, so choosing
+social installs seo too):
 
 ```bash
 <repo>/skills/engine-setup/scripts/install_skills.sh \
@@ -154,13 +156,38 @@ This is the part that decides whether the output is any good, so don't rush it i
 - Tone: three words they are, three they aren't
 - Anything they're never allowed to say — claims, competitor names, regulated language
 
+The bar is specificity. Show them what a filled answer looks like if they stall
+— this is the level to aim for, not the content to copy:
+
+> **Audience type:** B2B / sales-led — we want replies and conversations.
+> **Who, specifically:** Solo founders and two-person teams who shipped in the
+> last six months and have fewer than 100 users. Mostly technical, mostly Europe.
+> **What I sell:** A £19/month tool that turns a founder's changelog into social posts.
+> **The promise:** You stop disappearing for three weeks between launches.
+> **Proof:** 340 users. Average customer posts 4× more after week two.
+> **Voice — three words I am:** direct, specific, unbothered.
+> **Three words I'm not:** corporate, breathless, salesy.
+> **Never say:** "revolutionary", "game-changing", "10x", "AI-powered" as a
+> selling point, any growth claim without a number behind it.
+> **Formatting:** sentence case headings, no emoji, first person singular.
+> **What I've learned:** posts that name a real number get 3× the replies.
+
+Note the last line — it starts empty and is written one line at a time, every
+time they reject something. It ends up the most useful part of the file.
+
 **`shared/channels.json`** — the account list, and nothing else global. An open set: add any channel they actually use (newsletter, threads, reddit, …). Optional per-channel keys the scripts honour: `primary_metric` (overrides a workflow's own for runs on that channel) and `metric_delay_hours` where the 72h default is wrong (weeks for blog/Search Console, a day or two for email).
 
 **Each workflow's `workflow.json`** — per workflow, ask for its **goal** (one sentence: what this workflow exists to produce) and its **`primary_metric`**. The metric is what the loop optimises for that workflow, so make them name a real one: replies, signups, demos, clicks. "Engagement" is not a metric. Two workflows of the same type with different goals get different metrics — that's the point of having two.
 
 **Each workflow's `sources.json`** — where that workflow's ideas come from. The seo default is Reddit, which needs nothing. If they have competitor URLs, put them in. Only wire up Ahrefs or Semrush if they already pay for it.
 
-**Each workflow's `experiments.json`** — the shipped experiments are **examples of shape, not hypotheses for their business**, and rewriting them is part of this interview. Keep the structure (two arms, one variable, a stated hypothesis each) and replace the content: ask what one variable they'd most like an answer to per workflow, write the two arms' labels and hypotheses in their terms, and size `min_runs_per_arm` to their volume. A B2C app has no use for a "partner revenue split" arm — if it ships, the first run will be assigned to it. Anything they won't run yet, set `status` to `paused`; only `live` experiments are assigned. Several live experiments can coexist in one workflow when each is scoped to its own `channel` — otherwise the first one wins and the script warns.
+**Each workflow's `experiments.json`** — **leave these paused. Setting up an A/B test is not part of the first setup.**
+
+They ship `"status": "paused"` on purpose, and the right move on day one is to leave them that way. The first job is one template the user is actually happy with: ship it, look at the numbers, change it, ship again. `assign_arm.py` handles this without any config — with no live experiment it returns `use_template`, and every run still lands in `runs/index.csv` with the template it used, so no history is lost. An experiment started before the format is settled freezes a template that still needs work, and at two posts a week it collects noise for two months before it says anything.
+
+Tell them that plainly, and tell them what changes it: once they have a format they'd ship without editing, and roughly 5–10 pieces with numbers on them, that's when a variable is worth testing. `engine-loop/references/ab-testing.md` → R0 is the checklist, and the loop will raise it at the right moment.
+
+If they push back and want a test running from day one, it's their call — then rewrite the arms in their terms before flipping `status` to `live`. The shipped arms are **examples of shape, not hypotheses for their business**: a B2C app has no use for a "partner revenue split" arm, and if it ships live the first run gets assigned to it. Keep the structure (two arms, one variable, a stated hypothesis each), size `min_runs_per_arm` to their real volume, and note that several live experiments can coexist in one workflow only when each is scoped to its own `channel` — otherwise the first one wins and the script warns.
 
 Then ask them to drop material into the inputs:
 - `shared/assets/` — logo, fonts, b-roll, anything **any** workflow might reuse

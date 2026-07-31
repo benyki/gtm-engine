@@ -1,7 +1,15 @@
 # Music / beds
 
-Optional under-voice bed or music-led cuts. Voice stays primary when both exist
-(`volume` ~0.15 on the bed — see `references/structure-plan.md`).
+Two levels, and the format decides which (`references/formats.md`):
+
+| | `volume` |
+|---|---|
+| **No voiceover** — the bed carries the video (viral product, viral vibe) | **0.5** |
+| **Under a voiceover** — the bed is texture, nothing more (informative) | **0.03** |
+
+Nothing in between. A bed at 0.15 under a voice is loud enough to muddy the
+words and quiet enough to add nothing, and platform loudness normalisation
+widens the problem rather than hiding it.
 
 ## Rights
 
@@ -18,7 +26,7 @@ If rights are unclear, ship voice-only.
 shared/assets/music/<slug>.mp3
 ```
 
-Reference the path from `plan.json` → `musicBackground.file`.
+Reference the path from `inputs.json` → `musicBackground.file`.
 
 ## Download helpers (optional)
 

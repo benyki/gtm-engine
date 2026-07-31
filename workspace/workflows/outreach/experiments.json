@@ -1,0 +1,31 @@
+{
+  "_comment": "Starter experiment — SHIPS PAUSED ON PURPOSE. Do not run an A/B on your first setup: write ONE email with the user (engine-outreach/references/first-touch.md), send it until you have a format they're happy with and 5-10 replies' worth of numbers, then flip status to \"live\". NEITHER arm ships with a template file — no cold-email template can be written without knowing what the user sells and who they're writing to, so the agent writes each one when it's first assigned (R4). The arms below are an EXAMPLE of shape, not a recommendation for your business — rewrite them when you're ready to test. Optional fields per experiment: channel, direction, aggregate — see engine-loop/references/ab-testing.md.",
+  "experiments": [
+    {
+      "id": "exp-001",
+      "status": "paused",
+      "template_base": "first-touch",
+      "variable": "offer",
+      "min_runs_per_arm": 15,
+      "win_ratio": 1.2,
+      "started": "",
+      "arms": [
+        {
+          "id": "default",
+          "label": "small ask",
+          "template": "first-touch.txt",
+          "hypothesis": "A low-commitment ask converts better cold, because the reply costs them nothing."
+        },
+        {
+          "id": "partner",
+          "label": "serious offer",
+          "template": "first-touch-partner.txt",
+          "hypothesis": "A substantial offer filters for serious people: fewer replies, but better ones. Tests whether reply rate or reply quality is the thing worth optimising."
+        }
+      ],
+      "decision": null,
+      "_status_note": "paused until the user has a format they're happy with — set to \"live\" to start testing"
+    }
+  ],
+  "decision_log": []
+}

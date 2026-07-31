@@ -23,10 +23,17 @@ from pathlib import Path
 _HERE = Path(__file__).resolve().parent
 REPO_ROOT = _HERE.parents[2]
 SKILLS_DIR = REPO_ROOT / "skills"
-STARTERS_DIR = REPO_ROOT / "templates" / "workspace" / "workflows"
+STARTERS_DIR = REPO_ROOT / "workspace" / "workflows"
 
 CORE_SKILLS = ("engine-setup", "engine-loop")
 NAME_RE = re.compile(r"^[a-z0-9][a-z0-9_-]*$")
+
+# A skill that reads another skill's references must not be installed alone.
+# engine-social is a format layer on engine-seo: subject finding and browser
+# research live there and are used as-is.
+SKILL_DEPS = {
+    "engine-social": ("engine-seo",),
+}
 
 
 def list_known() -> list[str]:
@@ -40,6 +47,10 @@ def list_known() -> list[str]:
                 names.append(p.name.removeprefix("engine-"))
     if STARTERS_DIR.is_dir():
         for p in sorted(STARTERS_DIR.iterdir()):
+            # `_`-prefixed folders are shared scaffold parts, not workflow
+            # types — `_every-workflow/` is merged into every folder created.
+            if p.name.startswith("_"):
+                continue
             if p.is_dir() and p.name not in names and NAME_RE.match(p.name):
                 names.append(p.name)
     return names
@@ -87,8 +98,12 @@ def skills_for(types: list[str]) -> list[str]:
     names = list(CORE_SKILLS)
     for t in types:
         skill = skill_for(t)
-        if skill and skill not in names:
-            names.append(skill)
+        if not skill:
+            continue
+        for name in (skill, *SKILL_DEPS.get(skill, ())):
+            # A dependency still has to exist as a skill folder.
+            if name not in names and (SKILLS_DIR / name / "SKILL.md").is_file():
+                names.append(name)
     return names
 
 

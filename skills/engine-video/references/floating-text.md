@@ -3,16 +3,20 @@
 The default Remotion-free render path: centered typography over a background clip.
 Use when the arm is text-led (hook on screen) or you need a reliable first ship.
 
-Starter template in the workspace: `templates/video/floating-text-default.json`
-(copied by scaffold). Write resolved plans under `runs/<run_id>/`.
+Starter template in the workflow folder: `templates/floating-text-default.json`
+(copied by scaffold). Write each video's resolved config to
+`runs/<run_id>/inputs.json`.
 
 ## Recipe (one video)
 
-1. Have a `plan.json` (`references/structure-plan.md`) or a short hook + body lines
+1. Have an `inputs.json` (`references/structure-plan.md`) or a short hook + body lines
 2. Pick one background clip — `shared/assets/` first, else Pexels
 3. Crop/scale to 1080×1920 (`references/ffmpeg-recipes.md`)
-4. Burn text with libass / `subtitles=` (not free-float drawtext unless you must)
-5. Mix voiceover at full level; bed music ≤ 0.15 if present
+4. Burn text with libass / `subtitles=` (not free-float drawtext unless you must) —
+   the exact type is `references/ffmpeg-text-style.md`, and `scripts/text_style.py`
+   emits the ASS block so no font path or family is ever hardcoded
+5. Mix voiceover at full level; bed music at 0.03 under it, or 0.5 when there's
+   no voice (`references/music.md`)
 6. Loudnorm to −14 LUFS; write `runs/<run_id>/output/final.mp4`
 
 ## Template JSON (shape)

@@ -1,0 +1,54 @@
+{
+  "_comment": "VIRAL VIBE / EMOTION — one clip, 8–15s, two text blocks, music at 50%, no voiceover. Generalised from a production config; every project-specific value is a <placeholder> describing what belongs there. See references/formats.md §2.",
+  "_startingPoint": "A proven starting point, not a spec. The 15s cap, the two-block text and the silence all worked for someone else's audience — tweak them for yours, one variable per experiment. Inventing a different format entirely is encouraged: references/formats.md.",
+  "meta": {
+    "title": "<slug-for-this-video>",
+    "concept": "<the feeling this video creates, and where the product quietly sits inside it>",
+    "format": "viral-vibe",
+    "targetDuration": 15,
+    "aspectRatio": "9:16",
+    "platform": "<tiktok | reels | shorts>"
+  },
+  "segments": [
+    {
+      "position": 0,
+      "role": "single",
+      "duration": 15,
+      "_durationRule": "One clip, no cuts. Clip under 8s → loop it once (final = clip × 2). 8–15s → use as-is. Over 15s → trim to 15. Never pad with black or a freeze frame — the format is the calm, and a frozen tail kills it.",
+      "backgroundFootage": {
+        "source": "assets",
+        "file": "<shared/assets/vibe-clips/ — 9:16, slow, meditative: someone alone reading, walking, working somewhere beautiful. Nothing that moves fast.>",
+        "_crop": "If the source isn't 1080×1920, zoom-fill and centre-crop — never letterbox."
+      },
+      "textOverlay": {
+        "_style": "Quiet on purpose, and a deliberate exception to references/ffmpeg-text-style.md: a serif face, pure white, centred on both axes, NO outline unless the clip is bright enough to wash the text out. Both blocks the same size. Roughly 60pt at 1080×1920.",
+        "font": "<a serif face in shared/assets/fonts/ — the quiet register, not the bold sans>",
+        "size": 60,
+        "lines": [
+          "<SETUP — the ordinary version of the thing. Wraps to 3 lines or fewer at this size.>",
+          "",
+          "<TURN — the same sentence, ending on what your product is for. This is the whole sell: it must land as a third, different kind of the thing, and it must NOT name the product.>"
+        ],
+        "_writingNote": "Both halves of the setup should be common, recognisable, and contrast with each other — one classic, one modern, or two different categories — so the turn reads as a surprise rather than a list. If the user hasn't supplied the pair, offer 3–5 and let them pick."
+      }
+    }
+  ],
+  "voiceOverlay": null,
+  "_voiceNote": "Never a voiceover in this format. The silence is the format.",
+  "musicBackground": {
+    "file": "<shared/assets/music/ — a bed you have the rights to, already trimmed so the first note hits at 0s>",
+    "startSeconds": 0,
+    "volume": 0.5,
+    "fadeOutSeconds": 0.5,
+    "_note": "Replaces the clip's own audio entirely. 0.5 is right because nothing competes with it."
+  },
+  "caption": {
+    "_comment": "The explicit product mention lives HERE, not on screen. Optional even here — an unbranded vibe video that gets reach is doing its job.",
+    "text": "<one line that names <PRODUCT NAME> and what it's for, plus hashtags>"
+  },
+  "_rules": [
+    "Cap the output at 15s. The look is meditative; longer breaks the format.",
+    "Never reuse a clip a previous run used — the config of each run is the record (references/duplicate-safety.md). When the clip folder is exhausted, generate variations rather than repeating.",
+    "Never name the product on screen. On-screen selling breaks the spell this format depends on."
+  ]
+}

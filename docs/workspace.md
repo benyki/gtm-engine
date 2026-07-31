@@ -3,6 +3,11 @@
 Scaffolded into your own project by `engine-setup`. Everything in here is
 yours — the engine repo never touches it, so `git pull` can't clobber your data.
 
+The engine repo has a folder called `workspace/` too. That one is the **source
+the scaffold copies from** — a `.gtm-template` marker at its root keeps every
+script from ever treating it as somebody's workspace. Yours is the one inside
+your own project.
+
 The architecture is **one self-contained folder per workflow, plus one
 `shared/` folder**. Agents modify workflows constantly; because each workflow
 owns everything it depends on, rewriting one can never break another.
@@ -20,7 +25,7 @@ owns everything it depends on, rewriting one can never break another.
 ├── skills → ~/.agents/skills   (symlink, from install_skills.sh)
 ├── outreach/                one folder per workflow — fully self-contained
 │   ├── workflow.json        type, goal, primary_metric (the loop optimises this)
-│   ├── experiments.json     THIS workflow's A/B tests
+│   ├── experiments.json     THIS workflow's A/B tests — paused until its format is settled
 │   ├── sources.json         where its ideas come from
 │   ├── templates/           versions competing; losers/ keeps what lost
 │   ├── inputs/              queue/ always; audience/ best/ swipe/ per type

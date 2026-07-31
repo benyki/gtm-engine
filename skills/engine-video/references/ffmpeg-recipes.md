@@ -62,13 +62,24 @@ Re-encode if codecs/resolutions differ.
 
 ## Mix voiceover + bed
 
+Bed at **0.03** under a voice (`references/music.md`):
+
 ```bash
 ffmpeg -y -i video.mp4 -i voice.wav -i bed.mp3 \
   -filter_complex "
     [1:a]loudnorm=I=-14:TP=-1.5:LRA=11[v0];
-    [2:a]volume=0.15[b];
+    [2:a]volume=0.03[b];
     [v0][b]amix=inputs=2:duration=first:dropout_transition=2[a]
   " \
+  -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 128k -shortest \
+  -movflags +faststart mixed.mp4
+```
+
+## Music-led (no voice) — bed at 0.5, replacing the clip's own audio
+
+```bash
+ffmpeg -y -i video.mp4 -i bed.mp3 \
+  -filter_complex "[1:a]volume=0.5,afade=t=out:st=<duration-0.5>:d=0.5[a]" \
   -map 0:v -map "[a]" -c:v copy -c:a aac -b:a 128k -shortest \
   -movflags +faststart mixed.mp4
 ```

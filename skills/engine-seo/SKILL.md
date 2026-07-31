@@ -22,13 +22,23 @@ Output is markdown, generated locally. Where it goes depends on whether they alr
 | Step | Reference |
 |---|---|
 | Reddit / SERPs in the browser | `references/browser-research.md` |
-| Cut AI slop / keep voice | `references/writing.md` |
+| Find and validate subjects | `references/subject-finding.md` |
+| Cut AI slop / keep voice | `references/anti-slop-writing.md` |
+| Publishing: the gate, metadata, deploy | `references/publishing-site.md` |
 | After publish (Clarity → rewrites) | `references/clarity-rewrite.md` |
 | Static site / CMS tradeoffs | `references/advanced.md` |
 
 ## Where topics come from
 
 Read this workflow's `sources.json`. The default is Reddit, and it needs no account.
+
+Topics don't get found one at a time at the start of a writing run — that's how
+you end up writing whatever you thought of that morning.
+`references/subject-finding.md` is the weekly pass that mines the query grid,
+validates against live SERPs, scores each candidate and kills the weak ones.
+Its output is `inputs/backlog.csv`, and **the bar is ≥20 rows at
+`status=validated` at all times**. Below that, top it up before writing
+anything — the sources below are the raw material it draws on.
 
 **Reddit (default).** Find the subreddits where the audience in `shared/brand.md` actually posts, then look for questions asked repeatedly, questions with long comment threads, and questions where the top answer is bad. That last one is the opportunity — a real question with no good answer is the whole game. How to read threads without an API: `references/browser-research.md`.
 
@@ -42,7 +52,18 @@ No API for something? Read it in the browser. That's the normal path here, not a
 
 ### 1. Pick the question
 
-One question, phrased the way a human would ask it. Show the user the shortlist with why each one is worth writing, and let them choose. Note the source — the queue in `inputs/queue/` may already have one waiting from the loop.
+**Take the top rows of `inputs/backlog.csv`** — `status=validated`, highest
+`potential` first — and show the user a shortlist of three with the score
+breakdown and the angle from `notes`. They choose; you set that row to
+`status=writing`.
+
+One question, phrased the way a human would ask it. The queue in
+`inputs/queue/` may already have one waiting from the loop — that counts as a
+backlog row too, and belongs in the file.
+
+If the backlog is empty or under twenty validated rows, stop and run
+`references/subject-finding.md` first. Writing from a thin backlog is how a
+workflow starts producing articles nobody searched for.
 
 ### 2. Get the arm
 
@@ -51,6 +72,11 @@ python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow seo
 ```
 
 For articles the variants are usually structural — how it opens, whether it leads with the answer or the context, how long it runs. If it returns `write_template`, write that template from the hypothesis and use it.
+
+**On a fresh workflow this returns `use_template` and that's correct** — the
+starter experiments ship paused on purpose. Ship one article until the user is
+happy with the format, then start testing. `engine-loop/references/ab-testing.md`
+→ R0 has the three conditions for flipping an experiment live.
 
 ### 3. Outline, then check
 
@@ -66,7 +92,7 @@ Voice comes from `inputs/best/` — their own best-performing pieces — not fro
 - Length is whatever the question needs
 - Respect the banned words and claims in `shared/brand.md`
 
-Before the user reviews, run `references/writing.md` over the draft (edit or detect).
+Before the user reviews, run `references/anti-slop-writing.md` over the draft (edit or detect).
 
 ### 5. Log it
 
@@ -89,32 +115,15 @@ Generate locally, they paste it into their CMS. Don't try to automate WordPress,
 
 Then building one is part of this workflow, because thirty good articles in a folder are worth nothing.
 
-The **contract** is: content stays in plain markdown files an agent can read and fix, publishing is a git push, and each page carries its `run_id` back to the spine. Any stack that satisfies it works — if they already have a Next.js site or a company-standard host, publish into that rather than building a parallel one. The **default**, when starting from nothing, is Astro + local markdown + a simple host:
+The **contract** is: content stays in plain markdown files an agent can read and fix, publishing is a git push, and each page carries its `run_id` back to the spine. Any stack that satisfies it works — if they already have a Next.js site or a company-standard host, publish into that rather than building a parallel one. The **default**, when starting from nothing, is Astro + local markdown, deployed to Cloudflare Pages or Railway (both free at this size, both deploy on git push).
 
-1. Scaffold an Astro site once, into this workflow's own `site/` folder (e.g. `seo/site/`) — self-contained like everything else here
-2. Define a content collection with the `glob` loader pointing at your articles:
-
-   ```ts
-   // src/content.config.ts
-   import { defineCollection, z } from 'astro:content';
-   import { glob } from 'astro/loaders';
-
-   const blog = defineCollection({
-     loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
-     schema: z.object({
-       title: z.string(),
-       description: z.string(),
-       pubDate: z.coerce.date(),
-       run_id: z.string().optional(),   // ties the page back to runs/index.csv
-     }),
-   });
-
-   export const collections = { blog };
-   ```
-3. On publish, copy the finished article into `site/src/content/blog/<slug>.md` with that frontmatter
-4. Deploy — **Cloudflare Pages** or **Railway** by default; both are free at this size and deploy on git push. Any host that deploys from git is equivalent here
-
-Then the standard SEO set, which Astro gives you cheaply: sitemap (`@astrojs/sitemap`), canonical URLs, per-page meta and Open Graph tags, JSON-LD, RSS. **Check the current Astro docs when you set this up** — the content APIs changed in Astro 5 and older tutorials will send you wrong.
+Scaffold it into this workflow's own `site/` folder — self-contained like
+everything else here. Then `references/publishing-site.md` has the whole build:
+the **approved-folder gate** (the agent writes to `runs/<run_id>/output/`, a
+human copies into the built folder — that copy *is* the approval), the
+frontmatter contract and collection schema, the six metadata pieces (title +
+description, canonical, OG/Twitter, JSON-LD, sitemap, RSS), and the curl checks
+that prove they're live rather than merely configured.
 
 Keeping the content as markdown files is deliberate: when something breaks, an agent opens the file and fixes it. That stops being true once the content lives in a database — see `references/advanced.md`, which covers when that trade is worth making.
 
@@ -135,9 +144,10 @@ If Clarity is set up, turn behavior into the next rewrite with
 
 ## Rules
 
-- **Never publish without a yes.** Deploying is a git push, which is easy to do by accident and hard to undo from someone's index
+- **Never publish without a yes.** Deploying is a git push, which is easy to do by accident and hard to undo from someone's index. The agent never writes into the built folder — `references/publishing-site.md`
 - **Never invent a statistic, study or quote.** If a claim needs a source, find one or cut the claim. A fabricated number in a published article is the kind of mistake that outlives the article
-- **Never write about a question nobody asked.** If it didn't come from a real thread, a real competitor gap or the queue, it's guesswork
+- **Never write about a question nobody asked.** Every article traces to a backlog row with a `source_url` — a real thread, a real SERP, a real competitor gap. No source, no article
+- **Never multiply a guess.** Localised and segmented variants come off articles that already earned numbers, never off a hunch — `references/subject-finding.md`
 - Don't write ten pieces in a batch. One good piece, published, measured, beats ten in a folder
 - An objection or question that keeps appearing in other workflows' replies is your next article — check `shared/insights.md` and the siblings' `reports/latest.json` when picking topics, and add a line back when an article's numbers teach something general
 

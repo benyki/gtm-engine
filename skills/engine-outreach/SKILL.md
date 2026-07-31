@@ -1,6 +1,6 @@
 ---
 name: engine-outreach
-description: Personalised cold outreach that ends in mail drafts, never sends. Reads the user's audience list, researches each person, writes a genuinely specific email from the assigned A/B template, records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
+description: Personalised cold outreach that ends in mail drafts, never sends. Reads the user's audience list, researches each person, writes a genuinely specific email from the workflow's current template (or the assigned A/B arm once one is live), records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
 ---
 
 # engine-outreach
@@ -17,6 +17,21 @@ with `--merge --workflow <name>:outreach`, or copy a folder and empty its
 `runs/`, `reports/` and `crm.csv` (history belongs to the original).
 
 **It never sends.** Not with permission, not "just this once". Drafts land in the user's own mail system and a human clicks send. Everything downstream — the CRM, the A/B verdicts, the report — assumes that boundary holds.
+
+**No email template ships with this repo, and that's deliberate.** What makes a
+cold email work is specific to what the user sells, who they're writing to and
+what that industry finds normal — a generic template with placeholders produces
+generic email. The first template is written *with the user*, and
+`assign_arm.py` returns `write_template` on an empty folder to say so.
+
+**How (not just what):**
+
+| Step | Reference |
+|---|---|
+| Where the list comes from | `references/lead-sourcing.md` |
+| Writing the first email with the user | `references/first-touch.md` |
+| Replies and follow-ups (**optional**) | `references/followups.md` |
+| Sending domain, volume, deliverability | `references/advanced.md` |
 
 ## Setup
 
@@ -36,6 +51,24 @@ If a managed Workspace or tenant blocks the connector at the admin level, that's
 
 Take whatever they've got in `inputs/audience/` — CSV, spreadsheet export, pasted text — and normalise it into `crm.csv`. Dedupe on email, falling back to LinkedIn URL then name+company.
 
+**No list yet?** Building one is part of this workflow, not a prerequisite —
+`references/lead-sourcing.md` covers the sources in the order worth trying, the
+ten-lead test that tells you whether a source is any good, and the scraping and
+personal-data limits. The list moves the reply rate more than the copy does.
+
+A usable list before normalisation looks like this — the `notes` column is the
+part that decides whether the email is worth sending:
+
+```csv
+id,name,company,email,linkedin,source,notes
+1,Ana Sørensen,Kitewave,ana@kitewave.example,https://linkedin.com/in/example-1,conf-list,shipped v2 last month
+2,Marcus Bell,Tinderbox Labs,marcus@tinderbox.example,https://linkedin.com/in/example-2,conf-list,hiring first marketer
+```
+
+`crm.csv` adds the tracking columns on top (`status`, `arm`, `template_used`,
+`drafted_at`, `sent_at`, `next_followup_at`, `replied_at`) — its header is the
+contract, so keep every column even when a cell is empty.
+
 **Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this workflow can make, and it's silent unless you check.
 
 ### 2. Get the arm
@@ -48,6 +81,11 @@ Pass `--entity` every time. It keeps people in the arm they were first assigned,
 
 If it returns `action: write_template`, write the template it names using the hypothesis it gives you, then carry on. **Don't fall back to another template and don't stop.** Record the file you actually used.
 
+**On a fresh workflow this returns `use_template` and that's correct** — the
+starter experiments ship paused on purpose. Ship one sequence until the user is
+happy with the format, then start testing. `engine-loop/references/ab-testing.md`
+→ R0 has the three conditions for flipping an experiment live.
+
 ### 3. Research each person
 
 This is where the whole thing is won or lost. A merge field is not personalisation and every recipient knows it.
@@ -58,7 +96,16 @@ Pull the voice and the constraints from `shared/brand.md` — especially the ban
 
 ### 4. Draft
 
-Render the assigned template with the research. Keep it short. The opening line has to prove you looked, the middle has to be about them and not you, and the ask has to be small enough to say yes to on a phone.
+**First run of a new workflow?** There's no template yet. Write it with the
+user — `references/first-touch.md` walks the interview: ask what the email
+absolutely has to say, keep it under 120 words, run the anti-slop pass, then
+show them three versions and iterate until they'd send it unedited. That
+conversation is the highest-leverage work in this workflow; don't shortcut it.
+
+After that, render the current template (or the assigned arm once an experiment
+is live) with the research. Keep it short. The opening line has to prove you
+looked, the middle has to be about them and not you, and the ask has to be small
+enough to say yes to on a phone.
 
 Create it as a **draft in the user's mail system** (Gmail, Outlook — whatever the connector is).
 
@@ -87,12 +134,33 @@ No `--url` — an email has none, and `publish` doesn't need one. Update the CRM
 
 Skip this and the run stays `draft` forever: `due_metrics.py` never lists it, no number is ever recorded, and the experiment reports "no runs yet" no matter how many replies came in.
 
-## Follow-ups
+## Follow-ups and replies — ask first, it's optional
 
-- Same arm as the first touch, always
-- Stop when someone replies. `replied_at` set means no further follow-ups, ever
+**Plenty of people should reply themselves.** At ten emails a week the user's
+own words beat anything drafted for them, and the reply is where the deal
+starts. Ask before building any of it:
+
+> *"Do you want me to draft follow-ups and reply handling, or would you rather
+> handle replies yourself?"*
+
+Either way the loop gets its number — a reply is `--value 1` plus `replied_at`
+in the CRM. Nothing else is mandatory.
+
+If they do want it: **build a library of optional blocks, not a decision tree.**
+Real replies don't sort into interested / not interested — they're "how much?",
+"ask me in Q3", "wrong person, talk to X", "we use a competitor", a question
+about one feature, a polite no. You answer by combining two or three short
+reusable blocks in the user's voice, and **the library grows every time a reply
+arrives that nothing covers**. That upkeep is the point, and it's what makes the
+workflow smarter in month three than in week one. `references/followups.md`.
+
+The rules that never change:
+
+- Same arm as the first touch, always (`--entity` on every call)
+- Stop when someone replies. `replied_at` set means no further sequence mail, ever
 - Three touches maximum unless the user asks otherwise
 - A follow-up that just says "bumping this" is worse than nothing. Add something new or don't send it
+- Drafts only — including replies to warm threads, where a wrong send costs the most
 
 ## Getting the numbers back
 

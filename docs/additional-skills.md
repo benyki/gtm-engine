@@ -100,17 +100,35 @@ needs a tool it doesn't have yet.
 | `ffmpeg` | `engine-video` render |
 | `elevenlabs` | `engine-video` voiceover |
 | `pexels` (or `pexel-video-downloader`) | `engine-video` footage fallback |
+| `ffmpeg-text-overlay` | `engine-video` locked text style — `references/ffmpeg-text-style.md` |
+| `yt-dlp` | `engine-video` clip sourcing from YouTube / Pinterest |
+| `social-video-downloader`, `pinterest-download-videos` | `engine-video` clip sourcing, per platform |
+| `video-duplicate-transformer` | `engine-video` republishing without duplicate collapse |
 | `upload-post` | `engine-video` posting |
 | `buffer` | `engine-video` posting |
 | `bluesky-post-manage` | `engine-social` when posting to Bluesky via API |
+| `no-ai-slop-writting` | `engine-seo` + `engine-social` — the full editor behind each skill's `references/anti-slop-writing.md` |
 | `clarity-api-seo` | `engine-seo` behavioural analytics |
 | one Apify entrypoint | research / metrics at volume |
-| `agent-browser` | LinkedIn / X / Reddit when there's no API |
+| `apify-ultimate-scraper` | `engine-outreach` lead sourcing at volume — `references/lead-sourcing.md` |
+| `agent-browser` | LinkedIn / X / Reddit when there's no API, and hand-built lead lists |
 | `video-structure-plan` | `engine-video` script → architecture |
 | `video-filter` | `engine-video` post-process look |
 
 Only install a capability when the workflow you're running actually needs it.
 Keep the default gtm-engine install small.
+
+### Gaps worth filling
+
+Capabilities `engine-*` documents a need for, where nothing generic exists yet:
+
+| Gap | What exists today |
+|---|---|
+| **A generic creator/prospect finder** — "find N people matching this description on <platform>, with one observable each, deduped against a CRM" | `tiktok-post-finder` finds *posts* to comment on, not people to contact, and the per-project outreach skills are wired to one product's CRM and templates. A generic one still has to be written |
+
+Until it exists, `references/lead-sourcing.md`'s hand-build-the-first-fifty path
+plus `agent-browser` or `apify-ultimate-scraper` covers it — and the hand-built
+first fifty is the recommended start regardless of what's installed.
 
 ---
 

@@ -39,7 +39,7 @@ export const FadeIn = ({ children }: { children: React.ReactNode }) => {
 
 ## Fit with engine-video
 
-1. Still write `runs/<run_id>/plan.json` first (`references/structure-plan.md`)
+1. Still write `runs/<run_id>/inputs.json` first (`references/structure-plan.md`)
 2. Remotion composition implements the segments
 3. Render to `runs/<run_id>/output/final.mp4` (same contract as ffmpeg path)
 4. Same voice file / loudnorm / posting rules

@@ -190,6 +190,9 @@ def find_workspace(explicit: str | None) -> Path | None:
         return p if p.is_dir() else None
 
     def marked(p: Path) -> bool:
+        # .gtm-template = the engine repo's scaffold source, never a workspace.
+        if (p / ".gtm-template").is_file():
+            return False
         shared = p / "shared"
         return shared.is_dir() and any(
             (shared / f).is_file()

@@ -80,6 +80,8 @@ python3 scripts/score_arms.py
 
 It reports and nothing else — it never promotes an arm or edits config. Read the verdict, then act.
 
+**A new workflow has nothing to score, and that's the intended state.** The starter experiments ship paused: the first phase is one template, shipped repeatedly, changed by hand from what the numbers say. Everything else in the loop — the metric window, the spine, the report, the queue — runs normally throughout, so nothing is lost by waiting. When a workflow has a format the user would ship unedited and 5–10 measured pieces behind it, raise the question of what one variable is worth an answer, and only then flip an experiment live. `references/ab-testing.md` → R0.
+
 ### If undecided
 
 Say so and stop. `undecided — not enough measured runs: partner 9/15` is a real answer. Do not talk yourself into an early winner; that's how people convince themselves of things that aren't true.

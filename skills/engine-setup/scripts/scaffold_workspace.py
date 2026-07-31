@@ -44,10 +44,14 @@ sys.path.insert(0, str(_HERE))
 import workflows as wf  # noqa: E402
 
 REPO_ROOT = _HERE.parents[2]
-TEMPLATE = REPO_ROOT / "templates" / "workspace"
+TEMPLATE = REPO_ROOT / "workspace"
 SHARED_SRC = TEMPLATE / "shared"
-BASE_SRC = TEMPLATE / "workflow-base"
 STARTERS = TEMPLATE / "workflows"
+# The parts every workflow folder has whatever its type — runs/index.csv,
+# inputs/queue/, reports/, templates/losers/, empty experiments and sources.
+# It sits among the starters but is not a type: the leading underscore keeps
+# it out of workflows.py discovery, so nobody can scaffold `_every-workflow/`.
+BASE_SRC = STARTERS / "_every-workflow"
 
 GITIGNORE = """\
 # secrets

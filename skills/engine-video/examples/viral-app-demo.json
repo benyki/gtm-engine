@@ -1,0 +1,98 @@
+{
+  "_comment": "VIRAL PRODUCT DEMO — 4s hook + ~12s of product, voiceover variant. Generalised from a production config; every project-specific value is a <placeholder> describing what belongs there. Copy to runs/<run_id>/inputs.json and fill it in. See references/formats.md §1.",
+  "_startingPoint": "A proven starting point, not a spec. These durations, cut counts and the with/without-voice choice all worked for someone else's audience — tweak them for yours, one variable per experiment, and see references/formats.md if you want to try a format that isn't in this folder at all.",
+  "meta": {
+    "title": "<slug-for-this-video>",
+    "concept": "<the one thing this video shows the product doing, in a sentence>",
+    "format": "viral-product",
+    "targetDuration": 16,
+    "aspectRatio": "9:16",
+    "platform": "<tiktok | reels | shorts>"
+  },
+  "_topic": {
+    "_comment": "Volume formats work off a rotating list of topics so every run is a different video. Keep the list in the workflow folder — inputs/topics.json with {waiting:[], used:[]} — and move one across per run. Never pick a used topic; that's how the same video gets made twice.",
+    "value": "<the subject of THIS video — the query, symptom, use case or persona it speaks to>",
+    "source": "<workflow>/inputs/topics.json"
+  },
+  "segments": [
+    {
+      "position": 0,
+      "role": "hook",
+      "duration": 4,
+      "_note": "The scroll-stopper, and the ONLY A/B variable in this format. Does NOT show the product — a face, a result, a mess, a question. Shot vertically, looks filmed not produced.",
+      "backgroundFootage": {
+        "source": "assets",
+        "file": "<shared/assets/hooks-5s/ — a clip of a person, filmed-not-produced>"
+      },
+      "textOverlay": {
+        "lines": []
+      }
+    },
+    {
+      "position": 1,
+      "role": "demo",
+      "duration": 4,
+      "_note": "First thing the product does. One idea per cut — the tap, not the tour.",
+      "backgroundFootage": {
+        "source": "assets",
+        "file": "<shared/assets/screen-recordings/ — the action that matches this beat>"
+      },
+      "textOverlay": {
+        "lines": []
+      }
+    },
+    {
+      "position": 2,
+      "role": "demo",
+      "duration": 4,
+      "backgroundFootage": {
+        "source": "assets",
+        "file": "<shared/assets/screen-recordings/ — the result the user gets>"
+      },
+      "textOverlay": {
+        "lines": []
+      }
+    },
+    {
+      "position": 3,
+      "role": "payoff",
+      "duration": 4,
+      "_note": "The second result, or the moment that makes it worth downloading.",
+      "backgroundFootage": {
+        "source": "assets",
+        "file": "<shared/assets/screen-recordings/ — the payoff>"
+      },
+      "textOverlay": {
+        "lines": []
+      }
+    }
+  ],
+  "voiceOverlay": {
+    "_comment": "Optional in this format. When present it carries the demo and the music MUST drop to 0.03 — see musicBackground below.",
+    "voiceId": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "_voiceRule": "Match the voice to whoever is on screen in the hook. A woman on screen with a male narrator is a mismatch viewers feel without naming.",
+    "maximumCharacters": 620,
+    "_scriptTemplate": [
+      "<Open on the question or tension the topic creates — one line, no greeting.>",
+      "<One sentence of real substance: why it happens / what it means. Under 25 words.>",
+      "<Concrete example 1 — specific, not a category.>",
+      "<Concrete example 2.>",
+      "<Concrete example 3.>",
+      "And if you made it this far, this is probably for you. It's called <PRODUCT NAME> and it <the one-line promise from shared/brand.md>."
+    ],
+    "fullScript": "<the rendered script — write it out, read it aloud, keep it under maximumCharacters>",
+    "autoCaption": true,
+    "_captionNote": "Burn captions. Most of the feed watches muted."
+  },
+  "musicBackground": {
+    "file": "<shared/assets/music/ — a bed you have the rights to>",
+    "volume": 0.5,
+    "_volumeRule": "0.5 with NO voiceover — the bed carries the video. Drop to 0.03 the moment a voiceover exists, or it fights the voice and loudness normalisation makes it worse."
+  },
+  "_rules": [
+    "The hook is the experiment. Hold the demo segments constant across arms.",
+    "If the voiceover runs past the last segment, repeat the last clip rather than cutting the audio.",
+    "Real screen recordings beat stock every time in this format — references/clip-sourcing.md.",
+    "Never reuse both the same inputs and the same durations — references/duplicate-safety.md."
+  ]
+}

@@ -1,7 +1,13 @@
 # Structure plan — concept → VideoArchitecture
 
-Write this JSON to `runs/<run_id>/plan.json` **before** voiceover or render.
-It is the shot list. Do not improvise segments after this without updating the plan.
+Write this JSON to `runs/<run_id>/inputs.json` **before** voiceover or render.
+
+It is the shot list *and* the config — one small file per video, and the only
+record of what that video was made of. Everything downstream reads it: the
+render, the dedupe fingerprints (`references/duplicate-safety.md`), and the next
+agent wondering whether this has been made before. Do not improvise segments
+after writing it without updating it, and do not delete it when cleaning up a
+run.
 
 ## Checklist
 
@@ -47,7 +53,7 @@ Rules of thumb:
   "musicBackground": {
     "mood": "tense",
     "genre": "cinematic",
-    "volume": 0.15,
+    "volume": 0.03,
     "file": null
   },
   "segments": [
@@ -73,7 +79,10 @@ Rules of thumb:
 ### Field notes
 
 - `voiceOverlay.voiceId` — copy from this workflow's `workflow.json` → `video.elevenlabs_voice_id`. Same id every arm.
-- `musicBackground.volume` — ~0.15 under voice, ~0.5–0.6 music-only
+- `musicBackground.volume` — **0.03 under a voiceover, 0.5 when there's no voice**
+  (`references/formats.md`). The bed either carries the video or stays out of the
+  voice's way; the middle ground just makes both harder to hear once the platform
+  normalises loudness
 - `backgroundFootage.source` — prefer `assets` (`shared/assets/`); `pexels` is fallback
 - Speaking rate estimate: ~14 characters/second; `len(fullScript) / 14 ≤ targetDuration`
 - Omit `voiceOverlay` for silent / music-only concepts

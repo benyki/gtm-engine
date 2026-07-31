@@ -1,0 +1,81 @@
+{
+  "_comment": "INFORMATIVE — REPEATABLE TEMPLATE. The same composition every run, new content each time: prompt → suspense → reveal, ×N. Generalised from a production config; every project-specific value is a <placeholder>. Build the composition ONCE (Remotion or ffmpeg), then feed it configs forever. See references/formats.md §3a.",
+  "_startingPoint": "A proven starting point, not a spec. The cadence, the item count and the reveal timing worked for someone else's audience — tweak them for yours, one variable per experiment. references/formats.md covers running a format that isn't here.",
+  "meta": {
+    "title": "<slug-for-this-video>",
+    "concept": "<the ONE theme of this video — every item belongs to it>",
+    "format": "informative-template",
+    "targetDuration": 60,
+    "aspectRatio": "9:16",
+    "platform": "<tiktok | reels | shorts>"
+  },
+  "template": {
+    "_comment": "Fixes the look so a config only has to carry content. One template per variant you run (per language, per category, per audience) — a new variant is a copy of this file with these fields changed.",
+    "id": "<template-name>",
+    "background": {
+      "query": "<a scene that MATCHES this video's theme — food content over a food scene. A mismatched backdrop looks broken even when nobody can say why.>",
+      "fallback": "<a curated on-brand pool to fall back to when the stock search misses — a wrong-topic image is worse than a repeat>",
+      "motion": "slow zoom + pan, so a still can carry 60 seconds"
+    },
+    "character": "<shared/assets/ — an optional recurring figure that makes the series recognisable>",
+    "badges": "<optional row of small images that signal the category at a glance>",
+    "brandColour": "<hex — used for the reveal, so the payoff is always the same colour>",
+    "fonts": "<extra faces needed if your content isn't Latin script; empty otherwise>",
+    "outro": "<the follow line, e.g. 'Follow for one of these every day'>"
+  },
+  "cadence": {
+    "_comment": "Derived timing — the reason a config is only content. gap = seconds per item, guess = the suspense beat before the reveal.",
+    "gap": 6.5,
+    "guess": 4.6,
+    "_total": "last item's reveal + 5s outro"
+  },
+  "items": [
+    {
+      "prompt": "<THE HOOK ITEM — the easiest, most instantly recognisable member of this theme. If item 1 makes a casual viewer feel behind, they are gone before item 2.>",
+      "answer": "<the reveal>"
+    },
+    {
+      "prompt": "<ITEM 2 — short, punchy, 1–2 words, the most instantly likeable thing in the theme. The one that makes a scroller smile, not the most 'useful' one.>",
+      "answer": "<the reveal>"
+    },
+    {
+      "prompt": "<ITEMS 3–9 — common, everyday, accessible. This is a light format, not a textbook: if a item feels advanced, swap it for an easier one.>",
+      "answer": "<the reveal>"
+    }
+  ],
+  "_itemRules": [
+    "9 items is the sweet spot.",
+    "Hard cap ~44 characters per prompt and per answer; aim for ≤13 so each fits one clean centred line.",
+    "All items in one video must be distinct, and all must belong to the SAME theme. Never blend two themes in one video.",
+    "Broad, universally-appealing themes are worth MANY videos each with fresh items — 50 videos on a proven theme beats one on an obscure theme. Split a big theme into granular sub-themes so each video stays distinct."
+  ],
+  "voiceOverlay": {
+    "voiceId": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "_lineTemplate": {
+      "prompt": "<the spoken question, built from the item — same phrasing every time so the format is recognisable>",
+      "answer": "<the spoken reveal; add a terminal full stop or the TTS clips it>"
+    },
+    "_pronunciationTrap": "When the written form and the spoken form differ (an abbreviation, a symbol, a non-phonetic script, a number), give the voice a separate spoken field. TTS reads the written form wrong and the audio then contradicts the screen — which is the one error viewers always comment on.",
+    "autoCaption": false
+  },
+  "musicBackground": {
+    "file": "<shared/assets/music/ — optional under a voiceover>",
+    "volume": 0.03,
+    "_volumeRule": "3% under a voiceover. Anything louder fights the voice."
+  },
+  "preflight": {
+    "_comment": "Run before posting, not after. The invariant: what the voice says must match what's on screen. A batch that ships with mismatched audio is unrecoverable — every clip has to be re-rendered and re-posted.",
+    "checks": [
+      "spoken text matches the on-screen reveal, item by item",
+      "no written form the TTS will read differently from the screen",
+      "grammatical agreement between prompt and answer (article, gender, number) — mismatches draw furious comments",
+      "no duplicate theme already sitting in the posting queue"
+    ]
+  },
+  "_rules": [
+    "One theme per video, always.",
+    "Item 1 is the hook. Order the rest by how easy they are, not how useful.",
+    "Match the background to the theme.",
+    "Keep a record of what's been used so a viewer bingeing the series keeps getting new content — deliberately re-using a top performer is fine, drifting into repeats by accident is not."
+  ]
+}

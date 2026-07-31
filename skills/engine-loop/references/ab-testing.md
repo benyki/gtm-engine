@@ -6,6 +6,51 @@ They apply to **any workflow built from a template plus config** — outreach em
 
 ---
 
+## R0 — Don't test on day one
+
+**A new workflow ships with one template and no live experiment.** Every
+starter `experiments.json` in the workspace is `"status": "paused"` for this
+reason, and flipping one to `live` before the workflow is settled is the most
+common way to waste the first month.
+
+Three reasons, in order of how much they hurt:
+
+1. **You'd be testing the wrong thing.** The first version of anything is wrong
+   in ways you can see without statistics — the format is off, the length is
+   off, the ask is wrong. Fix that by looking at it, not by splitting traffic
+   between two versions of a thing that isn't working yet
+2. **The volume isn't there.** `min_runs_per_arm` is 8–15 in the starters. At
+   two posts a week, one arm reaches that in two months, and until then every
+   number you look at is noise wearing a table
+3. **It slows the loop that actually matters.** Early on you learn most from
+   shipping, watching, and changing one thing on purpose. An experiment freezes
+   the template while it collects data — exactly the wrong constraint when the
+   template still needs work
+
+So the first phase is: **one template, ship it, look at the numbers, change
+it.** `assign_arm.py` supports this directly — with no live experiment it
+returns `action: use_template` (one template) or `choose_template` (several),
+records nothing about arms, and every run still lands in `runs/index.csv` with
+its `template_used`. You lose nothing. The spine is being written the whole
+time.
+
+### When to start testing
+
+Flip an experiment to `live` when all three are true:
+
+- **The user is happy with the format.** They'd send it, post it, ship it
+  without editing. If they're still rewriting every draft, keep iterating
+- **You've shipped enough to know the format works** — roughly 5–10 pieces with
+  numbers on them. Not a rule, a smell test: you should be able to say what
+  "normal" looks like for this workflow
+- **You can name the one variable worth an answer.** "Does a question opener
+  beat a claim opener" is a test. "Let's see what works" is not
+
+Then: write the second arm, set `started` to today, set `status` to `live`, and
+size `min_runs_per_arm` to a volume you'll actually reach this quarter.
+
+Everything below applies from that moment on.
+
 ## R1 — A variant is a whole template file
 
 `<workflow>/templates/<base>-<variant>.txt`. The file is the unit, even when the change inside it is one line. That way what was actually sent is always recoverable, and a diff between two arms is a real diff rather than a config lookup.
@@ -88,6 +133,66 @@ Whatever you pick, the sanity check before acting on any `decided` verdict is th
 4. **Register** it in `experiments.json`, reset `started` to today, record the decision
 
 Promoting and stopping means settling at a local maximum. The challenger is what keeps the thing moving.
+
+## Video: test the hook, then — much later — the format
+
+Video has a variable so dominant that it's worth naming explicitly.
+
+**Test the hook. Almost always, only the hook.** The first second and a half
+decides whether anything else in the video is seen, which makes it the only
+variable that pays back at low volume. Two shapes of the same test:
+
+- **Hook text** — same footage, same durations, different opening line. Question
+  versus claim, payoff-first versus tension-first, number versus promise
+- **Hook clip** — same script and body, different first 4 seconds. A face versus
+  a screen, motion versus stillness, product-visible versus product-hidden
+
+Hold everything else identical: same body footage, same scene durations, same
+voice, same look, same music level. If two things changed, the verdict tells you
+nothing about either. Hook tests also converge fastest — the effect is large, so
+you reach a verdict in weeks rather than months.
+
+### Testing whole formats — advanced, and only once something works
+
+Eventually you'll want to know whether a different *format* — not a different
+hook, a different kind of video — would do better. That's a real question and
+worth answering, but it is an **advanced practice for a workflow that's already
+solid**, not a way to find your first winner. Do it only when:
+
+- one format is genuinely working, with a **measured baseline** — enough runs
+  with numbers that you know its median, not its best day
+- your run volume can feed two things at once without starving both
+- the hook loop inside the working format has already been round several times
+
+Then the rule that makes it safe:
+
+**Don't touch the working format while the test runs.** No tweaks, no small
+improvements, no "while I'm in there". The champion is the measuring stick, and
+a measuring stick you keep filing down measures nothing. Every change you're
+itching to make goes into the challenger.
+
+How to run it:
+
+1. **Give the challenger its own workflow folder** (`--merge --workflow
+   video-<format>:video`) with the **same `primary_metric` and channel** as the
+   champion. Formats have different templates, queues and experiments — they
+   don't fit as two arms of one experiment, and nothing is pooled across folders
+2. **Send it a minority of the run stream** — roughly one in three or one in
+   four. The working format keeps earning while the new one is unproven
+3. **Compare at the report level**, not with `score_arms.py`: read both
+   workflows' `reports/latest.json` side by side and compare the **medians** on
+   the same metric. Means lie here — one viral video in either folder decides
+   nothing
+4. **Give it five or six runs minimum before judging.** A format's first attempt
+   is also your worst attempt at it, and short-form is heavy-tailed enough that
+   three runs is noise
+5. **Decide, then act.** Clearly better → it becomes the champion and the old
+   format keeps running as the new challenger. Clearly worse → stop it and write
+   *why* in `shared/insights.md`. Neither → the format isn't the lever; go back
+   to hooks
+
+Formats are also worth trying **because the audience changed**, not only because
+you're chasing a number. A format that lost a year ago can win now.
 
 ## Guardrails
 

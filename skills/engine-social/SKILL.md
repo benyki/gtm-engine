@@ -1,14 +1,19 @@
 ---
 name: engine-social
-description: Writes short-form social posts (LinkedIn, X, Bluesky, and similar text channels) in the user's own voice, learned from their best-performing work, with the A/B arm assigned and the run logged. LinkedIn and X post from the user's browser; Bluesky posts via its AT Protocol API after approval. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social workflow", "turn this into a post", or asks for short-form written content.
+description: Writes short-form social posts (LinkedIn, X, Bluesky, and similar text channels) in the user's own voice, learned from their best-performing work, and logs every run (assigning an A/B arm once an experiment is live). LinkedIn and X post from the user's browser; Bluesky posts via its AT Protocol API after approval. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social workflow", "turn this into a post", or asks for short-form written content.
 ---
 
 # engine-social
 
 Short-form written posts for LinkedIn, X, Bluesky, and other text social
-channels. Same machinery as `engine-seo`, different format and a much shorter
-feedback loop — which makes it the best workflow to run the A/B loop on,
-because you get verdicts in weeks rather than months.
+channels. Much shorter feedback loop than `engine-seo` — you learn what works
+in weeks rather than months.
+
+**This skill stands alone.** It shares ideas with `engine-seo` and repeats some
+of them in its own words, on purpose: the two workflows are validated against
+different evidence (a feed versus a search result), they'll drift apart as each
+learns, and neither should be able to break the other. Everything this workflow
+needs is in *its* `references/`. Don't reach into another skill's folder.
 
 This skill runs any workflow folder of **type `social`**. The default folder
 is `social/`; paths below (`inputs/`, `templates/`, `runs/`) are inside that
@@ -23,7 +28,9 @@ different goals and metrics are two independent folders — scaffold with
 
 | Step | Reference |
 |---|---|
-| Cut AI slop / keep voice | `references/writing.md` |
+| Find and validate subjects | `references/subject-finding.md` |
+| Platforms / threads in the browser | `references/browser-research.md` |
+| Cut AI slop / keep voice | `references/anti-slop-writing.md` |
 | Post on X (browser) | `references/x-browser-post.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
 
@@ -37,12 +44,27 @@ Whether one experiment can span both platforms depends on the metric, not the pl
 
 ## Where posts come from
 
+`references/subject-finding.md` is this workflow's own method — where subjects
+come from, how to validate a claim *on the platform* rather than against search
+volume, the 0–9 score, the kill step. Its output is this workflow's
+`inputs/backlog.csv`, and **the bar is ≥20 rows at `status=validated`**. Short-form
+burns subjects fast — a batch is five to seven posts — so a thin backlog shows
+up as generic content within two weeks.
+
 In order of what actually works:
 
-1. **The queue** — `inputs/queue/`, written by `engine-loop` from what performed. Start here when it's not empty
-2. **Their own material** — a shipped feature, a support conversation, a decision they made and why, a number they can share. Specific beats clever. This is the day-one default when the queue is empty
-3. **An article they've already written** — one `engine-seo` piece is three or four posts. Check the seo workflow's `reports/latest.json` for what performed, and `shared/insights.md` for what the other workflows have learned
-4. **A real question from the audience** — same Reddit mining as `engine-seo`
+1. **What they did this week** — a shipped feature, a support conversation, a decision and why, a number they can share. Nobody else has this, and it's why the founder account beats the brand account. The day-one default
+2. **The queue** — `inputs/queue/`, written by `engine-loop` from what performed. Start here when it's not empty
+3. **Their own published work** — one article is three or four posts: the counterintuitive claim, the example, the number, the objection it answers
+4. **Questions the audience actually asks** — replies, support threads, sales objections, Reddit. Read for phrasing and friction, not for search volume
+
+`shared/insights.md` sits across all of it — read it before picking, and add to
+it when a verdict here teaches something bigger than this workflow. Reading a
+sibling workflow's `reports/latest.json` is worth doing; reaching into another
+skill's `references/` is not.
+
+`shared/insights.md` sits across all of it — read it before picking, add to it
+when a verdict here teaches something bigger than this workflow.
 
 ## The run
 
@@ -58,6 +80,11 @@ python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow social
 
 Good variables here: how the post opens, whether it tells a story or states a claim, one-liner versus paragraphs, ends on a question versus ends flat. If it returns `write_template`, write that template from the hypothesis and use it.
 
+**On a fresh workflow this returns `use_template` and that's correct** — the
+starter experiments ship paused on purpose. Ship one format until the user is
+happy with the format, then start testing. `engine-loop/references/ab-testing.md`
+→ R0 has the three conditions for flipping an experiment live.
+
 ### 3. Draft a batch, not one
 
 Five to seven posts. Short-form is cheap to write and expensive to judge in isolation — a batch lets the user see the pattern and reject a direction rather than a sentence.
@@ -67,7 +94,7 @@ Five to seven posts. Short-form is cheap to write and expensive to judge in isol
 - No engagement bait, no "agree?", no fake vulnerability, no thread of platitudes
 - Formatting matches what's in `inputs/best/` — if they don't use line breaks between every sentence, don't start
 
-Before showing the batch, run `references/writing.md` over it (edit or detect).
+Before showing the batch, run `references/anti-slop-writing.md` over it (edit or detect).
 
 ### 4. Log each one
 
