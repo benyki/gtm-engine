@@ -79,6 +79,17 @@ their machine, is a valid starting point:
 | a CRM / LinkedIn Sales Navigator / Apollo export with 60 columns | keep the five that matter, drop the rest |
 | nothing at all | build it — `references/lead-sourcing.md` |
 
+**Every prospect field is optional.** `name`, `company`, `email`, `linkedin`,
+`source`, `notes`, `research` — all of them help, none of them is a gate. Twenty
+bare email addresses is a list. Twenty names with no addresses is also a list
+(turning profiles into addresses is a step in `references/lead-sourcing.md`, not
+the user's homework). Work with the columns that are there, fill the ones you
+can, leave the rest empty, and say once — in the summary line below — what's
+thin and what it costs. **Never stop and ask the user to complete a row before
+anything can happen.** A row with no contact route stays in the CRM flagged as
+such rather than being dropped; a row with nothing but a name is still worth
+researching.
+
 Then **convert it into `crm.csv`**, which is the one format everything
 downstream reads:
 
@@ -118,9 +129,9 @@ Hunter, Prospeo — expect a 50–70% hit rate, so search thirty to land twenty)
 the LinkedIn-terms caution to raise with the user, is in
 `references/lead-sourcing.md`.
 
-What a usable list *contains* — not a shape it has to arrive in, since you
-convert whatever they hand you. The observable is the part that decides whether
-the email is worth sending:
+What a *rich* list looks like — the best case, not a bar to clear, and not a
+shape it has to arrive in since you convert whatever they hand you. Every column
+here is optional; the observable is just the one that does the most work:
 
 ```csv
 id,name,company,email,linkedin,source,notes
@@ -132,9 +143,10 @@ id,name,company,email,linkedin,source,notes
 `drafted_at`, `sent_at`, `next_followup_at`, `replied_at`) and the three
 research columns step 3 fills (`research`, `research_source`, `researched_at`)
 — its header is the contract, so keep every column even when a cell is empty.
-An observable that arrived with the list goes into `research` on
-normalisation, with wherever it came from in `research_source`; `notes` is for
-everything else about the person.
+**The columns are fixed; the values are all optional.** An empty cell is a
+normal state, not a to-do list you hand back to the user. An observable that
+arrived with the list goes into `research` on normalisation, with wherever it
+came from in `research_source`; `notes` is for everything else about the person.
 
 **Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this workflow can make, and it's silent unless you check.
 

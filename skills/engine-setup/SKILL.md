@@ -77,7 +77,13 @@ like to star it and `gh` is authenticated: `gh repo star benyki/gtm-engine`.
 
 ### 2. Clone
 
-Default to `~/code/gtm-engine`:
+**If they already ran the one-command installer** — `curl -fsSL
+https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash` —
+steps 2 to 4 are done: it clones, scaffolds `workflows/` in the directory they
+ran it from, and installs the skills. Check for `workflows/shared/` and the
+clone, confirm what's there, and pick up at step 5. Don't redo them.
+
+Otherwise, default to `~/code/gtm-engine`:
 
 ```bash
 mkdir -p ~/code
@@ -323,7 +329,11 @@ Which keys they need depends on the workflow — see `docs/preflight.md` §4. Fo
 python3 <repo>/skills/engine-setup/scripts/doctor.py
 ```
 
-Walk through anything red. Warnings are usually fine to leave. Doctor checks the canonical store, each agent mirror it can see, and `workflows/skills/` when a workspace is found.
+Walk through anything red. **`✗` is genuinely broken; `!` is information, not a
+to-do list** — don't hand the user a list of warnings to clear before they can
+start. A fresh outreach workspace with no keys and no runs is `All clear` by
+design. Doctor checks the canonical store, each agent mirror it can see, and
+`workflows/skills/` when a workspace is found.
 
 ### 9. Hand over
 

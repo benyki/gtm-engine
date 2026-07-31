@@ -52,9 +52,14 @@ The constraints that survive contact with real inboxes:
   links. It should look like a person typed it
 
 Placeholders that stay in the template are fine — `{{FIRST_NAME}}`,
-`{{OBSERVATION}}`, `{{OFFER}}` — but `{{OBSERVATION}}` must be filled per person
-with something real and recent. If it can't be filled honestly, that person is
-the wrong target: skip them rather than writing filler.
+`{{OBSERVATION}}`, `{{OFFER}}` — but never render one empty or half-filled, and
+never invent a value to fill one. **Every field on the person is optional; the
+email has to survive any of them being blank.** No first name means the greeting
+changes ("Hi there", or no greeting at all), not that the row is unusable.
+`{{OBSERVATION}}` is the one that carries weight: if a minute of looking turns
+up nothing real and recent, don't write filler — cut the line and send the
+shorter email, or flag them to the user as a wrong-target candidate. Which of
+those two is right is the user's call, not a rule.
 
 ### The link — one, and never a bare URL
 

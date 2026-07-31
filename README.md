@@ -16,6 +16,8 @@ Every run is written to disk with the template version it used. When the numbers
 rules religiously, every session, no exceptions** — they are the house rules of
 this engine, not suggestions to weigh against convenience:
 
+- **stay flexible** — the workflow adapts to how the user already works, never
+  the other way round; take their list, their format, their process as they are
 - read `shared/brand.md` and `shared/insights.md` before producing anything
 - log every piece made with `runlog.py` — an unlogged piece never gets a number
 - **never send, post or publish without an explicit yes**, and never read `shared/.env`
@@ -73,7 +75,33 @@ board.
 
 ## Install
 
-Paste this into Claude Code or Codex:
+**One command.** `cd` to the project you want to grow first — a folder under
+`~/code/`, or an existing repo you already work in — and run it there:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash
+```
+
+It clones the engine to `~/code/gtm-engine`, creates `workflows/` **where you
+are**, and links the skills into whichever agents you have (Claude Code, Codex,
+Cursor). Then tell your agent: `run engine-setup` — it fills in your brand
+config, confirms the workflow, and runs the checks.
+
+A different first workflow — `seo`, `social`, `video`, a comma list, `all`, or
+any name of your own for a custom workflow (the loop treats it like the
+built-ins; you supply the templates):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash -s -- --workflow seo
+```
+
+`--engine-dir <path>` puts the clone somewhere other than `~/code/gtm-engine`;
+`--name <folder>` calls the workspace something other than `workflows`. Re-run
+it any time: it pulls, adds whatever workflow you name, and never overwrites
+what you already have. [`install.sh`](install.sh) is ~130 readable lines — worth
+a look before you pipe anything into `bash`, here or anywhere else.
+
+**Prefer to have the agent do it?** Paste this into Claude Code or Codex:
 
 ```
 Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
@@ -82,28 +110,26 @@ engine-setup. Start with the outreach workflow unless I say otherwise.
 Once the workspace exists, follow its AGENTS.md in every session.
 ```
 
-Or do it yourself:
-
-Pick a durable location first. `~/code/` is the suggested home — any personal
-folder you don't clean out works (not Downloads). Then:
+**Or do the three steps yourself.** Pick a durable location first — `~/code/` is
+the suggested home, any personal folder you don't clean out works (not
+Downloads):
 
 ```bash
 mkdir -p ~/code && git clone https://github.com/benyki/gtm-engine.git ~/code/gtm-engine
+```
+
+```bash
 python3 ~/code/gtm-engine/skills/engine-setup/scripts/scaffold_workspace.py . --workflow outreach
+```
+
+```bash
 ~/code/gtm-engine/skills/engine-setup/scripts/install_skills.sh --workspace ./workflows --workflow outreach
 ```
 
-Run the last two from the project you want to grow — a folder under `~/code/`,
-or an existing repo you already work in; `workflows/` can live anywhere, and a
-Desktop symlink to it is worth the ten seconds. Keep one full workspace per
-project rather than sharing one between them.
-
-Replace `~/code/gtm-engine` with wherever you cloned. `outreach` is the
-suggested first workflow — replace it with `seo`, `social`, `video`, a comma
-list, `all` — or any name of your own for a custom workflow (the loop treats it
-like the built-ins; you supply the templates).
-
-Then tell your agent: `run engine-setup` — it fills in your brand config, confirms the workflow, and runs the checks.
+Run the last two from the project you want to grow; `workflows/` can live
+anywhere, and a Desktop symlink to it is worth the ten seconds. Keep one full
+workspace per project rather than sharing one between them. Replace
+`~/code/gtm-engine` with wherever you cloned.
 
 ---
 

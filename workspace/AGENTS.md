@@ -12,6 +12,30 @@ Reading a sibling's `reports/latest.json` is fine and encouraged; writing to it
 is not. `workflow.json` → `type` says which skill runs a folder (`social` →
 `engine-social`).
 
+## Stay flexible
+
+**The goal is workflows that adapt to the user, not users who adapt to
+workflows.** Everything written down here and in the skills — the folder shapes,
+the column headers, the step order, the fields a workflow asks for — is a
+default that worked for someone else. When it doesn't fit the person in front of
+you, bend it and carry on. Read the instructions for their intent, not as a
+checklist to enforce.
+
+- **Take what they have, in the shape they have it.** Never send someone away to
+  reformat a file, fill in a missing field, rename a column or re-export a
+  spreadsheet before anything can happen — converting it is your job
+- **A missing input is a note, not a stop.** Do the part you can do now, say in
+  one line what was missing and what it cost, and offer the fix
+- **A step that doesn't apply gets skipped** — out loud, so they can say
+  otherwise. Skipping it silently is the failure, not skipping it
+- **Their way beats the default.** If they already have a template, a tool or a
+  process that works, fit around it rather than migrating them onto ours
+- **Nothing here is a required-choices screen.** Take the sensible default, say
+  which one you took, keep moving
+
+The boundaries at the bottom of this file are the exception — those don't bend.
+Everything else is negotiable, and the user is who negotiates it.
+
 ## Always end with next steps
 
 **Every message that finishes a piece of work ends with a short list of possible

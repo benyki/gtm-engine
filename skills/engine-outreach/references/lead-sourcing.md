@@ -120,14 +120,18 @@ volume, `agent-browser` for reading platforms that have no API,
 ## Landing it in the CRM
 
 Normalise into `crm.csv` — the header is the contract, keep every column even
-when a cell is empty (`engine-outreach` SKILL step 1 has the shape).
+when a cell is empty (`engine-outreach` SKILL step 1 has the shape). The
+columns are fixed; **every field about the person is optional**, so import what
+exists and fill the gaps later rather than holding the list back.
 
 - **Dedupe on email**, falling back to LinkedIn URL, then name + company
 - **Never import over someone with a `sent_at`.** That's the one silent mistake
   this workflow can make, and it costs the relationship, not just the row
-- **Keep `source` and `notes` populated.** In two months "where did these 300
-  people come from and were they any good?" is a question you'll actually ask,
-  and `runs/index.csv` can answer it per source once the column is there
+- **Fill `source` and `notes` whenever you have them.** In two months "where did
+  these 300 people come from and were they any good?" is a question you'll
+  actually ask, and `runs/index.csv` can answer it per source once the column is
+  there. A blank `source` is still an importable row — a missing column never
+  blocks the list
 - **The observable belongs in `research`, with its URL in `research_source`
   and the date in `researched_at`** — the same three columns the run fills
   (`engine-outreach` SKILL step 3). A list that arrives with an observable per

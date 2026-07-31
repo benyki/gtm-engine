@@ -7,7 +7,10 @@ before doing anything in here.
 @AGENTS.md
 
 Short version, in case that import didn't load: this folder is data, not logic.
-One self-contained folder per workflow. Read `shared/brand.md` and
+One self-contained folder per workflow. **Stay flexible — the workflows adapt to
+the user, not the user to the workflows**; take their list and their process in
+whatever shape they arrive, and never make someone reformat something before
+anything can happen. Read `shared/brand.md` and
 `shared/insights.md` first, log every piece you make with
 `runlog.py new`, never send or publish without an explicit yes, never read
 `shared/.env` — and **end every message with the possible next steps, saying

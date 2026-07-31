@@ -4,6 +4,13 @@
 Run it before you start (what's missing on this machine?) and again after
 setup (did it all land?). It changes nothing — it only looks.
 
+**✗ means genuinely broken; ! is information, not a chore.** The engine is
+forgiving by design — a missing channels.json falls back to defaults, an empty
+templates/ is the documented first run, runs/ and reports/ are created on first
+write — so this check never reports those as blocking. Nothing here is a
+required-shape audit: a workspace someone built by hand, or trimmed to the two
+folders they use, is a valid workspace.
+
 Usage:
     doctor.py [--workspace PATH]
 
@@ -155,8 +162,12 @@ def check_install(ws: Path | None = None) -> None:
                         f"points at {target}, expected ~/.agents/skills")
             except OSError:
                 add("warn", "  workspace/skills", "broken symlink")
-        else:
-            _check_skill_dir(ws_skills, names, required=True)
+        elif not _check_skill_dir(ws_skills, names):
+            # A convenience link, not a dependency: the skills themselves are
+            # installed above, and ~/.agents/skills/… paths work without it.
+            add("warn", "  workspace/skills link missing",
+                "workspace-relative `skills/…` commands won't resolve — use "
+                "~/.agents/skills/… or run install_skills.sh --workspace <path>")
         types = wf.workspace_types(ws)
         add("pass", f"  workflow types: {', '.join(types) or '(none yet)'}")
 
@@ -229,7 +240,9 @@ def check_workspace(ws: Path | None) -> str:
 
     brand = shared / "brand.md"
     if not brand.is_file():
-        add("fail", "  shared/brand.md missing")
+        add("warn", "  shared/brand.md missing",
+            "nothing breaks, but every workflow reads it first — without it "
+            "they guess at your voice. scaffold_workspace.py --merge restores it")
     else:
         text = brand.read_text()
         if "TODO" in text or "<your" in text:
@@ -246,7 +259,9 @@ def check_workspace(ws: Path | None) -> str:
         except json.JSONDecodeError as e:
             add("fail", "  shared/channels.json is not valid JSON", str(e))
     else:
-        add("fail", "  shared/channels.json missing")
+        add("warn", "  shared/channels.json missing",
+            "not blocking — the scripts fall back to defaults (72h metric "
+            "window). Add it when you want per-channel settings")
 
     if (ws / "AGENTS.md").is_file():
         add("pass", "  AGENTS.md" + ("  + CLAUDE.md" if (ws / "CLAUDE.md").is_file() else ""))
@@ -259,8 +274,9 @@ def check_workspace(ws: Path | None) -> str:
     wds = [p for p in sorted(ws.iterdir())
            if p.is_dir() and (p / "workflow.json").is_file()]
     if not wds:
-        add("fail", "  no workflow folders",
-            "scaffold one: scaffold_workspace.py --merge --workflow <name>")
+        add("warn", "  no workflow folders yet",
+            "add one when you know which: scaffold_workspace.py --merge "
+            "--workflow <name>")
     types = set()
     for wd in wds:
         try:
@@ -277,41 +293,91 @@ def check_workspace(ws: Path | None) -> str:
         add("pass", f"  {wd.name}/  ({' · '.join(bits)})",
             "" if metric else "no primary_metric in workflow.json — the loop "
             "optimises this, name it")
-        for rel in ("templates", "runs", "reports", "inputs"):
-            if not (wd / rel).is_dir():
-                add("warn", f"    {wd.name}/{rel}/ missing")
+        # The subfolders are made on first write — runs/ and reports/ by the
+        # loop scripts, templates/ and inputs/ by whoever writes the first
+        # file. Absent means "not used yet", which is not a problem to report.
+        absent = [r for r in ("templates", "runs", "reports", "inputs")
+                  if not (wd / r).is_dir()]
+        if absent:
+            add("pass", f"    {wd.name}/ layout",
+                f"no {', '.join(r + '/' for r in absent)} yet — "
+                "created on first write")
         idx = wd / "runs" / "index.csv"
-        if idx.is_file():
-            n = max(0, sum(1 for _ in idx.open()) - 1)
-            add("pass", f"    runs recorded: {n}",
-                "" if n else "nothing to learn from yet — expected on day one")
-        else:
-            add("warn", f"    {wd.name}/runs/index.csv missing",
-                "this workflow has no spine without it")
+        n = max(0, sum(1 for _ in idx.open()) - 1) if idx.is_file() else 0
+        add("pass", f"    runs recorded: {n}",
+            "" if n else "nothing to learn from yet — expected on day one")
         if typ == "outreach" and not (wd / "crm.csv").is_file():
             add("warn", f"    {wd.name}/crm.csv missing",
                 "outreach needs the CRM for stickiness and dedupe")
 
-    check_env(ws)
+    check_env(ws, types)
     return "video" if "video" in types else ""
 
 
-def check_env(ws: Path) -> None:
-    """Confirm key NAMES are set. Never reads a value."""
+def parse_env_example(example: Path) -> list[tuple[str, str, bool]]:
+    """[(key, section, optional)] read from .env.example's own annotations.
+
+    The file documents itself — `# --- video ---` headers, `(optional)` in a
+    header, `# Optional …` above a single key. Trust it rather than keeping a
+    second list here that drifts from it.
+    """
+    out: list[tuple[str, str, bool]] = []
+    section, sec_optional, comment = "", False, ""
+    for ln in example.read_text().splitlines():
+        s = ln.strip()
+        if s.startswith("#"):
+            body = s.lstrip("#").strip()
+            if body.startswith("---"):
+                section = body.strip("-").strip()
+                sec_optional = "optional" in section.lower()
+                comment = ""
+            else:
+                comment += " " + body.lower()
+            continue
+        if not s:
+            comment = ""
+            continue
+        if "=" in s:
+            key = s.split("=", 1)[0].strip()
+            out.append((key, section, sec_optional or "optional" in comment))
+            comment = ""
+    return out
+
+
+def check_env(ws: Path, types: set[str] | None = None) -> None:
+    """Confirm key NAMES are set. Never reads a value.
+
+    Every key here is optional until a workflow that needs it exists — the
+    default outreach / seo / social setup needs none at all. Only a key whose
+    section matches a workflow in this workspace, and that the file doesn't
+    mark optional, is worth a warning.
+    """
     example = ws / "shared" / ".env.example"
     env = ws / "shared" / ".env"
 
     if not example.is_file():
         return
-    wanted = [ln.split("=", 1)[0].strip()
-              for ln in example.read_text().splitlines()
-              if ln.strip() and not ln.lstrip().startswith("#") and "=" in ln]
-    if not wanted:
+    keys = parse_env_example(example)
+    if not keys:
         return
+    types = types or set()
+
+    def needed(section: str, optional: bool) -> bool:
+        head = section.split()[0].lower() if section.split() else ""
+        return not optional and head in types
+
+    wanted = [k for k, _, _ in keys]
+    required = [k for k, sec, opt in keys if needed(sec, opt)]
 
     if not env.is_file():
-        add("warn", "  shared/.env not created",
-            f"copy .env.example → .env and add keys ({len(wanted)} known)")
+        if required:
+            add("warn", "  shared/.env not created",
+                f"copy .env.example → .env — {', '.join(required)} needed for "
+                f"{', '.join(sorted(types))}")
+        else:
+            add("pass", "  shared/.env not created",
+                f"nothing needs one yet — the {len(wanted)} keys in "
+                ".env.example are per-channel, add one when you add the channel")
         return
 
     present = set()
@@ -324,12 +390,15 @@ def check_env(ws: Path) -> None:
             present.add(name.strip())
     present |= {k for k in wanted if os.environ.get(k)}
 
-    missing = [k for k in wanted if k not in present]
-    if not missing:
-        add("pass", f"  keys set: {len(wanted)}/{len(wanted)}")
+    n_set = len(present & set(wanted))
+    missing_required = [k for k in required if k not in present]
+    if missing_required:
+        add("warn", f"  keys set: {n_set}/{len(wanted)}",
+            "needed here and missing: " + ", ".join(missing_required))
     else:
-        add("warn", f"  keys set: {len(present & set(wanted))}/{len(wanted)}",
-            "missing: " + ", ".join(missing))
+        add("pass", f"  keys set: {n_set}/{len(wanted)}",
+            "" if n_set == len(wanted)
+            else "the rest are optional or for channels you don't run")
 
 
 # --- output ----------------------------------------------------------------
@@ -363,7 +432,8 @@ def main() -> int:
               + " — fix the ✗ lines above.\n")
         return 1
     if warns:
-        print(f"{GREEN}Nothing blocking{RESET}, {YELLOW}{warns} worth a look{RESET}.\n")
+        print(f"{GREEN}Nothing blocking{RESET}, {YELLOW}{warns} worth a look{RESET}"
+              f"{DIM} — ! is information, not a to-do list{RESET}.\n")
         return 0
     print(f"{GREEN}All clear.{RESET}\n")
     return 0
