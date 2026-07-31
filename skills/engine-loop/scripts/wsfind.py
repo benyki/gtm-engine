@@ -32,35 +32,15 @@ WF_MARKER = "workflow.json"
 # Files that identify shared/ as ours (any one is enough).
 _SHARED_FILES = ("channels.json", "brand.md", ".env.example")
 
-# Pre-restructure layout (config/ at the root) — detected only to give a
-# clear migration message instead of a confusing "not found".
-_LEGACY_MARKERS = ("config/workflows.json", "config/pathways.json",
-                   "config/channels.json")
-
-_MIGRATE = (
-    "this looks like the old single-pot layout (config/ at the root). "
-    "The workspace is now one self-contained folder per workflow plus a "
-    "shared/ folder. Re-run scaffold_workspace.py --merge and move your "
-    "data: config/brand.md, channels.json and .env into shared/; runs, "
-    "templates/<wf>, experiments and inputs into each workflow's folder. "
-    "See docs/workspace.md for the layout."
-)
-
 
 def is_workspace(p: Path) -> bool:
     shared = p / SHARED
     return shared.is_dir() and any((shared / f).is_file() for f in _SHARED_FILES)
 
 
-def _is_legacy(p: Path) -> bool:
-    return any((p / m).is_file() for m in _LEGACY_MARKERS)
-
-
 def _check(p: Path) -> Path:
     if is_workspace(p):
         return p
-    if _is_legacy(p):
-        sys.exit(f"error: {p}: {_MIGRATE}")
     sys.exit(f"error: no shared/ found in {p} — not a workspace")
 
 
@@ -78,9 +58,6 @@ def find_workspace(explicit: str | None) -> Path:
         cand = base / "workflows"
         if is_workspace(cand):
             return cand
-        if _is_legacy(base) or _is_legacy(cand):
-            where = base if _is_legacy(base) else cand
-            sys.exit(f"error: {where}: {_MIGRATE}")
         if base == Path.home():
             break
 

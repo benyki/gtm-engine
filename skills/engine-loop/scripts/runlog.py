@@ -47,7 +47,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from wsfind import find_workspace, find_workflow_dir, list_workflow_dirs, workflow_meta  # noqa: E402
 
-COLUMNS = ["run_id", "created_at", "skill", "channel", "experiment_id", "arm",
+COLUMNS = ["run_id", "created_at", "workflow", "channel", "experiment_id", "arm",
            "template_used", "status", "published_at", "url", "primary_metric",
            "metric_value", "metric_source", "metrics_fetched_at", "human_verdict"]
 
@@ -139,9 +139,7 @@ def cmd_new(ws: Path, a) -> int:
         f"works if you keep it consistent -->\n")
 
     rows.append({
-        # The column is named "skill" for historical compatibility; it records
-        # the workflow name itself, whether or not a dedicated skill exists.
-        "run_id": run_id, "created_at": now(), "skill": a.workflow,
+        "run_id": run_id, "created_at": now(), "workflow": a.workflow,
         "channel": a.channel, "experiment_id": a.experiment, "arm": a.arm,
         "template_used": a.template, "status": "draft",
         "primary_metric": primary_metric(ws, wd, a.channel),

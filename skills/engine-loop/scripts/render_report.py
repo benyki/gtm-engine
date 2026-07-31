@@ -93,8 +93,6 @@ def counts(runs: list[dict], key: str) -> dict:
     out: dict[str, int] = {}
     for r in runs:
         k = (r.get(key) or "").strip() or "—"
-        if key == "skill" and k.startswith("engine-"):
-            k = k[len("engine-"):]   # older rows stored the skill name
         out[k] = out.get(k, 0) + 1
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
