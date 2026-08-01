@@ -84,8 +84,9 @@ When a reply theme keeps recurring, it has stopped being a follow-up problem:
 
 - Three people asking the same objection → that objection belongs in the
   **first-touch email**, answered before it's raised
-- The same question over and over → that's an article
-  (`engine-seo/inputs/queue/`) and a line in `shared/insights.md`
+- The same question over and over → that's an article. Drop it in the seo
+  workflow's `inputs/queue/` if they run one, and a line in `shared/insights.md`
+  either way
 - The wrong people replying → the list is the problem, not the copy
   (`references/lead-sourcing.md`)
 

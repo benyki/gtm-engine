@@ -59,20 +59,35 @@ browser extension — [`docs/preflight.md`](../../../docs/preflight.md) §2b —
 it uses the user's own logged-in session, so nothing is scraped anonymously.
 
 **2. Turn profiles into email addresses.**
-The profile URL is the input; a finder tool returns the address. Options, all
-paid, all freemium enough to test twenty rows before committing:
+The profile URL is the input; a finder tool returns the address. **Offer this
+step — don't wait to be asked.** A user who hands over a list of names doesn't
+always know the addresses are gettable, and "send me their emails" is the answer
+that ends the workflow.
 
-| Tool | Shape |
-|---|---|
-| **Dux-Soup** | Chrome extension that works *through* your own LinkedIn session — visits, scrapes and enriches profiles as you browse. Closest to "I already have the search open" |
-| **Lusha · Apollo · Hunter · Clearbit Connect** | extension or API; paste or upload profile URLs, get verified addresses back |
-| **Prospeo · Findymail · Dropcontact** | API-first, built for exactly the URL-in-address-out step, and easier to script |
+Three worth naming, and the deciding question is whether **you** can drive it or
+whether the *user* has to sit and click:
 
-Pick on two things: whether it **verifies** the address (a bounce costs sender
-reputation, and a fresh domain can't afford many), and whether it can take a
-**list** rather than one profile at a time. Expect a 50–70% hit rate on
-professional audiences — that's normal, not a failed run, and it's why you
-search for thirty to land twenty.
+| | Free tier | Agent-pilotable? | Pick it when |
+|---|---|---|---|
+| **Hunter** | free forever, tens of lookups a month, no card needed | **Yes, on free** — REST API is included, so a list of profile URLs or names + domains goes in and addresses come back unattended | they want this to happen without them, and the volume is small |
+| **Apollo** | free tier with email credits — cut hard and repeatedly, so check before promising | **No on free** — API is a paid feature. Free means the user works the UI or Chrome extension and exports a CSV you normalise | they want the largest database and don't mind clicking |
+| **Prospeo** | free credits through the UI and Chrome extension | **Not on free, yes once paid** — API-first and built for exactly URL-in-address-out, so it's the cleanest to automate | this has become a weekly job worth paying for |
+
+**Every number here drifts, and fast** — Apollo's free email credits dropped
+roughly a hundredfold in a single restructure. Open the current pricing page
+before quoting a limit or a price to the user; never quote either from memory.
+
+A fourth shape worth knowing: **Chrome extensions riding the user's own LinkedIn
+session** — Dux-Soup, Lusha, Clearbit Connect. Closest to "I already have the
+search open", and the lowest-risk end of LinkedIn automation, but the user is in
+the loop on every profile. **Findymail** and **Dropcontact** are API-first
+alternatives to Prospeo in the same slot.
+
+Beyond the free tier, pick on two things: whether it **verifies** the address (a
+bounce costs sender reputation, and a fresh domain can't afford many), and
+whether it takes a **list** rather than one profile at a time. Expect a 50–70%
+hit rate on professional audiences — that's normal, not a failed run, and it's
+why you search for thirty to land twenty.
 
 **3. Run the outreach flow.**
 Normalise into `crm.csv`, then the ordinary run: `assign_arm.py` →

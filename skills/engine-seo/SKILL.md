@@ -23,7 +23,7 @@ Output is markdown, generated locally. Where it goes depends on whether they alr
 |---|---|
 | Reddit / SERPs in the browser | `references/browser-research.md` |
 | Find and validate subjects | `references/subject-finding.md` |
-| Cut AI slop / keep voice | `references/anti-slop-writing.md` |
+| **Cut AI slop / keep voice — every draft, every run** | `references/anti-slop-writing.md` |
 | Publishing: the gate, metadata, deploy | `references/publishing-site.md` |
 | After publish (Clarity → rewrites) | `references/clarity-rewrite.md` |
 | Static site / CMS tradeoffs | `references/advanced.md` |
@@ -92,7 +92,22 @@ Voice comes from `inputs/best/` — their own best-performing pieces — not fro
 - Length is whatever the question needs
 - Respect the banned words and claims in `shared/brand.md`
 
-Before the user reviews, run `references/anti-slop-writing.md` over the draft (edit or detect).
+### 4b. Cut the slop — every draft, before the user reads it
+
+**`references/anti-slop-writing.md`, over every article, every run.** Not a
+polish step to do if there's time: a long piece is where slop hides best, and
+the user reading it is the wrong place to find it. Run it in **edit** mode by
+default (minimum changes, return the draft); **detect** mode when the user wants
+to see the patterns named rather than fixed.
+
+The test that matters most in long-form: **if a paragraph could appear on a
+competitor's blog after swapping the product name, rewrite it from
+`inputs/best/` or cut it.** Voice survives the pass — vocabulary, bluntness,
+digressions and edge come from `inputs/best/`, and sanding those off is the
+failure mode, not the goal.
+
+If `benyki/skills/no-ai-slop-writting` is installed, use it instead — same pass,
+full pattern list and an eval set. The reference has the one-line install.
 
 ### 5. Log it
 

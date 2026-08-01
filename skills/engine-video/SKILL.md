@@ -76,7 +76,7 @@ different experiments, different queues.
 | Never shipping the same video twice | `references/duplicate-safety.md` |
 | ffmpeg commands | `references/ffmpeg-recipes.md` |
 | Optional looks | `references/looks.md` |
-| Music beds | `references/music.md` |
+| Music beds — **offer one every run**, levels, rights, downloading | `references/music.md` |
 | Remotion path | `references/remotion.md` |
 | Posting how-to | `references/posting-api.md` |
 | Manual vs Upload Post vs Buffer | `references/posting-options.md` |
@@ -174,7 +174,52 @@ position. `references/clip-sourcing.md` lays out the options; pick one **with
 the user** rather than defaulting silently, and note per clip which license or
 permission it's covered by.
 
-Optional bed: `references/music.md` (rights first; files under `shared/assets/music/`).
+### 5b. Music — offer it, every time, before the render
+
+**Ask, don't wait to be asked.** In the two no-voice formats the bed *is* the
+video's energy, and a user who has never been offered one assumes they have to
+find the file themselves. Put it as one question with real options rather than
+"do you want music?", which gets "I don't know":
+
+> I'll add a bed under this one. Want to name a track or an artist, or shall I
+> suggest something? For this clip I'd go **calm lo-fi / ambient piano** — it
+> suits the slow footage. Other directions that work: **driving electronic** for
+> product demos, **warm acoustic** for founder-voice pieces, **cinematic build**
+> for a reveal at the end.
+
+Suggest by **mood first, artist second** — a mood they can react to instantly,
+and two or three named artists in that mood only if they want a specific sound.
+Take whatever they name, in whatever form: a title, an artist, a YouTube link, a
+vibe, or a file they already own.
+
+**Fetching it** — when they name a track or paste a URL they have the rights to
+reuse, download it with `yt-dlp` into `shared/assets/music/` so every workflow
+can use it:
+
+```bash
+mkdir -p shared/assets/music && yt-dlp -x --audio-format mp3 --audio-quality 0 --no-warnings -o "shared/assets/music/%(title)s.%(ext)s" "URL"
+```
+
+If `benyki/skills/youtube-song-download` is installed, use it instead — it takes
+a song name and artist rather than a URL, picks a video inside a sane duration
+window (so you get the track, not a two-hour mix or a 20-second teaser), and
+writes a tagged MP3. Point its output at `shared/assets/music/`.
+`benyki/skills/music-downloader` is the broader version;
+[`docs/additional-skills.md`](../../docs/additional-skills.md) has the install.
+
+**The rights line has to be said, once, plainly** — and it isn't a reason to
+skip the step: a track being downloadable is not a licence for a commercial
+channel. Their own upload, a bought track, or a royalty-free library (Pexels,
+Pixabay, YouTube Audio Library) is clear. A trending platform sound is not —
+using it *inside* the platform's own editor is a different thing from shipping
+it in a rendered file. State which of the three covers the file, note it with
+the run, and **if the answer is unclear, ship voice-only or a royalty-free bed**
+rather than guessing on the user's behalf.
+
+**Level is set by the format, not by taste:** 0.5 with no voiceover, 0.03 under
+one. Nothing in between. Mechanics, the mix and the trim/fade:
+`references/music.md`; reference the file from `inputs.json` →
+`musicBackground.file`.
 
 ### 6. Render
 

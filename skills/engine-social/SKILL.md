@@ -30,7 +30,8 @@ different goals and metrics are two independent folders — scaffold with
 |---|---|
 | Find and validate subjects | `references/subject-finding.md` |
 | Platforms / threads in the browser | `references/browser-research.md` |
-| Cut AI slop / keep voice | `references/anti-slop-writing.md` |
+| **Cut AI slop / keep voice — every batch, every run** | `references/anti-slop-writing.md` |
+| Pre-built post parts with variations *(optional)* | `templates/blocks/README.md` (in the workspace) |
 | Pick an image, or edit one via an image API *(optional)* | `references/images.md` |
 | Write a thread + post on X / LinkedIn (browser) | `references/threads-and-x.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
@@ -77,9 +78,49 @@ when a verdict here teaches something bigger than this workflow.
 
 ## The run
 
-### 1. Read their voice first
+### 1. Read their voice first — and ask for posts they admire
 
-`inputs/best/` — their top-performing posts. Read them before writing anything, every single time. Voice is copied from examples, never from a description of a voice. If `inputs/best/` is empty, say so and ask for five links; the output will be generic otherwise and no amount of prompting fixes it.
+Two folders, two different jobs, and both are read before writing anything:
+
+| Folder | What's in it | What it teaches |
+|---|---|---|
+| `inputs/best/` | **their own** top-performing posts | the voice — vocabulary, rhythm, formatting, how blunt they are |
+| `inputs/swipe/` | **posts by other people** they wish they'd written | the shapes — how a good post in their world opens, turns and lands |
+
+Voice is copied from examples, never from a description of a voice. If
+`inputs/best/` is empty, say so and ask for five links before drafting; no
+amount of prompting fixes a generic voice.
+
+**Then ask for the swipe file — explicitly, and early.** Most people have never
+been asked, and it's the highest-value thing they can hand over in two minutes:
+
+> Send me 5–10 posts you wish you'd written — yours or anyone's. Screenshots,
+> links, or pasted text all work. I'll pull the structures out of them and turn
+> them into reusable models, so the next batch starts from shapes you already
+> like instead of from scratch.
+
+Take them in whatever form they arrive — links, screenshots, a pasted block.
+Save what they send in `inputs/swipe/` (one file per post, or one file with the
+lot; the folder is yours to organise).
+
+**Then turn them into models, not into copies.** Read across what they sent and
+name the *structure* of each — what the first line does, what the middle is made
+of, how it closes, roughly how long it runs. Show the user three or four of
+those structures in one message, in plain language:
+
+> Three shapes keep coming up in what you sent:
+> · **the reversal** — states the common advice, then why it's wrong for a
+>   specific case, ends on what to do instead
+> · **the receipt** — a number, then the story behind the number, no lesson
+> · **the small confession** — something that went wrong, what it cost, what
+>   changed. No moral at the end
+> Want these as templates? I'd start with the reversal — it's the one closest to
+> what already works in your `inputs/best/`.
+
+The ones they approve become templates in `templates/` (the block system below),
+so the work survives the conversation. **Never copy the words** — a structure is
+reusable, a sentence someone else wrote is theirs. That's a rule, not a
+preference: `references/anti-slop-writing.md` and the Rules section below.
 
 ### 2. Get the arm
 
@@ -98,14 +139,64 @@ happy with the format, then start testing. `engine-loop/references/ab-testing.md
 
 Five to seven posts. Short-form is cheap to write and expensive to judge in isolation — a batch lets the user see the pattern and reject a direction rather than a sentence.
 
-- The first line decides everything. It's the only part most people read — the
-  hook angles and openers in `engine-video/references/hook-guide.md` → §2 port
-  over; its overlay rules (casing, word counts, punctuation) do not
+- The first line decides everything — it's the only part most people read. The
+  openers that earn the second line: **a flat specific claim**, **a number with
+  no setup**, **the reversal** (common advice, then why it's wrong here), **the
+  confession** (what went wrong and what it cost), **the question you actually
+  get asked**. If `engine-video` is also installed,
+  `engine-video/references/hook-guide.md` → §2 has the long version — the angles
+  port over, its overlay rules (casing, word counts, punctuation) do not
 - One idea per post
 - No engagement bait, no "agree?", no fake vulnerability, no thread of platitudes
 - Formatting matches what's in `inputs/best/` — if they don't use line breaks between every sentence, don't start
 
 Before showing the batch, run `references/anti-slop-writing.md` over it (edit or detect).
+
+### 3a. Fixed parts and free parts — the block system, optional
+
+Some of a post is settled long before the rest. How they sign off, the one-line
+way they describe what they do, the framing they use for a CTA — those stop
+being creative decisions after a few weeks, while the claim and the story are
+new every time. **The block system splits a template into slots that rotate and
+slots written fresh**, the same way `engine-video` keeps a render config beside
+its script template.
+
+```
+templates/
+├── post-default.txt      the template — an arm the loop tests
+├── blocks/               pre-built parts, several variations each
+│   ├── closers.md
+│   └── bio-line.md
+└── losers/
+```
+
+The template's header names which slots are block-fed; everything else is free:
+
+```
+# blocks: CLOSE -> blocks/closers.md
+# free:   CLAIM, BODY
+```
+
+**`blocks/` must be a subfolder, not loose files in `templates/`.**
+`assign_arm.py` treats every file directly inside `templates/` as a competing
+template, so a blocks file at that level gets handed out as an arm and quietly
+corrupts a verdict. The subfolder is invisible to the loop, exactly like
+`losers/`. The full format, and the two rotation rules, are in
+`templates/blocks/README.md` in the workspace.
+
+Three things to hold to:
+
+- **Blocks come from step 1**, extracted from `inputs/best/` and
+  `inputs/swipe/` — their structures, never anyone else's words. An invented
+  closer library is slop with a folder around it
+- **Never the same variation twice in a batch**, and rotate across batches —
+  five posts ending identically read as one automated account
+- **Two or three block files is plenty.** A post assembled entirely from
+  pre-built parts is a mail merge and readers can tell. If every slot is
+  pre-built, the template has stopped being a template
+
+Skip all of this if nothing has settled yet. A workflow in its first fortnight
+should be writing posts, not building a parts library.
 
 ### 3b. Pick an image — optional
 
@@ -160,8 +251,9 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --
 
 **Bluesky** — AT Protocol API after explicit per-post approval —
 `references/bluesky-post.md`. Schedulers (Upload Post / Buffer) are a video
-concern; see `engine-video/references/posting-options.md` if you later want them
-for text too.
+concern; if `engine-video` is installed,
+`engine-video/references/posting-options.md` compares them, and they can carry
+text posts too.
 
 The URL is needed to read the numbers back later.
 

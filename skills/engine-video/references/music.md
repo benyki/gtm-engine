@@ -28,7 +28,32 @@ shared/assets/music/<slug>.mp3
 
 Reference the path from `inputs.json` → `musicBackground.file`.
 
-## Download helpers (optional)
+## Offering it (do this every run)
+
+The user is not expected to arrive with a track. **Suggest a mood, then artists
+if they want one** — `engine-video` SKILL → step 5b has the wording. Moods that
+map cleanly onto the three formats:
+
+| Format | Mood that usually fits |
+|---|---|
+| Viral product (no voice, bed at 0.5) | driving electronic, upbeat house, clean synth |
+| Viral vibe (no voice, bed at 0.5) | calm lo-fi, ambient piano, slow strings |
+| Informative (under a voice, bed at 0.03) | minimal texture — sustained pads, no melody competing with the words |
+
+A named artist is a better brief than a genre, so if they have one, ask for it.
+"Something like Tycho" gets you closer than "chill".
+
+## Download helpers
+
+Fetch what they name — a song title, an artist, or a URL. The skill route is
+better than raw `yt-dlp` when you have a *name* rather than a link:
+
+**`benyki/skills/youtube-song-download`** — takes song + optional artist,
+searches YouTube, picks a video inside a duration window (default 90s–10min, so
+you don't get a teaser or a two-hour DJ set), downloads and writes a tagged MP3.
+Point its output at `shared/assets/music/`. `benyki/skills/music-downloader` is
+the broader version. Install:
+[`docs/additional-skills.md`](../../../docs/additional-skills.md).
 
 When the user pastes a **URL they have rights to reuse** (their own upload,
 bought track page, etc.):

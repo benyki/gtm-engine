@@ -28,8 +28,10 @@ generic email. The first template is written *with the user*, and
 
 | Step | Reference |
 |---|---|
-| Where the list comes from | `references/lead-sourcing.md` |
+| Where the list comes from, and finding the addresses | `references/lead-sourcing.md` |
+| Researching a person in the browser | `references/browser-research.md` |
 | Writing the first email with the user | `references/first-touch.md` |
+| **Cut the slop — every draft, every run** | `references/anti-slop-writing.md` |
 | Replies and follow-ups (**optional**) | `references/followups.md` |
 | Sending domain, volume, deliverability | `references/advanced.md` |
 
@@ -114,20 +116,56 @@ Then say what came out the other end in one line — how many rows, how many wit
 an email, how many duplicates merged, what you couldn't map — so they can catch
 a bad import before fifty drafts are built on it.
 
-**No list yet?** Building one is part of this workflow, not a prerequisite —
-`references/lead-sourcing.md` covers the sources in the order worth trying, the
-ten-lead test that tells you whether a source is any good, and the scraping and
-personal-data limits. The list moves the reply rate more than the copy does.
+### 1b. No addresses? Offer to go and get them — always, unasked
 
-For B2B with nothing to start from, the fastest honest path to the first twenty
-is three steps in one afternoon: **search LinkedIn with the agent driving the
-browser** (title, headcount, geography, something that changed recently),
-capturing name, role, profile URL and the observable → **turn the profile URLs
-into verified email addresses** with a finder tool (Dux-Soup, Lusha, Apollo,
-Hunter, Prospeo — expect a 50–70% hit rate, so search thirty to land twenty) →
-**run this workflow normally**. Full version, including which tool to pick and
-the LinkedIn-terms caution to raise with the user, is in
-`references/lead-sourcing.md`.
+**A list of names with no emails is not a blocked run, and "no list at all" is
+not a blocked run either.** Both are the normal starting point, and finding the
+addresses is *your* job in this workflow. Never end a message with "send me a
+list with emails and I'll continue" — say what you can do and offer to start it.
+
+The path that works for B2B, in one afternoon:
+
+1. **Find the people in the browser** — LinkedIn search with the agent driving
+   (title, headcount, geography, and ideally something that changed recently:
+   hiring, a new role, a recent post). Capture name, role, **profile URL** and
+   the observable while you're on the profile — coming back for it later doubles
+   the work. Uses the user's own logged-in session; needs the browser extension
+   ([`docs/preflight.md`](../../docs/preflight.md) §2b)
+2. **Turn the profile URLs into addresses** with a finder tool — table below
+3. **Run this workflow normally.** Nothing downstream is different
+
+Expect a **50–70% hit rate** on professional audiences: that's normal, not a
+failed run, and it's why you search thirty to land twenty.
+
+**Which tool — say this out loud, with the trade-off, and let them pick:**
+
+| | Free tier | Can the agent drive it end to end? |
+|---|---|---|
+| **Hunter** | free forever, tens of lookups a month, no card | **Yes** — REST API included on the free tier, so the agent can take a list of profile URLs or names+domains and return addresses without you touching anything |
+| **Apollo** | free tier with email credits, but they've been cut hard and repeatedly | **No, not on free** — API access is a paid feature. Free means the user works the UI or Chrome extension and exports a CSV, which you then normalise. Biggest database of the three |
+| **Prospeo** | free credits via the UI and Chrome extension | **Not on free; yes once paid** — API is a paid feature, but it's API-first and built for exactly URL-in-address-out, so it's the cleanest to automate once they're paying |
+
+**These limits change often** — Apollo's free tier dropped roughly a hundredfold
+in one restructure. Read the current pricing page before quoting a number to the
+user, and never tell them what a plan costs from memory.
+
+The honest summary to give them: *if you want me to do this unattended, Hunter's
+free tier is the one that works today; if you want the most data and don't mind
+clicking, Apollo; if this becomes a weekly job worth paying for, Prospeo.*
+Chrome-extension tools that ride the user's own LinkedIn session (Dux-Soup,
+Lusha, Clearbit Connect) are a fourth shape — closest to "I already have the
+search open", but the user is in the loop for every profile.
+
+**Two cautions, both said once, neither of them a reason to stop:** automating
+LinkedIn is against its terms and enforcement lands on the account (driving
+their own session at human pace is the low-risk end; bulk connection automation
+is not), and a found address is still cold outreach — the consent and opt-out
+rules apply exactly as they do to any other list.
+
+`references/lead-sourcing.md` has the full version: every source in the order
+worth trying, the ten-lead test that tells you whether a source is any good, and
+the scraping and personal-data limits. **The list moves the reply rate more than
+the copy does**, so this step deserves the time.
 
 What a *rich* list looks like — the best case, not a bar to clear, and not a
 shape it has to arrive in since you convert whatever they hand you. Every column
@@ -185,9 +223,9 @@ roughly this order, and stop as soon as you have one real thing:
 - **their job posts** — what a company is hiring for is what it's struggling with
 - **a Reddit or HN comment** where they described the problem in their own words
 
-The browser is the tool for most of this — `engine-social/references/browser-research.md`
-covers reading platforms that have no API. Look for something specific and
-recent: what they shipped, what they wrote, what they're hiring for, what they
+The browser is the tool for most of this — `references/browser-research.md`
+covers where to look in what order, what counts as an observation, and the
+limits. Look for something specific and recent: what they shipped, what they wrote, what they're hiring for, what they
 said publicly. One real observation beats three generic compliments. Budget
 about a minute per person; if there's genuinely nothing to find, that's a signal
 they're the wrong target, not a reason to write filler.
@@ -252,7 +290,28 @@ with the research you have, list the two or three rows worth a human line, and
 carry on if they don't bite. Anything they add goes into the CRM row's
 `research` (or `notes`) so the follow-up keeps it.
 
-Create it as a **draft in the user's mail system** (Gmail, Outlook — whatever the connector is).
+### 4b. Cut the slop — before it becomes a draft
+
+**`references/anti-slop-writing.md`, over every email, every run. Not optional
+and not only for the first one.** A template that survived the anti-slop pass
+when it was written still produces slop once you fill it in per person — the
+patterns arrive in the parts you wrote today, not in the parts the user approved
+last month.
+
+Four checks the reference expands on, and any failure is a rewrite:
+
+- **the swap test** — could this go to someone else on the list by changing the
+  name? Then the first line is a merge field, not research
+- **the competitor test** — could a competitor send it with their name in it?
+- **the read-aloud test** — anywhere you stumble is a line to cut
+- **the reply test** — is the ask answerable in one sentence, on a phone?
+
+If `benyki/skills/no-ai-slop-writting` is installed, use it instead — it's the
+same pass with the full pattern list. The reference has the one-line install.
+
+**Only then** create it as a **draft in the user's mail system** (Gmail, Outlook
+— whatever the connector is). Once it's a draft it's one click from sent, so the
+pass happens before, never after.
 
 ### 5. Record
 

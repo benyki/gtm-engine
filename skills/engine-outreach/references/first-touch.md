@@ -98,7 +98,7 @@ alone are a complete metric. The primary metric doesn't change either way.
 
 Every draft, before the user sees it. The patterns that make writing sound
 machine-made are the same ones that make a cold email get deleted —
-`engine-seo/references/anti-slop-writing.md` is the full list, and
+`references/anti-slop-writing.md` is the list, tuned for email, and
 `benyki/skills/no-ai-slop-writting` is the deeper editor if it's installed.
 
 The ones that kill cold email specifically: "I hope this finds you well",
