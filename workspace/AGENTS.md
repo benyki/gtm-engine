@@ -50,10 +50,6 @@ Next:
   · you: paste the Bluesky app password into shared/.env if you want that channel live
 ```
 
-Offer, don't act: anything that leaves this machine — a post, an email, a
-purchase, a push — waits for an explicit yes, every time. If there is genuinely
-nothing to do next, say that instead of inventing filler.
-
 ## Before you produce anything
 
 1. `shared/brand.md` — voice, audience, banned claims. If it's thin, say so
@@ -61,17 +57,6 @@ nothing to do next, say that instead of inventing filler.
 2. `shared/insights.md` — what previous runs taught, across workflows
 3. That workflow's `reports/latest.json` and its `inputs/best/` — what worked
    here, and what the user's own good work looks like
-
-## Every piece made gets a run row
-
-```bash
-python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow <name> --channel <channel>
-```
-
-One run per artifact, logged before it ships, with the template it used. A piece
-that isn't in `runs/index.csv` never gets a number, never joins an A/B verdict,
-and is invisible to the weekly report. Record the publish (`runlog.py publish`)
-and the number when the window has passed (`runlog.py metric`).
 
 ## Schedulers are the agent's own scheduled tasks
 
@@ -86,10 +71,6 @@ stand alone: name the workflow, the workspace path, and what to do.
 
 ## Boundaries that don't move
 
-- **Never send email.** Outreach ends at a draft in the user's own mailbox
-- **Never post or publish without an explicit yes** — per post, not per session
-- **Never read `shared/.env`.** Variable *names* come from `.env.example`; the
-  user pastes values in themselves, never into a chat window
 - **Never invent a fact about a person**, and never generate an image that
   functions as proof (a metrics screenshot, a revenue chart, a testimonial)
 - **Never start an A/B test that isn't already live.** Experiments ship paused

@@ -381,6 +381,25 @@ workspace is found. It changes nothing — it only looks.
 
 Tell them the one next thing to do — run their chosen content workflow and ship one piece. Not three. The loop needs real runs more than it needs breadth.
 
+**Explain how a piece gets recorded, once, here** — it's the one mechanic that
+everything downstream depends on, and it's invisible until it's missing:
+
+```bash
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow <name> --channel <channel>
+```
+
+One run per artifact, logged before it ships, with the template it used. A piece
+that isn't in `runs/index.csv` never gets a number, never joins an A/B verdict,
+and is invisible to the weekly report. The publish moment is recorded with
+`runlog.py publish`, and the number with `runlog.py metric` once the channel's
+window has passed.
+
+Say it as *what the workflow does for them*, not as a chore they have to
+remember — each workflow skill runs these commands as part of its own steps, so
+nobody types them by hand. What the user needs to take away is why an unlogged
+piece is invisible to the loop, because that's what makes a report read "no runs
+measured" a month later.
+
 Then flag what comes right after the first published piece: **two schedulers** —
 `engine-metrics-<their-workflow>` (one per workflow, on that channel's clock)
 and `engine-weekly` (one for the workspace). Don't create them during setup —
