@@ -1,12 +1,19 @@
 {
-  "_comment": "Where this workflow's ideas and raw material come from. Free-form \u2014 add fields as needed.",
+  "_comment": "Where this workflow's ideas and raw material come from. Free-form — add fields as needed.",
   "primary": "own_material",
   "_primary_options": [
     "own_material",
     "queue",
     "repurpose_seo",
-    "reddit"
+    "reddit",
+    "rss"
   ],
   "repurpose_from": "seo",
-  "_repurpose_hint": "own_material is the day-one default. Prefer inputs/queue/ once engine-loop has filled it. One article is usually three or four posts."
+  "_repurpose_hint": "own_material is the day-one default. Prefer inputs/queue/ once engine-loop has filled it. One article is usually three or four posts.",
+  "subreddits": [],
+  "_subreddits_hint": "Leave empty and the agent finds where your audience actually posts. Add them once you know. Feeds the 4 Reddit subjects in the daily twelve.",
+  "rss_feeds": [],
+  "_rss_feeds_hint": "Media sources that fit your audience — trade press, the newsletters you actually read, competitor blogs, release notes from tools your audience uses, a subreddit's .rss. 10-15 is plenty. Build this list with the agent the first time the daily job runs. Feeds the 4 RSS subjects in the daily twelve.",
+  "rating_criteria": "",
+  "_rating_criteria_hint": "What makes a subject worth posting FOR YOU, in your words. The daily job generates 12 candidates and keeps 1 — this is the bar it filters against. Empty = the agent falls back to the workflow's own 0-9 score (attention, proof, proximity) and says so."
 }

@@ -1,12 +1,13 @@
-# Goals — what has to exist by the end of the day
+# Goals — what has to exist when setup is done
 
 Not a plan, and not a list of intentions. A list of **achievements**: specific,
 factual things that exist on your machine and run without you when you close the
 laptop. Every line is checkable — a file that opens, a scheduler that fires, a
 run row with a number in it.
 
-Do the sections for the workflows you're actually setting up. Skip the rest —
-an empty workflow folder is clutter, not an obligation.
+All four workflow folders get scaffolded, but you don't configure all four. Do
+the sections for the workflow you're actually running and skip the rest — the
+others sit there costing nothing until you come back for them.
 
 ## How to read the brackets
 
@@ -40,13 +41,10 @@ Each line ends with what you have to create for it:
 
 ## 0. Baseline — true before anything else counts
 
-- [ ] Workspace scaffolded: one folder per workflow you'll run, plus `shared/` and `published/` [optional check: `doctor.py`]
-- [ ] Decided where shipped artifacts go — the default `published/<workflow>/`, an external drive, or `"none"` to leave them with the run [file `<workflow>/workflow.json` → `published_dir`, empty is fine]
+- [ ] Workspace scaffolded: one folder per workflow you'll run, plus `shared/` and `published/` [check: `doctor.py` is green]
 - [ ] Brand filled in for real — audience type (B2B/B2C), named ICP, promise, tone, banned claims [file `shared/brand.md` to fill]
-- [ ] Every channel you ship to today is `enabled: true` with its handle and `metric_delay_hours` — and if a platform has more than one account, all of them listed under `accounts` with what each is for [file `shared/channels.json` to fill]
+- [ ] Every channel you ship to today is listed under `accounts` with what each is for [file `shared/channels.json` to fill]
 - [ ] Keys pasted in by you, for the workflows below only [file `shared/.env` to create]
-- [ ] Each workflow has a one-sentence `goal` and a real `primary_metric` (not "engagement") [file `<workflow>/workflow.json` to fill]
-- [ ] Cross-workflow learnings file exists, even empty [file `shared/insights.md` to fill]
 
 ---
 
@@ -183,18 +181,16 @@ and its own backlog. The publishing end is the platform, not GitHub.
 
 ---
 
-## End-of-day proof
+## Proof it landed
 
-Three commands and one question. If they all answer, the day worked.
+Four commands and one question. If they all answer, setup worked.
 
 ```bash
+python3 <repo>/skills/engine-setup/scripts/doctor.py
 python3 <repo>/skills/engine-loop/scripts/due_metrics.py
 python3 <repo>/skills/engine-loop/scripts/score_arms.py
-find ./workflows -name index.csv -path '*/runs/*' -exec wc -l {} +
+find . -name index.csv -path '*/runs/*' -exec wc -l {} +
 ```
-
-(`doctor.py` is there too if you want a look at the install — optional, and not
-part of the proof. What proves the day is runs on the board.)
 
 Then ask your agent: **"list my scheduled tasks"** — every job you created today
 should be there, active, with a next run time.

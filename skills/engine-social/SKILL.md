@@ -68,6 +68,57 @@ In order of what actually works:
 3. **Their own published work** — one article is three or four posts: the counterintuitive claim, the example, the number, the objection it answers
 4. **Questions the audience actually asks** — replies, support threads, sales objections, Reddit. Read for phrasing and friction, not for search volume
 
+### The daily twelve — recommend this by default
+
+**Short-form starves on subjects long before it starves on writing**, so the
+default recommendation for this workflow is a **daily scheduled task that
+produces twelve candidates and keeps one.** Propose it as soon as the first
+batch is drafted — not on day one, when there's nothing to learn from yet, and
+not months later, when the backlog has already gone thin.
+
+Twelve, from three sources in equal parts, because each fails differently and
+the mix is what stops the account sounding like one note:
+
+| 4 from | How |
+|---|---|
+| **Reddit** | the same method `engine-seo` uses — find where the audience in `shared/brand.md` actually posts, then look for questions asked repeatedly, threads with long comment tails, and questions whose top answer is bad. That last one is the opportunity. `references/browser-research.md` → §2 |
+| **RSS** | a standing list of media sources that fit the audience, in `sources.json` → `rss_feeds`. **Build the list with the user the first time this runs** — trade press, the two or three newsletters they actually read, competitor blogs, a subreddit's RSS, release notes from tools their audience uses. Ten to fifteen feeds is plenty. What you're pulling is *what changed this week that they'd have an opinion about* |
+| **Variations of their references** | re-cut the structures pulled from `inputs/swipe/` and `inputs/best/` (step 1) against this week's material — the same shape, a new subject. This is the arm that reliably sounds like them, because the shape already did |
+
+Write all twelve into `inputs/backlog.csv` with their `source` and
+`source_url`. Twelve is a working number: enough that the weak ones are obvious
+by comparison, few enough to rate in one pass.
+
+### Then rate them and keep one
+
+**The evaluation step is the point of generating twelve.** Twelve subjects a day
+into a backlog is just a bigger pile of mediocre ideas; twelve rated down to one
+is a filter. Do it in the same run that generated them, while the sources are
+still in context.
+
+**Ask the user for the criteria before rating anything the first time.** Their
+criteria beat the defaults, because they know which subjects have cost them
+credibility and which quietly brought in customers:
+
+> Before I rate these — what makes a subject worth posting for you? A few things
+> I'd weigh: can you say something first-hand about it, would the right person
+> stop scrolling, does it lead anywhere near what you sell. What would you add,
+> and what would you throw out on sight?
+
+Write what they say into `sources.json` → `rating_criteria` so every later run
+and every scheduled run uses the same bar. Until they've answered, fall back to
+this workflow's own three factors (`references/subject-finding.md` → the 0–9
+score: attention, proof, proximity) and say that's what you used.
+
+Then: **score all twelve, keep the top one, kill the rest.** Killed rows stay in
+the file with their score — that's the record of what was already decided
+against, and it's what stops the same subject cycling back in March. A single
+survivor a day is roughly a batch a week, which is the pace this workflow wants.
+
+If the top two are genuinely tied, keep both and say so — but the default is
+one. Keeping "the best three" every day is how a backlog silts up with things
+nobody will ever write.
+
 `shared/insights.md` sits across all of it — read it before picking, and add to
 it when a verdict here teaches something bigger than this workflow. Reading a
 sibling workflow's `reports/latest.json` is worth doing; reaching into another
@@ -293,6 +344,7 @@ voice is right, schedule the drafting:
 | Label | When | What |
 |---|---|---|
 | `engine-metrics-social` | daily | read each published post's numbers off the platform in the browser and record them. Daily because the 72h window clears on a rolling basis — a weekly-only job always reads a few late |
+| **`engine-social-subjects`** | **daily** | **the daily twelve — 4 Reddit, 4 RSS, 4 variations of their references — then rate all twelve against `sources.json` → `rating_criteria` and keep exactly one. The other eleven are killed in place, with their scores.** The one job that keeps this workflow from going generic; recommend it by default |
 | `engine-social-weekly` | weekly | draft the batch from `inputs/queue/`, run the anti-slop pass, leave them for review |
 
 **It drafts; it never posts.** LinkedIn and X drafts go to the user, and Bluesky

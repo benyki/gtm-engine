@@ -143,6 +143,7 @@ into deliberately.
 
 | Label | When | What it does | Never |
 |---|---|---|---|
+| `engine-social-subjects` | daily | The daily twelve: 4 subjects from Reddit, 4 from the `rss_feeds` in `social/sources.json`, 4 variations of the structures in `inputs/swipe/` and `inputs/best/`. Then rates all twelve against `sources.json` → `rating_criteria` and keeps **one**, killing the rest in place with their scores | keep "the best three". One survivor a day is the point — the filter is the job |
 | `engine-social-weekly` | weekly | Drafts the batch from `social/inputs/queue/`, runs the anti-slop pass, leaves them for review | post. LinkedIn and X drafts go to the user; Bluesky posts only after per-post approval |
 
 ### Video

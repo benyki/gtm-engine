@@ -9,36 +9,13 @@ Every run is written to disk with the template version it used. When the numbers
 
 ---
 
-## AGENTS.md is not optional
-
-`engine-setup` writes an **`AGENTS.md`** at the root of your workspace (plus a
-`CLAUDE.md` pointing at it). **Every agent working in that folder follows those
-rules religiously, every session, no exceptions** — they are the house rules of
-this engine, not suggestions to weigh against convenience:
-
-- **stay flexible** — the workflow adapts to how the user already works, never
-  the other way round; take their list, their format, their process as they are
-- read `shared/brand.md` and `shared/insights.md` before producing anything
-- log every piece made with `runlog.py` — an unlogged piece never gets a number
-- **never send, post or publish without an explicit yes**, and never read `shared/.env`
-- every recurring job is a **native scheduled task in the agent** — never cron
-- end every message with the possible next steps and what you can start now
-
-If a skill, a habit or a shortcut disagrees with `AGENTS.md`, `AGENTS.md` wins —
-raise the conflict with the user instead of quietly resolving it. Template:
-[`workspace/AGENTS.md`](workspace/AGENTS.md). It's yours to extend once
-scaffolded: anything you want *every* agent in that workspace to do goes in it,
-and a re-run of the scaffold never overwrites your version.
-
----
-
 ## Getting started — read the docs
 
 **Start with the docs, not this README.** Before you install anything, work through these:
 
 | Doc | Why |
 |---|---|
-| [`docs/preflight.md`](docs/preflight.md) | **Pre-workshop section** — using this repo in a workshop? This is the checklist: machine check + what each workflow needs, in order |
+| [`docs/preflight.md`](docs/preflight.md) | **Start here** — the checklist: machine check + what each workflow needs, in order |
 | [`docs/useful-links.md`](docs/useful-links.md) | Every download and signup link, plus which key maps to which env var |
 | [`docs/workspace.md`](docs/workspace.md) | Where your brand, runs, and numbers live — and what never mixes with the repo |
 
@@ -49,6 +26,7 @@ Later, when you need it:
 | [`docs/scheduling.md`](docs/scheduling.md) | Every scheduler you should have — one metric job per workflow, one weekly job for the workspace, and the optional content jobs |
 | [`skills/engine-video/references/posting-options.md`](skills/engine-video/references/posting-options.md) | Video posting: manual, Upload Post, or Buffer |
 | [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/skills`](https://github.com/benyki/skills) — download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
+| [`docs/stay-on-top-content.md`](docs/stay-on-top-content.md) | Channels and podcasts worth following — and the seed list for `engine-social`'s RSS subjects |
 
 Then install (below) and tell your agent: `run engine-setup`.
 
@@ -240,5 +218,11 @@ do not edit files in the clone to “improve” the engine.
   decide what to keep. Prefer leaving a workflow that is already performing
   alone. Agents and docs may *suggest* canonical updates; they must never push
   or force-overwrite the skills you are actively running.
+
+---
+
+`engine-setup` writes an [`AGENTS.md`](workspace/AGENTS.md) at the root of your
+workspace (plus a `CLAUDE.md` pointing at it) — the house rules every agent
+working in there follows, and yours to extend.
 
 MIT licensed. Issues and PRs welcome.
