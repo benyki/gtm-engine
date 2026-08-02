@@ -1,5 +1,5 @@
 {
-  "description": "Default 9:16 floating-text look — hook + one detail over B-roll",
+  "description": "Default 9:16 floating-text look : hook + one detail over B-roll",
   "duration_s": 15,
   "output": {
     "dir": "runs/<run_id>/output",

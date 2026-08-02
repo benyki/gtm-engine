@@ -1,5 +1,5 @@
 <!-- hypothesis: Answering in the first hundred words holds the reader who
-     arrived from a search result. Baseline arm — beat it. -->
+     arrived from a search result. Baseline arm : beat it. -->
 <!-- Placeholders: {{TITLE}} {{QUESTION}} {{SHORT_ANSWER}} {{SECTIONS}} -->
 
 # {{TITLE}}

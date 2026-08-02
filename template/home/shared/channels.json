@@ -1,5 +1,5 @@
 {
-  "_comment": "All your accounts, one place, shared by every workflow. This is the minimum global config — everything workflow-specific lives in that workflow's folder. The channel set is open: add newsletter, threads, reddit, podcast, ... freely; runlog.py --channel is free text and a channel only needs an entry here if you want config for it.",
+  "_comment": "All your accounts, one place, shared by every engine. This is the minimum global config : everything engine-specific lives in that engine's folder. The channel set is open: add newsletter, threads, reddit, podcast, ... freely; runlog.py --channel is free text and a channel only needs an entry here if you want config for it.",
   "channels": {
     "blog": {
       "enabled": false,
@@ -48,14 +48,14 @@
       "from": ""
     }
   },
-  "_channel_keys": "Optional per-channel keys the scripts honour: primary_metric (overrides the workflow's own for runs on this channel) and metric_delay_hours (how long after publish before the number is worth reading — due_metrics.py defaults to 72, right for social; set e.g. 336 for blog/Search Console, 24 for email replies).",
-  "_accounts_note": "ONE account on a channel: fill in `handle` and ignore `accounts`. SEVERAL (a second language, a founder account beside the brand account, a test account): list them all in `accounts` and let `handle` name the default. No script parses this list — it exists so you and the next agent can answer 'which accounts do we actually have, and what is each one for' without logging into anything. Keep it current; a stale handle here is how a clip gets posted to the wrong account.",
+  "_channel_keys": "Optional per-channel keys the scripts honour: primary_metric (overrides the engine's own for runs on this channel) and metric_delay_hours (how long after publish before the number is worth reading : due_metrics.py defaults to 72, right for social; set e.g. 336 for blog/Search Console, 24 for email replies).",
+  "_accounts_note": "ONE account on a channel: fill in `handle` and ignore `accounts`. SEVERAL (a second language, a founder account beside the brand account, a test account): list them all in `accounts` and let `handle` name the default. No script parses this list : it exists so you and the next agent can answer 'which accounts do we actually have, and what is each one for' without logging into anything. Keep it current; a stale handle here is how a clip gets posted to the wrong account.",
   "_account_shape": {
-    "handle": "@name — exactly as it appears on the platform",
+    "handle": "@name : exactly as it appears on the platform",
     "url": "the profile URL, so it is one click away",
-    "purpose": "what this account is for — the language, the audience, the brand",
+    "purpose": "what this account is for : the language, the audience, the brand",
     "posting_id": "how your posting tool refers to it when that differs from the handle (a profile name, a channel id). Saves guessing at 7am",
-    "notes": "anything you would forget: which workflow feeds it, when it was started, whether it is rate-limited"
+    "notes": "anything you would forget: which engine feeds it, when it was started, whether it is rate-limited"
   },
   "_account_example": {
     "handle": "@example.daily",
@@ -64,7 +64,7 @@
     "posting_id": "profile-2",
     "notes": "fed by video/; started 2026-06"
   },
-  "_cadence_note": "Posting frequency belongs to the ACCOUNT, not the workflow — two workflows feeding one handle share its ceiling. Four to five posts a day is the ceiling anywhere, most accounts do better well under it, and a burst reads as automation to the platform and the audience alike. engine-video/SKILL.md → 'How often to post'.",
+  "_cadence_note": "Posting frequency belongs to the ACCOUNT, not the engine : two engines feeding one handle share its ceiling. Four to five posts a day is the ceiling anywhere, most accounts do better well under it, and a burst reads as automation to the platform and the audience alike. engine-video/SKILL.md → 'How often to post'.",
   "_publish_options": [
     "manual",
     "uploadpost",
@@ -72,5 +72,5 @@
     "api",
     "draft_only"
   ],
-  "_publish_note": "Advisory, and an open set — no script enforces it. The contract is: a human approves before anything goes live, and the URL gets recorded. 'api' means the agent may publish directly after approval (sanctioned APIs only, e.g. Bluesky's AT Protocol); map any scheduler you already use onto the same contract."
+  "_publish_note": "Advisory, and an open set : no script enforces it. The contract is: a human approves before anything goes live, and the URL gets recorded. 'api' means the agent may publish directly after approval (sanctioned APIs only, e.g. Bluesky's AT Protocol); map any scheduler you already use onto the same contract."
 }

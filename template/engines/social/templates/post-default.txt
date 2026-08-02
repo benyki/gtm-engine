@@ -1,5 +1,5 @@
 # hypothesis: A flat, specific claim in line one stops the scroll without
-# sounding like bait. Baseline arm — beat it.
+# sounding like bait. Baseline arm : beat it.
 #
 # Placeholders: {{CLAIM}} {{BODY}} {{CLOSE}}
 # Line one is the only part most people read. Make it carry the whole post.

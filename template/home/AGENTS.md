@@ -1,39 +1,68 @@
-# Working in this workspace
+# Working in this home
 
-This folder is **data, not logic**. It holds one brand's growth work: the brand
-config, the inputs, every run and every number. The logic lives in the
-`engine-*` skills (`skills/` here is a symlink to `~/.agents/skills`) and in the
-gtm-engine clone. Skills get rewritten by `git pull`; nothing in here does.
+This folder is **data, not logic**. It holds everything shared between your
+engines: the brand config, the accounts, the keys, the assets, and what every
+run has taught. The logic lives in the `engine-*` skills (`skills/` here is a
+symlink to `~/.agents/skills`) and in the gtm-engine clone at `~/.gtm-engine`.
+Skills get rewritten by `git pull`; nothing in here does.
 
-One folder per workflow, and each is self-contained — its own `workflow.json`,
+**An engine is one self-contained folder** with its own `engine.json`,
 `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`,
-`reports/`. **Never reach into another workflow's folder to change something.**
-Reading a sibling's `reports/latest.json` is fine and encouraged; writing to it
-is not. `workflow.json` → `type` says which skill runs a folder (`social` →
-`engine-social`).
+`reports/`. Engines can live anywhere: in `engines/` here, or in an `engines/`
+folder inside the project they grow. **Never reach into another engine's
+folder to change something.** Reading a sibling's `reports/latest.json` is
+fine and encouraged; writing to it is not. `engine.json` gives the `type`,
+which says which skill runs the folder (`social` runs `engine-social`).
+
+## engines.json is the map, and keeping it true is your job
+
+`engines.json` in this folder lists every engine and where it lives. **Nothing
+scans for engines.** An engine that is not in that file is invisible: no weekly
+report includes it, no other engine can read its results, and the next agent
+will not know it exists.
+
+So whenever the filesystem moves under an engine, fix the map in the same
+breath:
+
+- **Created an engine?** Register it. `scaffold.py` does this for you; if you
+  made the folder by hand, run
+  `python3 ~/.gtm-engine/skills/engine-setup/scripts/registry.py add <name> <path>`
+- **Moved or renamed an engine folder?** Update its entry, and the `home` key
+  in its `engine.json`, before you do anything else
+- **Deleted one?** Remove its entry
+- **Cloned a project onto another machine?** The paths in `engines.json` came
+  from the old one. Re-point them
+- **Names are unique across every project.** Two engines cannot both be called
+  `outreach`; the second makes the first unreachable. In this home the
+  convention is `engine-<type>-<project>/`
+- **Not sure it is all still true?** `python3
+  ~/.gtm-engine/skills/engine-setup/scripts/doctor.py --fix` prunes dead
+  entries and registers loose folders
+
+One line, every time you touch a path: **did engines.json change with it?**
 
 ## Stay flexible
 
-**The goal is workflows that adapt to the user, not users who adapt to
-workflows.** Everything written down here and in the skills — the folder shapes,
-the column headers, the step order, the fields a workflow asks for — is a
-default that worked for someone else. When it doesn't fit the person in front of
-you, bend it and carry on. Read the instructions for their intent, not as a
+**The goal is engines that adapt to the user, not users who adapt to
+engines.** Everything written down here and in the skills, the folder shapes,
+the column headers, the step order, the fields an engine asks for, is a
+default that worked for someone else. When it doesn't fit the person in front
+of you, bend it and carry on. Read the instructions for their intent, not as a
 checklist to enforce.
 
 - **Take what they have, in the shape they have it.** Never send someone away to
   reformat a file, fill in a missing field, rename a column or re-export a
-  spreadsheet before anything can happen — converting it is your job
+  spreadsheet before anything can happen: converting it is your job
 - **A missing input is a note, not a stop.** Do the part you can do now, say in
   one line what was missing and what it cost, and offer the fix
-- **A step that doesn't apply gets skipped** — out loud, so they can say
+- **A step that doesn't apply gets skipped**, out loud, so they can say
   otherwise. Skipping it silently is the failure, not skipping it
 - **Their way beats the default.** If they already have a template, a tool or a
   process that works, fit around it rather than migrating them onto ours
 - **Nothing here is a required-choices screen.** Take the sensible default, say
   which one you took, keep moving
 
-The boundaries at the bottom of this file are the exception — those don't bend.
+The boundaries at the bottom of this file are the exception; those don't bend.
 Everything else is negotiable, and the user is who negotiates it.
 
 ## Always end with next steps
@@ -45,35 +74,35 @@ next.
 
 ```
 Next:
-  · draft the four remaining posts from inputs/queue/ — I can do this now
-  · read Tuesday's post numbers off LinkedIn and record them — 72h window clears tomorrow
+  · draft the four remaining posts from inputs/queue/, I can do this now
+  · read Tuesday's post numbers off LinkedIn and record them, the 72h window clears tomorrow
   · you: paste the Bluesky app password into shared/.env if you want that channel live
 ```
 
 ## Before you produce anything
 
-1. `shared/brand.md` — voice, audience, banned claims. If it's thin, say so
+1. `shared/brand.md`: voice, audience, banned claims. If it's thin, say so
    rather than guessing at a voice
-2. `shared/insights.md` — what previous runs taught, across workflows
-3. That workflow's `reports/latest.json` and its `inputs/best/` — what worked
-   here, and what the user's own good work looks like
+2. `shared/insights.md`: what previous runs taught, across every engine
+3. That engine's `reports/latest.json` and its `inputs/best/`: what worked
+   there, and what the user's own good work looks like
 
 ## Schedulers are the agent's own scheduled tasks
 
-Every recurring job in this workspace — the metric fetches, the weekly report,
-the drafting runs — is a **native scheduled task in the agent itself**: Claude
-Code's scheduled tasks, or the Codex equivalent. Never `cron`, never `launchd`,
-never a shell script on a timer.
+Every recurring job here, the metric fetches, the weekly report, the drafting
+runs, is a **native scheduled task in the agent itself**: Claude Code's
+scheduled tasks, or the Codex equivalent. Never `cron`, never `launchd`, never
+a shell script on a timer.
 
 They need a model, a browser and judgement, which an OS-level job doesn't have.
 Each run also starts with no memory of this conversation, so the prompt has to
-stand alone: name the workflow, the workspace path, and what to do.
+stand alone: name the engine, its full path, and what to do.
 
 ## Boundaries that don't move
 
 - **Never invent a fact about a person**, and never generate an image that
   functions as proof (a metrics screenshot, a revenue chart, a testimonial)
 - **Never start an A/B test that isn't already live.** Experiments ship paused
-  on purpose — one template the user is happy with comes first
+  on purpose: one template the user is happy with comes first
 
 Each skill states the rest of its own rules; those override nothing here.

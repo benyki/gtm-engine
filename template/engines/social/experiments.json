@@ -1,5 +1,5 @@
 {
-  "_comment": "Starter experiment — SHIPS PAUSED ON PURPOSE. Do not run an A/B on your first setup: ship with one template until you have a format you're happy with, then flip status to \"live\" and let assign_arm.py rotate. The arms below are an EXAMPLE of shape, not a recommendation for your business — rewrite them when you're ready to test. The second arm ships with no template on purpose: first time it's assigned, the agent writes it from the hypothesis (R4). Optional fields per experiment: channel, direction, aggregate — see engine-loop/references/ab-testing.md.",
+  "_comment": "Starter experiment : SHIPS PAUSED ON PURPOSE. Do not run an A/B on your first setup: ship with one template until you have a format you're happy with, then flip status to \"live\" and let assign_arm.py rotate. The arms below are an EXAMPLE of shape, not a recommendation for your business : rewrite them when you're ready to test. The second arm ships with no template on purpose: first time it's assigned, the agent writes it from the hypothesis (R4). Optional fields per experiment: channel, direction, aggregate : see engine-loop/references/ab-testing.md.",
   "experiments": [
     {
       "id": "exp-003",
@@ -24,7 +24,7 @@
         }
       ],
       "decision": null,
-      "_status_note": "paused until the user has a format they're happy with — set to \"live\" to start testing"
+      "_status_note": "paused until the user has a format they're happy with : set to \"live\" to start testing"
     }
   ],
   "decision_log": []

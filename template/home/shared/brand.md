@@ -1,7 +1,7 @@
 # Brand brief
 
-Everything the workflows write comes from this file. It's worth twenty real
-minutes — vague answers here produce generic output no amount of prompting fixes.
+Everything the engines write comes from this file. It's worth twenty real
+minutes : vague answers here produce generic output no amount of prompting fixes.
 
 Replace every TODO. Delete the guidance in italics as you go.
 
@@ -9,17 +9,17 @@ Replace every TODO. Delete the guidance in italics as you go.
 
 ## Audience type
 
-TODO — pick one and delete the other:
+TODO : pick one and delete the other:
 
-- **B2B / sales-led** — I want replies, conversations, meetings
-- **B2C / audience-led** — I want reach, signups, users
+- **B2B / sales-led** : I want replies, conversations, meetings
+- **B2C / audience-led** : I want reach, signups, users
 
 *Workflows branch on this. It changes the outreach angle, the content format
 and which metric the loop optimises.*
 
-*One brand, one ICP, one voice per workspace — that's the intended shape.
-Two products, two audiences, or two languages? Scaffold a second workspace
-(`scaffold_workspace.py --name growth-de`) and give each its own brand.md,
+*One brand, one ICP, one voice per home : that's the intended shape.
+Two products, two audiences, or two languages? Scaffold a second home
+(`scaffold.py --name growth-de`) and give each its own brand.md,
 rather than blending them here. A blended brief produces blended output.*
 
 ## Who, specifically
@@ -36,11 +36,11 @@ TODO
 
 ## The promise
 
-TODO — one sentence. What changes for them, not what the product does.
+TODO : one sentence. What changes for them, not what the product does.
 
 ## Proof
 
-TODO — numbers, customers, results, credentials. Anything true you can point at.
+TODO : numbers, customers, results, credentials. Anything true you can point at.
 
 *Used to keep the writing concrete instead of hedged.*
 
@@ -56,7 +56,7 @@ TODO — numbers, customers, results, credentials. Anything true you can point a
 
 ## Never say
 
-TODO — banned claims, competitor names, regulated language, words you hate.
+TODO : banned claims, competitor names, regulated language, words you hate.
 
 *Examples people usually add: "revolutionary", "game-changing", "in today's
 fast-paced world", any claim you can't substantiate, anything a regulator
@@ -64,7 +64,7 @@ would object to in your industry.*
 
 ## Formatting rules
 
-TODO — em dashes or not, emoji or not, first person or third, sentence case
+TODO : em dashes or not, emoji or not, first person or third, sentence case
 or title case in headings.
 
 *Petty-seeming, but it's the difference between output you can publish and
@@ -74,8 +74,8 @@ output you have to rewrite.*
 
 ## What I've learned
 
-*Leave empty at first. Every time you reject something the workflows produced,
-write down why — one line. This section becomes the most valuable part of the
+*Leave empty at first. Every time you reject something the engines produced,
+write down why : one line. This section becomes the most valuable part of the
 file, and it's what stops the same mistake recurring every week.*
 
 -

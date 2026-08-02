@@ -2,14 +2,14 @@
   "type": "video",
   "goal": "",
   "primary_metric": "",
-  "_primary_metric_hint": "The one number THIS workflow optimises — watch_through_rate when you have the browser extension (it lives in the creator dashboard), otherwise views, which yt-dlp reads off the public URL with no login. Don't set watch_through_rate if you can't fetch it. A channel can still override this in shared/channels.json.",
+  "_primary_metric_hint": "The one number THIS engine optimises : watch_through_rate when you have the browser extension (it lives in the creator dashboard), otherwise views, which yt-dlp reads off the public URL with no login. Don't set watch_through_rate if you can't fetch it. A channel can still override this in shared/channels.json.",
   "published_dir": "",
-  "_published_dir_hint": "Where this workflow's shipped artifacts go. Empty = the default, <workspace>/published/<this-workflow>/. Accepts a workspace-relative path or an absolute one (an external drive, a synced folder, a shared team drive). Set to \"none\" to skip the copy and leave artifacts in runs/<run_id>/output/.",
-  "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Running more than one video FORMAT? That's one folder each, named after the format: video-app/ (viral product), video-vibe/ (viral vibe), video-info/ (informative) — all type video. Copy this whole folder to one of those names, rewrite this file's goal and metric, empty runs/ and reports/, and run it independently. The folder name is the workflow name; 'type' maps it to the engine-video skill.",
+  "_published_dir_hint": "Where this engine's shipped artifacts go. Empty = the default, <home>/published/<this-engine>/. Accepts a home-relative path or an absolute one (an external drive, a synced folder, a shared team drive). Set to \"none\" to skip the copy and leave artifacts in runs/<run_id>/output/.",
+  "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Running more than one video FORMAT? That's one folder each, named after the format: video-app/ (viral product), video-vibe/ (viral vibe), video-info/ (informative) : all type video. Copy this whole folder to one of those names, rewrite this file's goal and metric, empty runs/ and reports/, and run it independently. The folder name is the engine name; 'type' maps it to the engine-video skill.",
   "video": {
     "elevenlabs_voice_id": "",
     "resolution": "1080x1920",
     "target_seconds": 35,
-    "_note": "Knobs engine-video reads. 9:16 vertical is the default, not a law — set 1920x1080 for a YouTube-landscape strategy and say so in brand.md."
+    "_note": "Knobs engine-video reads. 9:16 vertical is the default, not a law : set 1920x1080 for a YouTube-landscape strategy and say so in brand.md."
   }
 }
