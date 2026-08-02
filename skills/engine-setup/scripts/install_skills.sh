@@ -1,82 +1,87 @@
 #!/usr/bin/env bash
-# Install the gtm-engine workflows so your AI agent can find them.
+# Install the gtm-engine skills so your AI agent can find them.
 #
 # Path chain:
 #   <repo>/skills/<name>
-#     → COPY → ~/.agents/skills/<name>       (canonical — real files live here)
-#     → symlink each → ~/.claude|codex|cursor/skills/<name>  (if that dir exists)
-#     → symlink whole → <workspace>/skills → ~/.agents/skills
+#     -> COPY -> ~/.agents/skills/<name>       (canonical: real files live here)
+#     -> symlink each -> ~/.claude|codex|cursor/skills/<name>  (if that dir exists)
+#     -> symlink whole -> <home>/skills -> ~/.agents/skills
 #
 # Re-run after `git pull` in the engine repo to refresh the copies.
 # Extra agent dirs: set GTM_AGENT_DIRS (colon-separated skill dirs).
 #
 # Usage:
-#   ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
-#   ./install_skills.sh --workflow seo,outreach --workspace ./workflows
-#   ./install_skills.sh --workflow all --workspace ./workflows
+#   ./install_skills.sh [--home PATH] [--engine seo] [--dry-run]
+#   ./install_skills.sh --engine seo,outreach
+#   ./install_skills.sh --engine all
 #
-#   --workflow NAME    optional. Comma-separated name[:type] or all. With
-#                      --workspace it's inferred from each workflow folder's
-#                      workflow.json type. Convention: type N installs
+#   --engine NAME      optional. Comma-separated name[:type] or all. Left out,
+#                      it is inferred from the engines registered in
+#                      <home>/engines.json. Convention: type N installs
 #                      engine-N when that skill exists; always installs
 #                      engine-setup + engine-loop. Custom types with no
 #                      engine-N skill get the core pair only.
-#   --workspace PATH   project workspace folder (links PATH/skills → canonical)
+#   --home PATH        the gtm home (default: ~/gtm, or $GTM_HOME). Links
+#                      PATH/skills -> the canonical store.
 #   --dry-run          print what would happen, write nothing
 #   --help             show this usage
+#
+# --workspace and --workflow still work as names for --home and --engine.
 
 set -euo pipefail
 
 DRY_RUN=0
-WORKSPACE=""
-WORKFLOW=""
+GTM_DIR="${GTM_HOME:-$HOME/gtm}"
+ENGINE=""
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
 SKILLS_SRC="$REPO_ROOT/skills"
-WORKFLOWS_PY="$SCRIPT_DIR/workflows.py"
+ENGINES_PY="$SCRIPT_DIR/engines.py"
 CANON="$HOME/.agents/skills"
 
 usage() {
   cat <<'EOF'
-Install gtm-engine skills for the workflows you actually run.
+Install gtm-engine skills for the engines you actually run.
 
-Always installs engine-setup + engine-loop. For each --workflow NAME, also
+Always installs engine-setup + engine-loop. For each --engine NAME, also
 installs engine-NAME when that skill exists in the repo.
 
 Path chain:
   <repo>/skills/<name>
-    → COPY → ~/.agents/skills/<name>     (canonical)
-    → symlink → ~/.claude/skills/<name>  (if present)
-    → symlink → ~/.codex/skills/<name>   (if present)
-    → symlink → ~/.cursor/skills/<name>  (if present)
-    → symlink → <workspace>/skills  →  ~/.agents/skills   (whole folder)
+    -> COPY -> ~/.agents/skills/<name>     (canonical)
+    -> symlink -> ~/.claude/skills/<name>  (if present)
+    -> symlink -> ~/.codex/skills/<name>   (if present)
+    -> symlink -> ~/.cursor/skills/<name>  (if present)
+    -> symlink -> <home>/skills  ->  ~/.agents/skills   (whole folder)
 
 Re-run after git pull to refresh copies. Extra agents: GTM_AGENT_DIRS.
 
 Usage:
-  ./install_skills.sh --workflow seo [--workspace PATH] [--dry-run]
-  ./install_skills.sh --workflow seo,outreach --workspace ./workflows
-  ./install_skills.sh --workflow all --workspace ./workflows
+  ./install_skills.sh [--home PATH] [--engine seo] [--dry-run]
+  ./install_skills.sh --engine seo,outreach
+  ./install_skills.sh --engine all
 
-  --workflow NAME    optional — inferred from the workspace's workflow
-                     folders (workflow.json types) when --workspace is given;
-                     'all' with neither. Comma-separated names or types.
-  --workspace PATH   project workspace folder (links PATH/skills → canonical)
+  --engine NAME      optional. Inferred from the engines registered in
+                     <home>/engines.json when left out; 'all' when the home
+                     has none yet. Comma-separated names or types.
+  --home PATH        the gtm home (default: ~/gtm, or $GTM_HOME)
   --dry-run          print what would happen, write nothing
   --help             show this usage
+
+--workspace and --workflow are accepted as the old names for --home/--engine.
 EOF
 }
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --dry-run) DRY_RUN=1; shift ;;
-    --workspace)
-      [[ $# -ge 2 ]] || { echo "error: --workspace needs a path" >&2; exit 1; }
-      WORKSPACE="$2"; shift 2 ;;
-    --workflow|-w)
-      [[ $# -ge 2 ]] || { echo "error: --workflow needs a value" >&2; exit 1; }
-      WORKFLOW="$2"; shift 2 ;;
+    --home|--workspace)
+      [[ $# -ge 2 ]] || { echo "error: $1 needs a path" >&2; exit 1; }
+      GTM_DIR="$2"; shift 2 ;;
+    --engine|--workflow|-e|-w)
+      [[ $# -ge 2 ]] || { echo "error: $1 needs a value" >&2; exit 1; }
+      ENGINE="$2"; shift 2 ;;
     --help|-h) usage; exit 0 ;;
     *)
       echo "error: unknown arg: $1 (try --help)" >&2
@@ -85,45 +90,24 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# A workspace is one shared/ folder plus one folder per workflow; each
-# workflow folder carries its TYPE in workflow.json. Skills follow types.
-read_workspace_types() {
-  local dir="$1"
-  [[ -d "$dir" ]] || return 1
-  python3 - "$dir" <<'PYEOF'
-import json, pathlib, sys
-ws = pathlib.Path(sys.argv[1])
-types = []
-for p in sorted(ws.iterdir()):
-    m = p / "workflow.json"
-    if p.is_dir() and m.is_file():
-        try:
-            t = (json.loads(m.read_text()).get("type") or "").strip() or p.name
-        except Exception:
-            t = p.name
-        if t not in types:
-            types.append(t)
-if not types:
-    sys.exit(1)
-print(",".join(types))
-PYEOF
-}
+GTM_DIR="${GTM_DIR/#\~/$HOME}"
+GTM_DIR="${GTM_DIR%/}"
 
-if [[ -z "$WORKFLOW" ]]; then
-  if [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workspace_types "${WORKSPACE%/}")"; then
-    :
-  elif [[ -n "$WORKSPACE" ]] && WORKFLOW="$(read_workspace_types "${WORKSPACE%/}/workflows")"; then
-    :
-  elif [[ -n "$WORKSPACE" ]]; then
-    echo "error: no workflow folders (with workflow.json) found under $WORKSPACE" >&2
-    exit 1
-  else
-    # No workspace, no flag: install everything the repo ships.
-    WORKFLOW="all"
-  fi
+# Which skills? The types of the engines registered to this home. Engines can
+# live anywhere, so engines.json is the only thing that knows they exist.
+if [[ -z "$ENGINE" ]]; then
+  ENGINE="$(python3 - "$SCRIPT_DIR" "$GTM_DIR" <<'PYEOF'
+import sys, pathlib
+sys.path.insert(0, sys.argv[1])
+import engines as eng
+home = pathlib.Path(sys.argv[2]).expanduser()
+types = eng.home_types(home) if home.is_dir() else []
+print(",".join(types) if types else "all")
+PYEOF
+)" || ENGINE="all"
 fi
 
-SKILL_LIST="$(python3 "$WORKFLOWS_PY" skills "$WORKFLOW")" || exit 1
+SKILL_LIST="$(python3 "$ENGINES_PY" skills "$ENGINE")" || exit 1
 # shellcheck disable=SC2206
 SKILLS=($SKILL_LIST)
 
@@ -135,11 +119,11 @@ warn() { printf '  \033[33m!\033[0m %s\n' "$*"; }
 copy_into_canon() {
   local name="$1" src="$SKILLS_SRC/$name" dest="$CANON/$name"
   if [[ ! -f "$src/SKILL.md" ]]; then
-    warn "$name — not found under $SKILLS_SRC"
+    warn "$name not found under $SKILLS_SRC"
     return
   fi
   if (( DRY_RUN )); then
-    ok "$name (would copy → ${CANON/#$HOME/~}/$name)"
+    ok "$name (would copy to ${CANON/#$HOME/~}/$name)"
     return
   fi
   if [[ -L "$dest" || -e "$dest" ]]; then
@@ -163,7 +147,7 @@ link() {
   fi
 
   if [[ -e "$linkname" ]]; then
-    warn "$name — a real directory is already there, leaving it alone."
+    warn "$name: a real directory is already there, leaving it alone."
     warn "    Move or delete $linkname, then re-run this script."
     return
   fi
@@ -183,26 +167,13 @@ link_each_skill_into() {
   done
 }
 
-resolve_workspace() {
-  local raw="${1%/}"
-  if [[ -z "$raw" ]]; then
-    return 1
-  fi
-  if [[ -d "$raw/shared" ]]; then
-    (cd "$raw" && pwd)
-  elif [[ -d "$raw/workflows/shared" ]]; then
-    (cd "$raw/workflows" && pwd)
-  else
-    (cd "$raw" && pwd)
-  fi
-}
-
 say ""
-say "gtm-engine — installing workflows"
+say "gtm-engine: installing skills"
 say "  from: $REPO_ROOT"
-say "  workflows: $WORKFLOW"
+say "  home: ${GTM_DIR/#$HOME/~}"
+say "  engines: $ENGINE"
 say "  skills: ${SKILLS[*]}"
-(( DRY_RUN )) && say "  (dry run — nothing will be written)"
+(( DRY_RUN )) && say "  (dry run, nothing will be written)"
 say ""
 
 # 1. Canonical store: COPY selected skills into ~/.agents/skills
@@ -212,15 +183,12 @@ for name in "${SKILLS[@]}"; do
   copy_into_canon "$name"
 done
 
-# 2. Workspace: one symlink of the whole canonical skills folder
-if [[ -n "$WORKSPACE" ]]; then
-  WS="$(resolve_workspace "$WORKSPACE")" || {
-    echo "error: --workspace path not found: $WORKSPACE" >&2
-    exit 1
-  }
+# 2. The home: one symlink of the whole canonical skills folder, so
+# `skills/...` resolves from ~/gtm the same way it did from a v1 workspace.
+if [[ -d "$GTM_DIR" ]]; then
   say ""
-  say "Workspace: ${WS/#$HOME/~}/skills  →  ${CANON/#$HOME/~}"
-  link "$CANON" "$WS/skills"
+  say "Home: ${GTM_DIR/#$HOME/~}/skills  ->  ${CANON/#$HOME/~}"
+  link "$CANON" "$GTM_DIR/skills"
 fi
 
 # 3. Per-skill symlinks into agent skill dirs that already exist (or whose home exists).
@@ -250,8 +218,8 @@ done
 
 say ""
 say "Done. Next:"
-if [[ -z "$WORKSPACE" ]]; then
-  say "  Re-run with --workspace <project>/workflows once the workspace exists."
+if [[ ! -d "$GTM_DIR" ]]; then
+  say "  No home at ${GTM_DIR/#$HOME/~} yet. Run scaffold.py, then re-run this."
 fi
 say "  After git pull in the engine repo, re-run this script to refresh copies."
 say "  Tell your agent:  run engine-setup"

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stop a video workflow shipping the same video twice.
+"""Stop a video engine shipping the same video twice.
 
 The rule: never reuse the same INPUTS **and** the same SCENE DURATIONS.
 Same inputs with different durations is fine. Same durations with different
@@ -10,17 +10,17 @@ Two fingerprints per config, so the rule can be checked mechanically:
   inputs_fp    every media input + the on-screen hook copy
   durations_fp the ordered list of segment durations, rounded to 0.1s
 
-`<workflow>/runs/<run_id>/inputs.json` is the config and the only record —
+`<engine>/runs/<run_id>/inputs.json` is the config and the only record —
 one small JSON per video, written before the render (references/structure-plan.md).
-Queued configs in `<workflow>/inputs/queue/` have the same shape and are checked
+Queued configs in `<engine>/inputs/queue/` have the same shape and are checked
 the same way, so two configs that collide are caught before either is rendered.
 There is no second ledger to keep in sync: the fingerprints are always derived
 from the files that describe what was actually made.
 
 Usage:
-    combo_check.py check --workflow video --inputs runs/<id>/inputs.json
-    combo_check.py list  --workflow video
-    combo_check.py fp    --inputs <path>        # fingerprints only, no workspace
+    combo_check.py check --engine video --inputs runs/<id>/inputs.json
+    combo_check.py list  --engine video
+    combo_check.py fp    --inputs <path>        # fingerprints only, no home
 """
 from __future__ import annotations
 
@@ -30,10 +30,10 @@ import json
 import sys
 from pathlib import Path
 
-# engine-loop ships the workspace finder; same relative spot in the repo and
+# engine-loop ships the home finder; same relative spot in the repo and
 # in ~/.agents/skills.
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "engine-loop" / "scripts"))
-from wsfind import find_workspace, find_workflow_dir  # noqa: E402
+from gtmfind import find_home, find_engine  # noqa: E402
 
 CONFIG_NAME = "inputs.json"
 
@@ -87,7 +87,7 @@ def load_config(path: Path) -> dict:
 
 
 def known_configs(wd: Path) -> list[tuple[str, Path]]:
-    """Every config this workflow has committed to: queued and rendered."""
+    """Every config this engine has committed to: queued and rendered."""
     out = [(f"queue/{p.name}", p)
            for p in sorted((wd / "inputs" / "queue").glob("*.json"))]
     out += [(p.parent.name, p)
@@ -116,8 +116,9 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("command", choices=("check", "list", "fp"))
-    ap.add_argument("--workflow", default="video", help="workflow FOLDER name")
-    ap.add_argument("--workspace")
+    ap.add_argument("--engine", "--workflow", dest="engine", default="video", help="engine FOLDER name")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     ap.add_argument("--inputs", help=f"path to a config ({CONFIG_NAME})")
     a = ap.parse_args()
 
@@ -129,7 +130,7 @@ def main() -> int:
                           "durations": durs, "inputs": ins}, indent=2))
         return 0
 
-    wd = find_workflow_dir(find_workspace(a.workspace), a.workflow)
+    wd = find_engine(find_home(a.home), a.engine)
 
     if a.command == "list":
         rows = []

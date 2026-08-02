@@ -2,7 +2,7 @@
 # The deterministic half of the weekly loop.
 #
 # Scores the experiments and writes the report from whatever numbers are
-# already recorded. Safe to run unattended — it reads and writes files, it
+# already recorded. Safe to run unattended: it reads and writes files, it
 # never posts, sends, or promotes an arm.
 #
 # It cannot read numbers off TikTok or LinkedIn: that needs a logged-in
@@ -10,25 +10,25 @@
 # an agent session fills them in. See references/scheduling.md for the
 # agent-invoked version that does both.
 #
-# Usage:  weekly.sh [workspace_path]
+# Usage:  weekly.sh [home_path]        # default: ~/gtm, or $GTM_HOME
 
 set -uo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WS="${1:-}"
+GTM="${1:-}"
 
 # Plain string, not an array: macOS still ships bash 3.2, where an empty
 # array expanded under `set -u` is an unbound-variable error.
 run() {
-  if [[ -n "$WS" ]]; then
-    python3 "$HERE/$1" --workspace "$WS"
+  if [[ -n "$GTM" ]]; then
+    python3 "$HERE/$1" --home "$GTM"
   else
     python3 "$HERE/$1"
   fi
 }
 
 echo "=========================================="
-echo "gtm-engine weekly — $(date '+%Y-%m-%d %H:%M')"
+echo "gtm-engine weekly $(date '+%Y-%m-%d %H:%M')"
 echo "=========================================="
 
 echo ""
@@ -49,6 +49,6 @@ fi
 
 echo "wrote $REPORT"
 echo ""
-echo "Sections 5 and 6 are blank on purpose — an agent or you fills those in."
-echo "Next agent: read each workflow's reports/latest.json (and shared/insights.md)"
+echo "Sections 5 and 6 are blank on purpose: an agent or you fills those in."
+echo "Next agent: read each engine's reports/latest.json (and shared/insights.md)"
 echo "before deciding anything."

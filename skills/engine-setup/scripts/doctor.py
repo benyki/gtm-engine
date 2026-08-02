@@ -1,21 +1,27 @@
 #!/usr/bin/env python3
 """Check that everything gtm-engine needs is actually in place.
 
-**Optional — a helper, not a step.** Nothing in the engine calls this, no
-workflow needs it to have passed, and a workspace that never runs it is a
-normal workspace. Reach for it when something looks off, when you're on an
-unfamiliar machine, or when you just want to see the install landed. It changes
-nothing — it only looks.
+**Optional, a helper and not a step.** Nothing in the engine calls this, no
+engine needs it to have passed, and a home that never runs it is a normal home.
+Reach for it when something looks off, when you're on an unfamiliar machine, or
+when you just want to see the install landed. It changes nothing unless you
+pass --fix, and even then only the registry.
 
-**✗ means genuinely broken; ! is information, not a chore.** The engine is
-forgiving by design — a missing channels.json falls back to defaults, an empty
+**x means genuinely broken; ! is information, not a chore.** The engine is
+forgiving by design: a missing channels.json falls back to defaults, an empty
 templates/ is the documented first run, runs/ and reports/ are created on first
-write — so this check never reports those as blocking. Nothing here is a
-required-shape audit: a workspace someone built by hand, or trimmed to the two
-folders they use, is a valid workspace.
+write, so this check never reports those as blocking. Nothing here is a
+required-shape audit: a home someone built by hand, or trimmed to the two
+engines they use, is a valid home.
+
+The one thing worth taking seriously is the REGISTRY. Engines can live
+anywhere, so `<home>/engines.json` is the only thing that knows they exist. An
+engine that has moved without its entry being updated is invisible to every
+other engine, to the weekly report, and to the next agent. --fix repairs what
+it safely can.
 
 Usage:
-    doctor.py [--workspace PATH]
+    doctor.py [--home PATH] [--fix]
 
 Secrets: this reads the NAMES of the keys in shared/.env to confirm they
 are set. It never reads, prints or logs a value.
@@ -33,7 +39,8 @@ from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(_HERE))
-import workflows as wf  # noqa: E402
+import engines as eng  # noqa: E402
+import registry as reg  # noqa: E402
 
 REPO_ROOT = _HERE.parents[2]
 
@@ -93,12 +100,12 @@ def check_machine() -> None:
 
 # --- install ---------------------------------------------------------------
 
-def _skill_names(ws: Path | None = None) -> list[str]:
-    """Skills we expect to be installed for this machine / workspace."""
-    if ws is not None:
-        return wf.skills_for(wf.workspace_types(ws))
-    # No workspace yet — only require the always-on pair, not every workflow.
-    return list(wf.CORE_SKILLS)
+def _skill_names(home: Path | None = None) -> list[str]:
+    """Skills we expect to be installed for this machine / home."""
+    if home is not None:
+        return eng.skills_for(eng.home_types(home))
+    # No home yet — only require the always-on pair, not every engine.
+    return list(eng.CORE_SKILLS)
 
 
 def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bool:
@@ -106,12 +113,12 @@ def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bo
     label = f"Installed in {str(d).replace(str(Path.home()), '~')}"
     if not d.is_dir():
         if required:
-            add("fail", label, "missing — run install_skills.sh --workflow …")
+            add("fail", label, "missing — run install_skills.sh --engine …")
         return False
     linked = [n for n in names if (d / n).exists()]
     if not linked:
         if required:
-            add("fail", label, "empty — run install_skills.sh --workflow …")
+            add("fail", label, "empty — run install_skills.sh --engine …")
         return False
     if len(linked) == len(names):
         add("pass", label, f"{len(linked)}/{len(names)} ({', '.join(names)})")
@@ -122,8 +129,8 @@ def _check_skill_dir(d: Path, names: list[str], *, required: bool = False) -> bo
     return True
 
 
-def check_install(ws: Path | None = None) -> None:
-    names = _skill_names(ws)
+def check_install(home: Path | None = None) -> None:
+    names = _skill_names(home)
     available = sorted(
         p.name for p in (REPO_ROOT / "skills").iterdir()
         if (p / "SKILL.md").exists()
@@ -152,31 +159,31 @@ def check_install(ws: Path | None = None) -> None:
         if _check_skill_dir(d, names):
             found_agent = True
 
-    if ws is not None:
-        ws_skills = ws / "skills"
+    if home is not None:
+        home_skills = home / "skills"
         canon = Path.home() / ".agents/skills"
-        if ws_skills.is_symlink():
+        if home_skills.is_symlink():
             try:
-                target = ws_skills.resolve()
+                target = home_skills.resolve()
                 if target == canon.resolve():
-                    add("pass", "  workspace/skills → ~/.agents/skills")
+                    add("pass", "  ~/gtm/skills -> ~/.agents/skills")
                 else:
-                    add("warn", "  workspace/skills",
+                    add("warn", "  ~/gtm/skills",
                         f"points at {target}, expected ~/.agents/skills")
             except OSError:
-                add("warn", "  workspace/skills", "broken symlink")
-        elif not _check_skill_dir(ws_skills, names):
+                add("warn", "  ~/gtm/skills", "broken symlink")
+        elif not _check_skill_dir(home_skills, names):
             # A convenience link, not a dependency: the skills themselves are
-            # installed above, and ~/.agents/skills/… paths work without it.
-            add("warn", "  workspace/skills link missing",
-                "workspace-relative `skills/…` commands won't resolve — use "
-                "~/.agents/skills/… or run install_skills.sh --workspace <path>")
-        types = wf.workspace_types(ws)
-        add("pass", f"  workflow types: {', '.join(types) or '(none yet)'}")
+            # installed above, and ~/.agents/skills/... paths work without it.
+            add("warn", "  ~/gtm/skills link missing",
+                "home-relative `skills/...` commands won't resolve. Use "
+                "~/.agents/skills/... or run install_skills.sh --home <path>")
+        types = eng.home_types(home)
+        add("pass", f"  engine types: {', '.join(types) or '(none yet)'}")
 
     if not canon_ok and not found_agent:
-        add("fail", "Workflows not installed",
-            "run: install_skills.sh --workflow <workflow> --workspace <project>/workflows")
+        add("fail", "Skills not installed",
+            "run: install_skills.sh --engine <engine> --home ~/gtm")
 
 
 # --- optional tools --------------------------------------------------------
@@ -190,21 +197,21 @@ def check_tools(active: str) -> None:
             "" if have("node") else "only needed for advanced renderers")
 
 
-# --- workspace -------------------------------------------------------------
+# --- the home and the registry --------------------------------------------
 
-def find_workspace(explicit: str | None) -> Path | None:
-    """A workspace is recognised by its shared/ folder (brand, channels,
-    keys) — 'workflows' is only the default folder name."""
+def find_home(explicit: str | None) -> Path | None:
+    """The home is `~/gtm` unless told otherwise. A v1 home (shared/ and
+    the engines in one folder) is still recognised, and reported."""
     if explicit:
         p = Path(explicit).expanduser().resolve()
         return p if p.is_dir() else None
-    env = (os.environ.get("GTM_WORKSPACE") or "").strip()
+    env = (os.environ.get("GTM_HOME") or os.environ.get("GTM_WORKSPACE") or "").strip()
     if env:
         p = Path(env).expanduser().resolve()
         return p if p.is_dir() else None
 
     def marked(p: Path) -> bool:
-        # .gtm-template = the engine repo's scaffold source, never a workspace.
+        # .gtm-template = the engine repo's scaffold source, never a home.
         if (p / ".gtm-template").is_file():
             return False
         shared = p / "shared"
@@ -212,45 +219,78 @@ def find_workspace(explicit: str | None) -> Path | None:
             (shared / f).is_file()
             for f in ("channels.json", "brand.md", ".env.example"))
 
+    default = Path.home() / "gtm"
+    if marked(default):
+        return default
     for base in (Path.cwd(), *Path.cwd().parents):
         if marked(base):
             return base
-        cand = base / "workflows"
-        if marked(cand):
-            return cand
+        for cand in (base / "gtm", base / "engines"):
+            if marked(cand):
+                return cand
         if base == Path.home():
             break
-    try:
-        for child in sorted(Path.cwd().iterdir()):
-            if child.is_dir() and marked(child):
-                return child
-    except OSError:
-        pass
     return None
 
 
-def check_workspace(ws: Path | None) -> str:
-    if ws is None:
-        add("warn", "Workspace not found",
-            "run scaffold_workspace.py from your project, or pass --workspace")
+def check_registry(home: Path, fix: bool) -> list[Path]:
+    """The registry is the only map of where the engines are. Returns the
+    engine folders it could actually find."""
+    f = home / reg.REGISTRY
+    if not f.is_file():
+        add("warn", f"  {reg.REGISTRY} missing",
+            "engines can live anywhere, so nothing can find them without it. "
+            "scaffold.py --merge writes one")
+        return [p for p in reg.unregistered(home)]
+
+    entries = reg.entries(home)
+    add("pass", f"  {reg.REGISTRY}: {len(entries)} engine(s) registered")
+
+    stale = reg.stale(home)
+    if stale and fix:
+        dropped = reg.prune(home)
+        add("pass", "  registry pruned", f"dropped {', '.join(dropped)}")
+    else:
+        for name, path in stale:
+            add("fail", f"  {name} is registered at a path that is gone",
+                f"{path}. Move it back, fix the entry, or run doctor.py --fix")
+
+    loose = reg.unregistered(home)
+    for p in loose:
+        if fix:
+            reg.register(home, p.name, p, eng.engine_types([p])[0])
+            add("pass", f"  registered {p.name}", str(p))
+        else:
+            add("warn", f"  {p.name} is not in {reg.REGISTRY}",
+                "nothing outside its own folder can find it. doctor.py --fix "
+                "adds it")
+
+    out = [Path(str(e.get("path"))).expanduser() for e in reg.entries(home)]
+    return [p for p in out if reg.is_engine(p)]
+
+
+def check_home(home: Path | None, fix: bool = False) -> str:
+    if home is None:
+        add("warn", "No gtm home found",
+            "expected ~/gtm. Run scaffold.py, or pass --home")
         return ""
 
-    add("pass", f"Workspace: {str(ws).replace(str(Path.home()), '~')}")
+    add("pass", f"Home: {str(home).replace(str(Path.home()), '~')}")
 
-    # shared/ — the one cross-workflow folder.
-    shared = ws / "shared"
+    # shared/ is the point of the home: one brand, one set of keys.
+    shared = home / "shared"
     add("pass" if shared.is_dir() else "fail", "  shared/")
 
     brand = shared / "brand.md"
     if not brand.is_file():
         add("warn", "  shared/brand.md missing",
-            "nothing breaks, but every workflow reads it first — without it "
-            "they guess at your voice. scaffold_workspace.py --merge restores it")
+            "nothing breaks, but every engine reads it first. Without it "
+            "they guess at your voice. scaffold.py --merge restores it")
     else:
         text = brand.read_text()
         if "TODO" in text or "<your" in text:
             add("warn", "  shared/brand.md still has placeholders",
-                "the workflows are only as good as this file")
+                "the engines are only as good as this file")
         else:
             add("pass", "  shared/brand.md filled in")
 
@@ -263,57 +303,62 @@ def check_workspace(ws: Path | None) -> str:
             add("fail", "  shared/channels.json is not valid JSON", str(e))
     else:
         add("warn", "  shared/channels.json missing",
-            "not blocking — the scripts fall back to defaults (72h metric "
+            "not blocking: the scripts fall back to defaults (72h metric "
             "window). Add it when you want per-channel settings")
 
-    if (ws / "AGENTS.md").is_file():
-        add("pass", "  AGENTS.md" + ("  + CLAUDE.md" if (ws / "CLAUDE.md").is_file() else ""))
+    if (home / "AGENTS.md").is_file():
+        add("pass", "  AGENTS.md" + ("  + CLAUDE.md" if (home / "CLAUDE.md").is_file() else ""))
     else:
         add("warn", "  AGENTS.md missing",
-            "how agents work in this workspace — restore it with "
-            "scaffold_workspace.py --merge")
+            "how agents work in this home. Restore it with scaffold.py --merge")
 
-    # One self-contained folder per workflow.
-    wds = [p for p in sorted(ws.iterdir())
-           if p.is_dir() and (p / "workflow.json").is_file()]
+    wds = check_registry(home, fix)
     if not wds:
-        add("warn", "  no workflow folders yet",
-            "add one when you know which: scaffold_workspace.py --merge "
-            "--workflow <name>")
+        add("warn", "  no engines yet",
+            "add one when you know which: scaffold.py --engine <name> "
+            "--at <where it should live>")
     types = set()
     for wd in wds:
+        marker = wd / "engine.json"
+        legacy = wd / "engine.json"
+        src = marker if marker.is_file() else legacy
         try:
-            meta = json.loads((wd / "workflow.json").read_text())
-        except json.JSONDecodeError as e:
-            add("fail", f"  {wd.name}/workflow.json is not valid JSON", str(e))
+            meta = json.loads(src.read_text())
+        except (json.JSONDecodeError, OSError) as e:
+            add("fail", f"  {wd.name}/{src.name} is not valid JSON", str(e))
             continue
+        if legacy.is_file() and not marker.is_file():
+            add("warn", f"  {wd.name}/ still uses engine.json",
+                "v1 name, still read. migrate_v1.py renames it")
         typ = (meta.get("type") or "").strip() or wd.name
         types.add(typ)
+        recorded = str(meta.get("home") or "").strip()
+        if recorded and Path(recorded).expanduser().resolve() != home.resolve():
+            add("warn", f"  {wd.name}/ points home at {recorded}",
+                f"this home is {home}. One of the two is out of date")
         metric = (meta.get("primary_metric") or "").strip()
-        bits = [typ]
-        if metric:
-            bits.append(metric)
-        add("pass", f"  {wd.name}/  ({' · '.join(bits)})",
-            "" if metric else "no primary_metric in workflow.json — the loop "
+        bits = [typ, str(wd).replace(str(Path.home()), "~")]
+        add("pass", f"  {wd.name}/  ({' | '.join(bits)})",
+            "" if metric else "no primary_metric in engine.json. The loop "
             "optimises this, name it")
-        # The subfolders are made on first write — runs/ and reports/ by the
+        # The subfolders are made on first write: runs/ and reports/ by the
         # loop scripts, templates/ and inputs/ by whoever writes the first
         # file. Absent means "not used yet", which is not a problem to report.
         absent = [r for r in ("templates", "runs", "reports", "inputs")
                   if not (wd / r).is_dir()]
         if absent:
             add("pass", f"    {wd.name}/ layout",
-                f"no {', '.join(r + '/' for r in absent)} yet — "
+                f"no {', '.join(r + '/' for r in absent)} yet, "
                 "created on first write")
         idx = wd / "runs" / "index.csv"
         n = max(0, sum(1 for _ in idx.open()) - 1) if idx.is_file() else 0
         add("pass", f"    runs recorded: {n}",
-            "" if n else "nothing to learn from yet — expected on day one")
+            "" if n else "nothing to learn from yet, expected on day one")
         if typ == "outreach" and not (wd / "crm.csv").is_file():
             add("warn", f"    {wd.name}/crm.csv missing",
                 "outreach needs the CRM for stickiness and dedupe")
 
-    check_env(ws, types)
+    check_env(home, types)
     return "video" if "video" in types else ""
 
 
@@ -347,20 +392,20 @@ def parse_env_example(example: Path) -> list[tuple[str, str, bool]]:
     return out
 
 
-def check_env(ws: Path, types: set[str] | None = None) -> None:
+def check_env(home: Path, types: set[str] | None = None) -> None:
     """Confirm key NAMES are set. Never reads a value.
 
-    Every key here is optional until a workflow that needs it exists. Only a
-    key whose section matches a workflow in this workspace, and that the file
+    Every key here is optional until a engine that needs it exists. Only a
+    key whose section matches a engine in this home, and that the file
     doesn't mark optional, is worth a warning.
 
-    All four workflows scaffold by default, so a key is attributed to the
-    workflow whose section it sits under — never to every workflow present.
+    All four engines scaffold by default, so a key is attributed to the
+    engine whose section it sits under — never to every engine present.
     Scaffolded is not the same as running: someone with a `video/` folder they
     haven't touched should read "for video", not "you're missing keys".
     """
-    example = ws / "shared" / ".env.example"
-    env = ws / "shared" / ".env"
+    example = home / "shared" / ".env.example"
+    env = home / "shared" / ".env"
 
     if not example.is_file():
         return
@@ -374,8 +419,8 @@ def check_env(ws: Path, types: set[str] | None = None) -> None:
         return not optional and head in types
 
     wanted = [k for k, _, _ in keys]
-    # Group by the section that asks for them. Joining every workspace type
-    # here would tell a four-workflow workspace that the video keys are
+    # Group by the section that asks for them. Joining every home type
+    # here would tell a four-engine home that the video keys are
     # "needed for outreach, seo, social, video" — true of none of them.
     by_section: dict[str, list[str]] = {}
     for k, sec, opt in keys:
@@ -388,7 +433,7 @@ def check_env(ws: Path, types: set[str] | None = None) -> None:
         if required:
             add("warn", "  shared/.env not created",
                 f"copy .env.example → .env — {detail}"
-                " — only when you run that workflow")
+                " — only when you run that engine")
         else:
             add("pass", "  shared/.env not created",
                 f"nothing needs one yet — the {len(wanted)} keys in "
@@ -423,15 +468,19 @@ def check_env(ws: Path, types: set[str] | None = None) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--home", dest="home", default="")
+    ap.add_argument("--fix", action="store_true",
+                    help="repair what is safe to repair: prune registry "
+                         "entries whose folder is gone, register engine "
+                         "folders sitting in the home unregistered")
     a = ap.parse_args()
 
     print(f"\n{DIM}gtm-engine doctor{RESET}\n")
 
     check_machine()
-    ws = find_workspace(a.workspace)
-    check_install(ws)
-    active = check_workspace(ws)
+    home = find_home(a.home)
+    check_install(home)
+    active = check_home(home, a.fix)
     check_tools(active)
 
     icon = {"pass": f"{GREEN}✓{RESET}", "warn": f"{YELLOW}!{RESET}", "fail": f"{RED}✗{RESET}"}

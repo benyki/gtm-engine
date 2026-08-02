@@ -4,7 +4,7 @@
 This is the only place an A/B arm is chosen. The rules it enforces:
 
   R2  Least-used arm wins. Nobody cherry-picks a favourite. Usage is
-      counted from the workflow's own runs/index.csv — its spine — within
+      counted from the engine's own runs/index.csv — its spine — within
       the experiment's cohort. crm.csv is for stickiness, not counting.
   R3  Sticky — an entity that already has an arm keeps it, forever,
       including follow-ups.
@@ -12,18 +12,18 @@ This is the only place an A/B arm is chosen. The rules it enforces:
       action="write_template" with the hypothesis, and the agent writes it.
   R5  "default" and "none" normalise to the base template.
 
-Everything is read from the workflow's own folder — its experiments.json,
-its templates/, its runs and CRM. `--workflow` names that folder
+Everything is read from the engine's own folder — its experiments.json,
+its templates/, its runs and CRM. `--engine` names that folder
 (outreach, outreach-investors, newsletter, ...).
 
 With no live experiment it doesn't guess a filename: it reports what's in
-the workflow's active template folder — one file to use, a list to choose
+the engine's active template folder — one file to use, a list to choose
 from, or write_template when the folder is empty. The agent decides and
 records the file it actually rendered.
 
 Usage:
-    assign_arm.py --workflow outreach [--entity someone@example.com]
-    assign_arm.py --workflow video --json
+    assign_arm.py --engine outreach [--entity someone@example.com]
+    assign_arm.py --engine video --json
 
 Output is JSON so an agent can act on it directly.
 """
@@ -37,18 +37,18 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from wsfind import find_workspace, find_workflow_dir  # noqa: E402
+from gtmfind import find_home, find_engine  # noqa: E402
 
 NORMALISE_TO_BASE = {"", "default", "none", "null"}
 
 
 def load_experiment(wd: Path, channel: str = "") -> tuple[dict | None, list[str]]:
-    """The live experiment for this workflow (and channel, when either side
+    """The live experiment for this engine (and channel, when either side
     names one), plus the ids of any other live candidates that were skipped —
     silence there would hide a config mistake.
 
     An experiment may carry an optional "channel" field. That makes concurrent
-    experiments in one workflow legitimate as long as their channels differ —
+    experiments in one engine legitimate as long as their channels differ —
     video hooks on tiktok and thumbnails on youtube, say. Pass --channel and
     the right one is selected; an experiment with no channel matches any."""
     path = wd / "experiments.json"
@@ -88,7 +88,7 @@ def sticky_arm(wd: Path, entity: str) -> str | None:
 def arm_counts(wd: Path, exp: dict) -> Counter:
     """Count usage within this experiment's cohort only (R6).
 
-    Reads the workflow's own runs/index.csv and nothing else. The CRM is
+    Reads the engine's own runs/index.csv and nothing else. The CRM is
     not a usage ledger — every draft is logged as a run, so counting CRM
     rows on top would count the same work twice.
     """
@@ -106,7 +106,7 @@ def arm_counts(wd: Path, exp: dict) -> Counter:
 
 
 def active_templates(wd: Path) -> list[Path]:
-    """Template files in the workflow's templates/. losers/ never counts."""
+    """Template files in the engine's templates/. losers/ never counts."""
     d = wd / "templates"
     if not d.is_dir():
         return []
@@ -136,23 +136,24 @@ def template_path(wd: Path, arm: dict, base: str) -> Path:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workflow", required=True,
-                    help="the workflow FOLDER name — outreach, seo, social, "
+    ap.add_argument("--engine", "--workflow", dest="engine", required=True,
+                    help="the engine FOLDER name — outreach, seo, social, "
                          "video, outreach-investors, or one of your own")
     ap.add_argument("--channel", default="",
                     help="channel this piece is for — selects between "
-                         "channel-scoped experiments in the same workflow")
+                         "channel-scoped experiments in the same engine")
     ap.add_argument("--entity", default="",
                     help="stable id (email, handle) — keeps them in their arm")
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     ap.add_argument("--json", action="store_true", help="machine-readable only")
     a = ap.parse_args()
 
-    ws = find_workspace(a.workspace)
-    wd = find_workflow_dir(ws, a.workflow)
+    home = find_home(a.home)
+    wd = find_engine(home, a.engine)
     exp, skipped_live = load_experiment(wd, a.channel)
     if skipped_live:
-        scope = f"'{a.workflow}'" + (f" / channel '{a.channel}'" if a.channel else "")
+        scope = f"'{a.engine}'" + (f" / channel '{a.channel}'" if a.channel else "")
         print(f"warning: {len(skipped_live) + 1} live experiments match "
               f"{scope} — using {exp['id']}, ignoring {', '.join(skipped_live)}. "
               f"Concurrent experiments are fine when scoped to different "
@@ -188,8 +189,8 @@ def main() -> int:
                 "action": "write_template",
                 "why": "no live experiment and no template yet",
                 "instruction": (
-                    f"Write the first template into {a.workflow}/templates/, "
-                    "guided by shared/brand.md and the workflow's skill. Then "
+                    f"Write the first template into {a.engine}/templates/, "
+                    "guided by shared/brand.md and the engine's skill. Then "
                     "use it and record template_used on the run."
                 ),
             })
@@ -239,7 +240,7 @@ def main() -> int:
         out["hypothesis"] = chosen.get("hypothesis", "")
         out["instruction"] = (
             f"This arm has no template yet. Write {path.name} in "
-            f"{a.workflow}/templates/, guided by the hypothesis above and by the "
+            f"{a.engine}/templates/, guided by the hypothesis above and by the "
             f"other templates in that folder. Do not copy an existing arm — a "
             f"variant is a different proposition, not a reworded one. Then use it "
             f"and record template_used={path.name} on the run."
@@ -247,7 +248,7 @@ def main() -> int:
 
     print(json.dumps(out, indent=2))
     if not a.json and not exists:
-        print(f"\n→ write {a.workflow}/templates/{path.name} first, then use it.",
+        print(f"\n→ write {a.engine}/templates/{path.name} first, then use it.",
               file=sys.stderr)
     return 0
 
