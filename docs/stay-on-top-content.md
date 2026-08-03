@@ -67,7 +67,7 @@ gcloud storage ls gs://amo-assets/music/
 ```
 
 ```bash
-gcloud storage cp gs://amo-assets/music/<track>.mp3 engines/shared/assets/music/
+gcloud storage cp gs://amo-assets/music/<track>.mp3 ~/gtm/shared/assets/music/
 ```
 
 `gs://` isn't readable by ffmpeg — copy the track down first and point

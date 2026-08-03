@@ -28,6 +28,11 @@ the shipped `video/` folder and ignore the rest. Render knobs (`resolution`,
 `target_seconds`, voice id) live in each folder's `engine.json` under `video`,
 so two video engines can render differently.
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## Three formats, by default
 
 Decide which one you're making **before** anything else — it sets the length,

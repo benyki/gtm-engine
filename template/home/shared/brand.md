@@ -19,7 +19,7 @@ and which metric the loop optimises.*
 
 *One brand, one ICP, one voice per home : that's the intended shape.
 Two products, two audiences, or two languages? Scaffold a second home
-(`scaffold.py --name growth-de`) and give each its own brand.md,
+(`scaffold.py --home ~/gtm-de`) and give each its own brand.md,
 rather than blending them here. A blended brief produces blended output.*
 
 ## Who, specifically

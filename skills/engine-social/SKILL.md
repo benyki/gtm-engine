@@ -36,6 +36,11 @@ different goals and metrics are two independent folders — scaffold with
 | Write a thread + post on X / LinkedIn (browser) | `references/threads-and-x.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## Before the first run
 
 **This engine needs the browser extension** — *Claude in Chrome*, or the

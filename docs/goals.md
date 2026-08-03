@@ -11,6 +11,11 @@ All four engine folders get scaffolded, but you don't configure all four. Do
 the sections for the engine you're actually running and skip the rest — the
 others sit there costing nothing until you come back for them.
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## How to read the brackets
 
 Each line ends with what you have to create for it:
