@@ -55,7 +55,7 @@ ideally something that changed recently (hiring, a new role, a recent post). The
 agent reads the results and writes name, company, role and **profile URL** into
 `inputs/audience/`. Capture the observable while you're on the profile: it's
 right there, and coming back for it later doubles the work. This needs the
-browser extension — [`docs/preflight.md`](../../../docs/preflight.md) §2b — and
+browser extension — [`docs/onboarding.md`](../../../docs/onboarding.md) → *Browser control* — and
 it uses the user's own logged-in session, so nothing is scraped anonymously.
 
 **2. Turn profiles into email addresses.**

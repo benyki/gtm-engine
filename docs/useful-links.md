@@ -16,7 +16,7 @@ in a year.
 | **Claude Pro or higher** | <https://claude.ai/upgrade> | Required for Claude Code |
 | **ChatGPT Desktop** (for Codex) | <https://openai.com/chatgpt/download/> | Alternative to Claude Code. Toggle to **Codex**, top left |
 | **ChatGPT Plus or higher** | <https://chatgpt.com/#pricing> | Required for Codex |
-| **Browser extension** — *Claude in Chrome*, or the ChatGPT one for Codex | install from your agent's app, then connect it | Lets the agent act in your logged-in browser. **Mandatory for `engine-social`**, recommended for `engine-video`, nice to have elsewhere — [preflight §2b](preflight.md) |
+| **Browser extension** — *Claude in Chrome*, or the ChatGPT one for Codex | install from your agent's app, then connect it | Lets the agent act in your logged-in browser. **Mandatory for `engine-social`**, recommended for `engine-video`, nice to have elsewhere — [onboarding → Browser control](onboarding.md) |
 | **Xcode Command Line Tools** | run `xcode-select --install` | Gives you `git`. 5–10 min download, no URL needed |
 | **Homebrew** | <https://brew.sh> | Only if you need `ffmpeg` |
 

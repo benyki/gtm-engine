@@ -10,14 +10,14 @@ Every run is written to disk with the template version it used. When the numbers
 
 ## Getting started: read the docs
 
-**Start with the docs, not this README.** Before you install anything, work through these:
+**Your agent reads these, not you.** Point it at the repo and it works through
+them; they're written for an agent rather than for a human following steps.
 
 | Doc | Why |
 |---|---|
-| [`docs/preflight.md`](docs/preflight.md) | **Start here.** The checklist: machine check + what each engine needs, in order |
+| [`docs/onboarding.md`](docs/onboarding.md) | **Start here.** What your agent walks you through: machine check, `~/gtm`, the engines, your brand |
 | [`docs/useful-links.md`](docs/useful-links.md) | Every download and signup link, plus which key maps to which env var |
 | [`docs/home.md`](docs/home.md) | Where your brand, runs, and numbers live, and what never mixes with the repo |
-| [`docs/onboarding.md`](docs/onboarding.md) | What your agent will walk you through on the first install |
 
 Later, when you need it:
 
@@ -28,6 +28,7 @@ Later, when you need it:
 | [`skills/engine-video/references/posting-options.md`](skills/engine-video/references/posting-options.md) | Video posting: manual, Upload Post, or Buffer |
 | [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/skills`](https://github.com/benyki/skills): download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
 | [`docs/stay-on-top-content.md`](docs/stay-on-top-content.md) | Channels and podcasts worth following, plus the seed list for `engine-social`'s RSS subjects |
+| [`docs/bootcamp.md`](docs/bootcamp.md) | Running this as a workshop: what to ask participants for beforehand, the session shape, guiding beginners |
 
 Then install (below) and tell your agent: `run engine-setup`.
 
@@ -117,8 +118,8 @@ you pipe anything into `bash`, here or anywhere else.
 **Prefer to have the agent do it?** Paste this into Claude Code or Codex:
 
 ```
-Read https://github.com/benyki/gtm-engine and follow docs/preflight.md.
-When that passes, follow docs/onboarding.md and run engine-setup.
+Read https://github.com/benyki/gtm-engine, follow docs/onboarding.md and
+run engine-setup.
 Install everything, all four engines and all six skills, then help me run
 the outreach one first unless I say otherwise.
 Once ~/gtm exists, follow its AGENTS.md in every session.
