@@ -362,7 +362,7 @@ cp shared/.env.example shared/.env
 
 Have **them** paste the keys in. Never ask a user to give you a key in chat, and never read `shared/.env` — you read `.env.example` for the names only. If a key is missing, name the variable and where to get it; don't work around it.
 
-Which keys they need depends on the engine — see `docs/preflight.md` §4. For `seo`, `social` and `outreach`, usually none.
+Which keys they need depends on the engine — see `docs/useful-links.md`. For `seo`, `social` and `outreach`, usually none.
 
 ### 8. Check — optional
 

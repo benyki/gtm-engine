@@ -50,9 +50,22 @@ losing template is retired to `losers/` rather than deleted.
 
 ---
 
-## Step 0. Say what is about to happen
+## Step 0. Check the machine, then say what is about to happen
 
-Before creating anything, tell them, in this order:
+Two commands and a look around, before you promise anything:
+
+| Worth checking | Why |
+|---|---|
+| `git` and `python3 --version` (3.9+) | the installer and every script need them; both ship with macOS once developer tools are installed (`xcode-select --install`) |
+| free disk | only `engine-video` is heavy: rendering wants ~10 GB |
+| Apple Silicon, macOS 13+, Linux | all fine. Intel renders video slowly; Windows works under WSL and needs a little adapting |
+| can you drive their browser? | see below, it decides what `engine-social` and `engine-video` can do |
+
+If something's missing, say so with the fix rather than working around it
+quietly. If it's only a problem for an engine they aren't running today, say
+that too.
+
+Then tell them, in this order:
 
 > I'm going to create a folder at `~/gtm`. That is the home for everything
 > shared between your growth engines: your brand voice, your accounts, your
@@ -69,6 +82,27 @@ Then confirm the two things that come with it:
 
 If `~/gtm` already exists with a `shared/` inside it, this is not a first
 install. Skip to "Adding an engine later".
+
+### Browser control
+
+The piece that lets you act in their browser on their behalf: open a page, read
+what's on it, fill a composer, click through an analytics screen, using the
+sessions they're already logged into. No API keys, no developer accounts.
+*Claude in Chrome* for Claude Code, the ChatGPT extension for Codex, or the
+equivalent in whatever harness you're in.
+
+Test it rather than assuming: open a page and tell them the title. Ten minutes
+now, or a blocked engine later.
+
+| Engine | What it needs |
+|---|---|
+| `engine-social` | **Effectively required.** LinkedIn and X have no free posting API worth using, and their analytics sit behind the login. Without it every post is copy-paste and every number is typed in by hand |
+| `engine-video` | Recommended. Views, likes and comments come back without it via `yt-dlp` on public URLs; watch-through, the number that tells you whether the hook worked, needs the login |
+| `engine-seo` | Nice to have: Reddit and SERP research without an API |
+| `engine-outreach` | Nice to have: researching a person is browser work, while the mail side goes through a connector |
+
+Worth saying once: it uses their real logged-in sessions, which is why you never
+log in, never touch credentials, and ask before anything publishes.
 
 ---
 
@@ -185,7 +219,10 @@ plainly that this file is shared by every engine in every project, and that a
 project needing a different voice gets an override in its own engine folder.
 
 Then point at `~/gtm/shared/.env.example`: copy it to `.env` and fill in only
-the keys for the channels they are actually running. Never read `.env` back.
+the keys for the channels they are actually running. Which keys those are, and
+where each comes from, is in [`useful-links.md`](useful-links.md). Outreach
+usually needs none beyond a Gmail you can reach; video is the one with a real
+shopping list (ffmpeg, Pexels, ElevenLabs, a posting route).
 
 Say what this file becomes: it is read before anything is written, and it grows
 with the business. Every engine, every session, reads three things before it
@@ -241,11 +278,3 @@ engines, unknown to the next agent.
 
 One location means nothing to keep in sync, so don't write it. Add it the day
 they scaffold a second location, not before.
-
-## What onboarding never does
-
-- Never write outside `~/gtm`, `~/.gtm-engine`, `~/.agents/skills`, the agent
-  skill folders, `~/Desktop` symlinks, and the engine folder they chose.
-- Never overwrite a file that already exists. Merging means filling gaps.
-- Never send, post or publish anything as part of setup.
-- Never read the values in `.env`, only the key names.

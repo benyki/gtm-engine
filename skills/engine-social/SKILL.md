@@ -43,7 +43,7 @@ equivalent for whatever agent is running. LinkedIn and X have no free posting
 API worth using and their analytics sit behind the user's login, so without it
 every post is copy-paste and every number is typed in by hand. Check it's
 connected before starting (open a page, read the title back); if it isn't, set
-it up first — [`docs/preflight.md`](../../docs/preflight.md) §2b. Bluesky is the
+it up first — [`docs/onboarding.md`](../../docs/onboarding.md) → *Browser control*. Bluesky is the
 exception: it posts and reports through its own API.
 
 Pick **one** platform to start. LinkedIn, X and Bluesky reward different things, and splitting attention early means learning neither. `shared/channels.json` holds the accounts.

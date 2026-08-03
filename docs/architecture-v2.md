@@ -159,7 +159,7 @@ now means iterating the registry and handling an engine whose path has moved.
 | `docs/workspace.md` -> `docs/home.md` | Rename to `docs/home.md`. Rewrite the tree and the "one folder per workflow" framing. This is the doc that changes most. |
 | **new** `docs/onboarding.md` | Written. The exact onboarding script the agent follows. |
 | **new** `docs/architecture-v2.md` | This file. Delete it once v2 ships, or keep it as the design record. |
-| `docs/preflight.md`, `docs/scheduling.md`, `docs/goals.md`, `docs/useful-links.md`, `docs/additional-skills.md`, `docs/stay-on-top-content.md` | Paths (`<project>/workflows/` to `~/gtm` and the engine path) and terminology. `scheduling.md` also needs the scheduled-task prompts updated, since each one names a workspace path that no longer exists. |
+| `docs/preflight.md` (since retired), `docs/scheduling.md`, `docs/goals.md`, `docs/useful-links.md`, `docs/additional-skills.md`, `docs/stay-on-top-content.md` | Paths (`<project>/workflows/` to `~/gtm` and the engine path) and terminology. `scheduling.md` also needs the scheduled-task prompts updated, since each one names a workspace path that no longer exists. |
 | `skills/engine-setup/SKILL.md` | Largest single rewrite. The "Where everything lives" section is now wrong end to end. Replace the step list with a pointer to `docs/onboarding.md` plus the mechanics. |
 | `skills/engine-loop/SKILL.md` and `references/{ab-testing,scheduling,fetching-data,advanced}.md` | Registry-based lookups, new flags, new paths. |
 | `skills/engine-{seo,social,video,outreach}/SKILL.md` | Every path of the form `workflows/<type>/...` becomes an engine-relative path; every "the workspace" becomes "your engine folder" or "your home". |

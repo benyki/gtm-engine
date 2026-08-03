@@ -129,7 +129,7 @@ The path that works for B2B, in one afternoon:
    hiring, a new role, a recent post). Capture name, role, **profile URL** and
    the observable while you're on the profile — coming back for it later doubles
    the work. Uses the user's own logged-in session; needs the browser extension
-   ([`docs/preflight.md`](../../docs/preflight.md) §2b)
+   ([`docs/onboarding.md`](../../docs/onboarding.md) → *Browser control*)
 2. **Turn the profile URLs into addresses** with a finder tool — table below
 3. **Run this engine normally.** Nothing downstream is different
 
