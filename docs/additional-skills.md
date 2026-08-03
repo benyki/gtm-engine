@@ -11,7 +11,7 @@ per skill. Three layers, and only the first installs itself:
 |---|---|---|
 | Engines | this repo, `skills/engine-*` | by `install_skills.sh` |
 | Capabilities | `benyki/skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
-| Builders / one-offs | `misc/` in this repo | never |
+| Builders / one-offs | `interfaces/` in this repo | never |
 
 An engine of type `N` maps to skill `engine-N` if it exists. Capabilities stay
 off that map — nothing pulls them but an `engine-*` step that needs a tool it

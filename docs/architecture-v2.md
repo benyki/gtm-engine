@@ -164,7 +164,7 @@ now means iterating the registry and handling an engine whose path has moved.
 | `skills/engine-loop/SKILL.md` and `references/{ab-testing,scheduling,fetching-data,advanced}.md` | Registry-based lookups, new flags, new paths. |
 | `skills/engine-{seo,social,video,outreach}/SKILL.md` | Every path of the form `workflows/<type>/...` becomes an engine-relative path; every "the workspace" becomes "your engine folder" or "your home". |
 | `skills/engine-*/references/*.md` (about 20 files with incidental mentions) | Terminology sweep, mechanical. |
-| `.gitignore`, `LICENSE`, `misc/` | No change. |
+| `.gitignore`, `LICENSE`, `interfaces/` (was `misc/`) | No change. |
 
 ## Migration and compatibility
 

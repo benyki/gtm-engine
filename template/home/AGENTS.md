@@ -41,30 +41,6 @@ checklist to enforce.
 The boundaries at the bottom of this file are the exception; those don't bend.
 Everything else is negotiable, and the user is who negotiates it.
 
-## Write for agents, not machines
-
-Everything in this repo and in the engine folders is read and used by capable
-agents. Write policies, modular instructions and templates, not rigid systems,
-and don't over-specify what an agent can infer from context. Prefer intent,
-boundaries and defaults over step-by-step procedure: leave room for judgment,
-suggest sensible defaults, and involve the user whenever a decision depends on
-their goals, preferences or context. Explain why something is recommended
-rather than promoting the recommendation to a rule.
-
-| Instead of | Write |
-|---|---|
-| Never do X | Avoid X unless the situation calls for it |
-| Do these in order | The order below is the default one |
-| Confirm the paths in steps 2 and 3 | The paths in steps 2 and 3 are worth confirming, because… |
-| You need X | X is useful when… |
-| Use X | X is the default |
-| You must X | X is expected when relevant |
-| Do not X | Avoid X unless the situation calls for it |
-
-**Safety rules stay hard.** None of the above applies to safety, damage control
-or destructive actions. When a rule exists to prevent data loss, an
-irreversible action or real damage, keep it explicit and absolute.
-
 ## Always end with next steps
 
 **Every message that finishes a piece of work ends with a short list of possible
