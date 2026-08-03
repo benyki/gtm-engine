@@ -38,7 +38,7 @@ checklist to enforce.
 - **A/B tests are worth more once there's one template the user is happy with.**
   Experiments ship paused for that reason
 
-The boundaries at the bottom of this file are the exception; those don't bend.
+The guardrails at the bottom of this file are the exception; those don't bend.
 Everything else is negotiable, and the user is who negotiates it.
 
 ## Always end with next steps
@@ -79,11 +79,46 @@ equivalent, or your framework's own. Not `cron`, not `launchd`, not a shell
 script on a timer, unless something genuinely needs a deterministic job or the
 user asks for one.
 
-## Boundaries that don't move
+## Guardrails
 
-- **Never invent a fact about a person**, and never generate an image that
-  functions as proof (a metrics screenshot, a revenue chart, a testimonial)
+Everything else here is a default you can bend. These are not: each one exists
+because getting it wrong is irreversible, damages the user's reputation, or
+poisons data they can't reconstruct.
+
+- **Nothing sends, posts or publishes without an explicit yes**, per piece, not
+  per session
+- **Never invent a fact about a person, or a metric.** Thin research is
+  something to say out loud; a made-up detail in a cold email or a guessed
+  number in the spine can't be taken back
+- **Never generate an image that functions as proof**: a metrics screenshot, a
+  revenue chart, a testimonial
+- **Never contact someone twice, and honour a no permanently.** Check the CRM
+  before every draft
 - **Never delete a template.** Losers move to `losers/`: it is the only record
-  of what didn't work, and deleting it can't be undone
+  of what didn't work, and the deletion can't be undone
+- **Never read the values in `shared/.env`.** Key names come from
+  `.env.example`
+- **Never overwrite the user's own work.** Runs, CRM rows, templates and
+  `brand.md` are theirs; add to them, and ask before replacing anything
 
 Each skill states the rest of its own rules; those override nothing here.
+
+## Write for agents, not machines
+
+Anything you write in here is read by capable agents: this file, `brand.md`, an
+engine's templates and config. So write policies and defaults, not rigid
+systems, and don't over-specify what an agent can infer from context. Prefer intent, boundaries and defaults over
+step-by-step procedure, involve the user whenever a decision depends on their
+goals or context, and explain why something is recommended rather than
+promoting it to a rule.
+
+| Instead of | Write |
+|---|---|
+| Never do X | Avoid X unless the situation calls for it |
+| Do these in order | The order below is the default one |
+| You need X | X is useful when… |
+| Use X | X is the default |
+| You must X | X is expected when relevant |
+| Do not X | Avoid X unless the situation calls for it |
+
+The guardrails above are the exception: those stay explicit and absolute.
