@@ -26,6 +26,11 @@ Four jobs; run them in this order, because each depends on the one before.
 
 ---
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## What every engine owes the loop
 
 Engines differ — a LinkedIn post has a public URL and an analytics screen, an outreach email has neither — and the loop doesn't care, as long as every engine leaves the same three traces in its own folder:

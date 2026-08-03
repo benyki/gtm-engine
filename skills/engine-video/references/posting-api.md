@@ -19,7 +19,7 @@ Never post without an explicit yes.
 - Docs: https://docs.upload-post.com/
 
 ```bash
-set -a; . /absolute/path/to/engines/shared/.env; set +a
+set -a; . ~/gtm/shared/.env; set +a
 
 # List profiles (usernames are case-sensitive)
 curl -sS https://api.upload-post.com/api/uploadposts/users \

@@ -28,6 +28,11 @@ Output is markdown, generated locally. Where it goes depends on whether they alr
 | After publish (Clarity → rewrites) | `references/clarity-rewrite.md` |
 | Static site / CMS tradeoffs | `references/advanced.md` |
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## Where topics come from
 
 Read this engine's `sources.json`. The default is Reddit, and it needs no account.

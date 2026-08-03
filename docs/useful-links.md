@@ -206,7 +206,7 @@ Read the account-risk section in that reference before acting on it.
 
 ## Which key goes where
 
-Every value below lives in `engines/shared/.env`. Copy `.env.example`
+Every value below lives in `~/gtm/shared/.env`. Copy `.env.example`
 first, then paste your own keys in — never into a chat window.
 
 | Environment variable | Get it from | Needed for |

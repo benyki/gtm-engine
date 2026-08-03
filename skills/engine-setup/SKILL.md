@@ -11,6 +11,11 @@ Run it once per project. It is also re-runnable, and `doctor.py` is there as an
 optional health check when something looks wrong — never a step to clear before
 work can start.
 
+**Paths in this file:** `shared/…` means the gtm home (`~/gtm` by default, or
+`$GTM_HOME`); `templates/`, `inputs/`, `runs/` and `reports/` mean the engine
+folder you're running, wherever it lives. The scripts resolve both through
+`~/gtm/engines.json`, so read them as names rather than literal paths.
+
 ## Read the onboarding script first
 
 [`docs/onboarding.md`](../../docs/onboarding.md) in the repo is the script for

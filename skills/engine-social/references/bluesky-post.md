@@ -12,7 +12,7 @@ account password.
 - Source at run time; never read `.env` into chat; never commit
 
 ```bash
-set -a; . /absolute/path/to/engines/shared/.env; set +a
+set -a; . ~/gtm/shared/.env; set +a
 ```
 
 ## Constraints

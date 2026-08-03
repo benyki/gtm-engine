@@ -17,7 +17,7 @@ deciding a source, and come back here for the Pexels mechanics.
 Needs `PEXELS_API_KEY` in `shared/.env` (source the file; don't read it into chat).
 
 ```bash
-set -a; . /absolute/path/to/engines/shared/.env; set +a
+set -a; . ~/gtm/shared/.env; set +a
 
 QUERY="tired founder laptop night"
 OUT="shared/assets/pexels"
