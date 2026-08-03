@@ -8,10 +8,8 @@ doing anything in here.
 
 Short version, in case that import didn't load: this folder is data, not logic.
 It holds everything shared between your engines, and `engines.json` records
-where each engine folder lives. **Engines can live anywhere, so nothing scans
-for them: if you create, move, rename or delete an engine folder, update
-`engines.json` in the same breath, or it becomes invisible.** One
-self-contained folder per engine. **Stay flexible: the engines adapt to the
+where each engine folder lives. One self-contained folder per engine. **Stay
+flexible: the engines adapt to the
 user, not the user to the engines**; take their list and their process in
 whatever shape they arrive, and never make someone reformat something before
 anything can happen. Read `shared/brand.md` and `shared/insights.md` first, log

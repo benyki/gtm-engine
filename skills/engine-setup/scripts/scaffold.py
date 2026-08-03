@@ -106,21 +106,10 @@ __pycache__/
 ENGINE_AGENTS = """\
 # {name}
 
-A gtm-engine engine. This folder is one growth channel and it owns everything
-it needs: `engine.json`, `experiments.json`, `sources.json`, `templates/`,
-`inputs/`, `runs/`, `reports/`.
+A gtm-engine engine: one growth channel, owning everything it needs.
 
-**Its home is `{home}`.** Read `{home}/AGENTS.md` first: the brand voice, the
-accounts, the keys and the house rules all live there, shared with every other
-engine. This file only covers what is local to this folder.
-
-**Filesystem hygiene, the one rule that bites:** engines live wherever you put
-them, and `{home}/engines.json` is the only record of where that is. If this
-folder is moved, renamed, copied to another machine or deleted, update its
-entry in `{home}/engines.json` and the `home` key in `engine.json` **in the
-same breath**. An engine that is not registered is invisible: it is missing
-from the weekly report, unreadable by the other engines, and unknown to the
-next agent. `doctor.py --fix` repairs what it safely can.
+**Its home is `{home}`.** Read `{home}/AGENTS.md`: the brand voice, the
+accounts, the keys and the house rules live there, shared with every engine.
 
 Log every piece you make with `runlog.py new --engine {name}`. Never publish or
 send without an explicit yes. Never read `{home}/shared/.env`.
@@ -129,14 +118,10 @@ send without an explicit yes. Never read `{home}/shared/.env`.
 ENGINE_CLAUDE = """\
 # CLAUDE.md
 
-Read **[AGENTS.md](AGENTS.md)** in this folder, then `{home}/AGENTS.md`, which
-holds the brand, the accounts and the house rules shared by every engine.
+Read **[AGENTS.md](AGENTS.md)** here, then `{home}/AGENTS.md`, which holds the
+brand, the accounts and the house rules shared by every engine.
 
 @AGENTS.md
-
-If you move or rename this folder, update its entry in `{home}/engines.json`
-and the `home` key in `engine.json` at the same time. Nothing scans for
-engines; that file is how they are found.
 """
 
 

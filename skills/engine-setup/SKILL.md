@@ -80,10 +80,12 @@ mountable engines there), do not scaffold into it. Say what you found and use
 keyed on them. `scaffold.py` refuses to let a second engine take a name the
 first one holds and tells you what to do about it.
 
-**Whenever an engine folder moves, `engines.json` moves with it.** Nothing
-scans for engines; that file is how every script, every report and the next
-agent finds them. `registry.py mv <name> <newpath>` after a move,
-`doctor.py --fix` when you are not sure it is all still true.
+**Whenever an engine folder moves, `engines.json` moves with it**
+(`registry.py mv <name> <newpath>`, or `doctor.py --fix`). Nothing scans for
+engines; that file is how every script, every report and the next agent finds
+them. Write that rule into `AGENTS.md` **only if this user's engines end up in
+more than one location**: with one location there is nothing to keep in sync.
+[`docs/onboarding.md`](../../docs/onboarding.md) has the exact wording.
 
 ## Steps
 

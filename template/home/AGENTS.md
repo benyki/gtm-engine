@@ -9,37 +9,11 @@ Skills get rewritten by `git pull`; nothing in here does.
 **An engine is one self-contained folder** with its own `engine.json`,
 `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`,
 `reports/`. Engines can live anywhere: in `engines/` here, or in an `engines/`
-folder inside the project they grow. **Never reach into another engine's
-folder to change something.** Reading a sibling's `reports/latest.json` is
-fine and encouraged; writing to it is not. `engine.json` gives the `type`,
-which says which skill runs the folder (`social` runs `engine-social`).
-
-## engines.json is the map, and keeping it true is your job
-
-`engines.json` in this folder lists every engine and where it lives. **Nothing
-scans for engines.** An engine that is not in that file is invisible: no weekly
-report includes it, no other engine can read its results, and the next agent
-will not know it exists.
-
-So whenever the filesystem moves under an engine, fix the map in the same
-breath:
-
-- **Created an engine?** Register it. `scaffold.py` does this for you; if you
-  made the folder by hand, run
-  `python3 ~/.gtm-engine/skills/engine-setup/scripts/registry.py add <name> <path>`
-- **Moved or renamed an engine folder?** Update its entry, and the `home` key
-  in its `engine.json`, before you do anything else
-- **Deleted one?** Remove its entry
-- **Cloned a project onto another machine?** The paths in `engines.json` came
-  from the old one. Re-point them
-- **Names are unique across every project.** Two engines cannot both be called
-  `outreach`; the second makes the first unreachable. In this home the
-  convention is `engine-<type>-<project>/`
-- **Not sure it is all still true?** `python3
-  ~/.gtm-engine/skills/engine-setup/scripts/doctor.py --fix` prunes dead
-  entries and registers loose folders
-
-One line, every time you touch a path: **did engines.json change with it?**
+folder inside the project they grow, and `engines.json` here records which is
+which. **Never reach into another engine's folder to change something.**
+Reading a sibling's `reports/latest.json` is fine and encouraged; writing to it
+is not. `engine.json` gives the `type`, which says which skill runs the folder
+(`social` runs `engine-social`).
 
 ## Stay flexible
 

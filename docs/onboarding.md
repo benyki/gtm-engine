@@ -115,9 +115,9 @@ Create, in this order:
    insights), the docs, `AGENTS.md`, `CLAUDE.md`, and `engines.json` (the
    registry of where every engine lives).
 2. Each engine folder at the location from step 2, each one registered in
-   `~/gtm/engines.json`. An engine that lives away from the home also gets its
-   own short `AGENTS.md` pointing back at `~/gtm`, so an agent opening that
-   project alone still finds the house rules and the registry rule.
+   `~/gtm/engines.json`. An engine that lives away from the home also gets a
+   short `AGENTS.md` pointing back at `~/gtm`, so an agent opening that project
+   alone still finds the house rules.
 3. The skills for the engine types they scaffolded, into `~/.agents/skills/`,
    symlinked into whichever agents are installed.
 
@@ -170,22 +170,28 @@ Same two questions, much shorter: which type, and where it goes (default:
 engines for this project are). `scaffold.py --engine <name> --at <path>
 --project <name>` registers it and fills the gaps; install the skill for its
 type if it is missing, and stop. Never rescaffold `~/gtm/shared/`: it already
-exists and it is theirs.
+exists and it is theirs. If this is the engine that puts them in a second
+location, do the one thing below as well.
 
-## When an engine moves
+## Only if the engines end up spread out
 
-`~/gtm/engines.json` is the only map of where engines are. If you move, rename
-or delete an engine folder, or copy a project to another machine, fix the
-registry in the same breath:
+Everything above assumes one location. **If, and only if, this user's engines
+live in more than one place** (some in `~/gtm/engines/` and some in a project,
+or engines in two different projects), add this section to `~/gtm/AGENTS.md`,
+and to the `AGENTS.md` of each engine outside the home:
 
-```bash
-registry.py mv <name> <newpath>
-registry.py rm <name>
-doctor.py --fix          # prune dead entries, register loose folders
+```markdown
+## Moving an engine
+
+Engines here live in more than one place, and `~/gtm/engines.json` is the only
+map of where. If you create, move, rename or delete an engine folder, fix its
+entry in the same breath (`registry.py add|mv|rm`, or `doctor.py --fix`), or it
+becomes invisible: absent from the weekly report, unreadable by the other
+engines, unknown to the next agent.
 ```
 
-An unregistered engine is invisible: absent from the weekly report, unreadable
-by the other engines, unknown to the next agent.
+One location means nothing to keep in sync, so don't write it. Add it the day
+they scaffold a second location, not before.
 
 ## What onboarding never does
 
