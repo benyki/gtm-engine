@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 .env
 *.local
+
+# scratch / working notes, not versioned
+yard/
