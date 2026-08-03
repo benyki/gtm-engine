@@ -25,7 +25,7 @@ Empty is fine. A text-only post is not a worse post.
 Optional, and it costs money per image: the agent can send an image from here
 to Gemini ("nano banana") or OpenAI to crop it, swap a background, or make
 aspect-ratio variants. Add `GEMINI_API_KEY` or `OPENAI_API_KEY` to
-`shared/.env` first : keys from
+`~/gtm/.env` first : keys from
 [aistudio.google.com/apikey](https://aistudio.google.com/apikey) or
 [platform.openai.com/api-keys](https://platform.openai.com/api-keys).
 

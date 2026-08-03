@@ -63,12 +63,12 @@ Use both. They cost about twenty lines and they are the reason this stays recove
 
 ### Setup
 
-Verify your domain in the Resend dashboard, then create an API key. Put it in `~/gtm/shared/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
+Verify your domain in the Resend dashboard, then create an API key. Put it in `~/gtm/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
 
 Load it at run time rather than hardcoding it anywhere:
 
 ```bash
-set -a; . ~/gtm/shared/.env; set +a
+set -a; . ~/gtm/.env; set +a
 ```
 
 ### The send call

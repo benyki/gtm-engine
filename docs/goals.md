@@ -51,7 +51,7 @@ Each line ends with what you have to create for it:
 - [ ] Home scaffolded: one folder per engine you'll run, plus `shared/` and `published/` [check: `doctor.py` is green]
 - [ ] Brand filled in for real — audience type (B2B/B2C), named ICP, promise, tone, banned claims [file `shared/brand.md` to fill]
 - [ ] Every channel you ship to today is listed under `accounts` with what each is for [file `shared/channels.json` to fill]
-- [ ] Keys pasted in by you, for the engines below only [file `shared/.env` to create]
+- [ ] Keys pasted in by you, for the engines below only [file `~/gtm/.env` to create]
 
 ---
 
@@ -151,7 +151,7 @@ and its own backlog. The publishing end is the platform, not GitHub.
 - [ ] ≥5 of your own best-performing posts on disk as the voice reference [folder `social/inputs/best/` to create]
 - [ ] Anti-slop pass runs before you see the batch [check: `engine-social/references/anti-slop-writing.md`] [skill `no-ai-slop-writting` to install]
 - [ ] *Optional:* screenshots, charts and photos on disk for the agent to pick from — one image per post, never one image for the batch [folder `social/inputs/images/` to fill]
-- [ ] *Optional:* an image key if you want crops / background swaps / aspect variants of your own images — `GEMINI_API_KEY` or `OPENAI_API_KEY`, either one [file `shared/.env` to fill — [AI Studio](https://aistudio.google.com/apikey) · [OpenAI](https://platform.openai.com/api-keys)]
+- [ ] *Optional:* an image key if you want crops / background swaps / aspect variants of your own images — `GEMINI_API_KEY` or `OPENAI_API_KEY`, either one [file `~/gtm/.env` to fill — [AI Studio](https://aistudio.google.com/apikey) · [OpenAI](https://platform.openai.com/api-keys)]
 - [ ] Weekly job that drafts the batch and prepares the publish step (drafts for LinkedIn/X, API for Bluesky after your yes) [weekly scheduler `engine-social-weekly` to create]
 - [ ] 5–7 posts drafted, ≥1 published, logged, URL recorded — any image that went with it in that engine's `published_dir` [check]
 - [ ] One post format the user would publish unedited. No live A/B on day one [file `social/experiments.json` to fill — leave `status: paused`]

@@ -140,7 +140,7 @@ Every engine is listed in $(tilde "$GTM_DIR")/engines.json. Move an engine folde
 you update that file in the same breath, or nothing will find it again.
 
 Next:
-  1. cp $(tilde "$GTM_DIR")/shared/.env.example $(tilde "$GTM_DIR")/shared/.env   (only the keys you need)
+  1. cp $(tilde "$GTM_DIR")/.env.example $(tilde "$GTM_DIR")/.env   (only the keys you need)
   2. Open Claude Code or Codex and tell it:  run engine-setup
      It fills in your brand config and runs the checks.
 

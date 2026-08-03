@@ -10,7 +10,7 @@ Two providers, same command:
     OpenAI ("gpt-image")     OPENAI_API_KEY   https://platform.openai.com/api-keys
 
 The key is read from the environment, and if it isn't there, from the
-home's `shared/.env` — parsed, never printed, never echoed back. Nothing
+home's `.env` — parsed, never printed, never echoed back. Nothing
 here writes a key anywhere.
 
 Usage:
@@ -35,7 +35,7 @@ Flags:
     --quality         openai only: auto | low | medium | high
     --fidelity        openai only: low | high — how closely to hold the input
     --n               how many variants (default 1)
-    --home       home root, if shared/.env isn't found from the cwd
+    --home       the gtm home, if .env isn't found from the cwd
     --timeout         seconds per request (default 180)
 """
 from __future__ import annotations
@@ -96,12 +96,16 @@ def api_key(provider: str, home: str | None) -> str:
     except (ImportError, SystemExit):
         ws = None
     if ws:
-        key = read_env_file(ws / "shared" / ".env", name)
+        # .env sits at the root of the home; v1 homes keep it in shared/.
+        for cand in (ws / ".env", ws / "shared" / ".env"):
+            key = read_env_file(cand, name)
+            if key:
+                break
     if not key:
         sys.exit(
             f"error: no {name}.\n"
             f"  Get one: {KEY_HELP[provider]}\n"
-            f"  Then paste it into your home's shared/.env as {name}=…\n"
+            f"  Then paste it into your home's .env as {name}=…\n"
             f"  (paste it yourself — never into a chat window)"
         )
     return key

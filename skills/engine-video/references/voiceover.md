@@ -7,7 +7,7 @@ Never invent a new voice mid-test.
 Load secrets from the home (never read `.env` into chat):
 
 ```bash
-set -a; . ~/gtm/shared/.env; set +a
+set -a; . ~/gtm/.env; set +a
 [[ -n "$ELEVENLABS_API_KEY" ]] && echo set
 ```
 

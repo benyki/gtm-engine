@@ -92,7 +92,7 @@ Either provider works. Pick one; there's no reason to hold both.
 Then, in the home:
 
 ```bash
-cp shared/.env.example shared/.env      # if it isn't there yet
+cp ~/gtm/.env.example ~/gtm/.env      # if it isn't there yet
 ```
 
 and paste the key in as `GEMINI_API_KEY=` or `OPENAI_API_KEY=`. The user pastes
@@ -179,7 +179,7 @@ curl -s -X POST https://api.openai.com/v1/images/edits \
 ```
 
 Both return base64, not a URL. Source the key first
-(`set -a; . shared/.env; set +a`) and never read `.env` into the conversation.
+(`set -a; . ~/gtm/.env; set +a`) and never read `.env` into the conversation.
 
 If `/v1beta/interactions` 404s, the classic
 `v1beta/models/<model>:generateContent` still serves the same models —

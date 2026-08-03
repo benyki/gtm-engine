@@ -21,11 +21,11 @@ script from ever treating it as somebody's home.
 ├── AGENTS.md                how any agent should work in here, read first
 ├── CLAUDE.md                a pointer to AGENTS.md, for Claude Code
 ├── engines.json             THE REGISTRY: every engine, and where it lives
+├── .env.example             key NAMES (committed)
+├── .env                     key VALUES (gitignored, never read by your agent)
 ├── shared/                  the one cross-engine folder
 │   ├── brand.md             who you are, who you're for, what you'll never say
 │   ├── channels.json        all your accounts, one place (open set)
-│   ├── .env.example         key NAMES (committed)
-│   ├── .env                 key VALUES (gitignored, never read by your agent)
 │   ├── assets/              logos, fonts, b-roll, anything any engine reuses
 │   ├── docs/                write-ups that benefit every engine
 │   └── insights.md          cross-engine learnings, one line each
@@ -192,7 +192,7 @@ An engine that lives inside a project is committed with that project, or
 gitignored, depending on whether the repo is yours and private. Runs and CRM
 rows are personal data; a shared or public repo is not the place for them.
 
-`shared/.env` is gitignored by the scaffold. Check that it stayed that way
+`~/gtm/.env` is gitignored by the scaffold. Check that it stayed that way
 before your first push.
 
 The clone at `~/.gtm-engine` is nobody's data and never belongs in a project

@@ -274,7 +274,7 @@ python3 ~/.agents/skills/engine-social/scripts/edit_image.py \
 ```
 
 Gemini ("nano banana") by default, `--provider openai` for GPT Image. Needs
-`GEMINI_API_KEY` or `OPENAI_API_KEY` in `shared/.env` — the reference has the
+`GEMINI_API_KEY` or `OPENAI_API_KEY` in `~/gtm/.env` — the reference has the
 key pages ([AI Studio](https://aistudio.google.com/apikey),
 [OpenAI](https://platform.openai.com/api-keys)) and the steps. **Ask before the
 first call in a run** — it's paid per image, and usually the original is fine.

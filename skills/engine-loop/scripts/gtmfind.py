@@ -5,7 +5,8 @@ loop script.
 Layout (v2):
 
   ~/gtm/                  THE HOME. everything shared between engines:
-    shared/               brand.md, channels.json, .env, assets/, insights.md
+    .env                  keys, at the root of the home like any project
+    shared/               brand.md, channels.json, assets/, insights.md
     engines.json          the registry: which engines exist and where they live
     engines/              the default home for engine folders, when you keep
                           them in one place
@@ -47,7 +48,7 @@ LEGACY_MARKER = "workflow.json"
 DEFAULT_HOME = Path.home() / "gtm"
 
 # Files that identify shared/ as ours (any one is enough).
-_SHARED_FILES = ("channels.json", "brand.md", ".env.example")
+_SHARED_FILES = ("channels.json", "brand.md", "insights.md")
 
 # The engine repo's own template folder is the scaffold SOURCE, not a home.
 # This marker at its root keeps it from ever being picked up.

@@ -218,7 +218,7 @@ will never claim. Thin answers are fine and better than invented ones. Say
 plainly that this file is shared by every engine in every project, and that a
 project needing a different voice gets an override in its own engine folder.
 
-Then point at `~/gtm/shared/.env.example`: copy it to `.env` and fill in only
+Then point at `~/gtm/.env.example`: copy it to `.env` and fill in only
 the keys for the channels they are actually running. Which keys those are, and
 where each comes from, is in [`useful-links.md`](useful-links.md). Outreach
 usually needs none beyond a Gmail you can reach; video is the one with a real
@@ -244,7 +244,7 @@ End with what they can do next, and which of it you can start right now:
 Next:
   · run the outreach engine on a first list of 10 people, I can do this now
   · set up the daily metric job and the weekly report, I can do this now
-  · you: paste your API keys into ~/gtm/shared/.env for the channels you want live
+  · you: paste your API keys into ~/gtm/.env for the channels you want live
 ```
 
 ---

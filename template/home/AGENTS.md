@@ -52,7 +52,7 @@ next.
 Next:
   · draft the four remaining posts from inputs/queue/, I can do this now
   · read Tuesday's post numbers off LinkedIn and record them, the 72h window clears tomorrow
-  · you: paste the Bluesky app password into shared/.env if you want that channel live
+  · you: paste the Bluesky app password into ~/gtm/.env if you want that channel live
 ```
 
 ## Keep brand.md and insights.md growing
@@ -96,7 +96,7 @@ poisons data they can't reconstruct.
   before every draft
 - **Never delete a template.** Losers move to `losers/`: it is the only record
   of what didn't work, and the deletion can't be undone
-- **Never read the values in `shared/.env`.** Key names come from
+- **Never read the values in `~/gtm/.env`.** Key names come from
   `.env.example`
 - **Never overwrite the user's own work.** Runs, CRM rows, templates and
   `brand.md` are theirs; add to them, and ask before replacing anything

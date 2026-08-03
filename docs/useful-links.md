@@ -74,11 +74,11 @@ logged-in browser. Bluesky uses its API (app password), not a scheduler.
 
 | What | Where | Notes |
 |---|---|---|
-| **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `shared/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
+| **Bluesky app password** *(only if you post there)* | <https://bsky.app> → Settings → Privacy and Security → App Passwords | Never your account password. Goes in `~/gtm/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD` |
 
 Images are optional. Picking one out of `social/inputs/images/` needs nothing.
 *Editing* one — crop, background swap, aspect-ratio variants — needs one key,
-either provider, in `shared/.env`:
+either provider, in `~/gtm/.env`:
 
 | What | Where | Getting the key | Cost |
 |---|---|---|---|
@@ -206,7 +206,7 @@ Read the account-risk section in that reference before acting on it.
 
 ## Which key goes where
 
-Every value below lives in `~/gtm/shared/.env`. Copy `.env.example`
+Every value below lives in `~/gtm/.env`. Copy `.env.example`
 first, then paste your own keys in — never into a chat window.
 
 | Environment variable | Get it from | Needed for |

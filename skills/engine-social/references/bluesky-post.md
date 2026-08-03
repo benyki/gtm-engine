@@ -7,12 +7,12 @@ account password.
 
 - Create: bsky.app → Settings → Privacy and Security → **App Passwords**
   (`xxxx-xxxx-xxxx-xxxx`)
-- Store in home `shared/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD`
+- Store in home `~/gtm/.env` as `BSKY_HANDLE` / `BSKY_APP_PASSWORD`
   (or `BSKY_ACCOUNT_<NAME>_HANDLE` / `_APP_PASSWORD` for multi-account)
 - Source at run time; never read `.env` into chat; never commit
 
 ```bash
-set -a; . ~/gtm/shared/.env; set +a
+set -a; . ~/gtm/.env; set +a
 ```
 
 ## Constraints
