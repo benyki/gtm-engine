@@ -61,6 +61,14 @@ Next:
 3. That engine's `reports/latest.json` and its `inputs/best/`: what worked
    there, and what the user's own good work looks like
 
+## Everything runs locally
+
+gtm-engine is designed to run on this machine. Every task and every scheduled
+task runs here, because that is where the files, the keys and the logged-in
+browser are. If something is running in the cloud (a remote agent session, a
+hosted runner, a cloud scheduler), say so and suggest moving it local, unless
+there is a good reason it has to be remote.
+
 ## Schedulers are the agent's own scheduled tasks
 
 Every recurring job here, the metric fetches, the weekly report, the drafting
