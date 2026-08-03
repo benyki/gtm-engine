@@ -14,5 +14,5 @@ user, not the user to the engines**; take their list and their process in
 whatever shape they arrive, and never make someone reformat something before
 anything can happen. Read `shared/brand.md` and `shared/insights.md` first, log
 every piece you make with `runlog.py new`, never send or publish without an
-explicit yes, never read `shared/.env`, and **end every message with the
+explicit yes, never read `~/gtm/.env`, and **end every message with the
 possible next steps, saying which ones you can start right now.**

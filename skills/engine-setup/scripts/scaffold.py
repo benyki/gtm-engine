@@ -4,9 +4,10 @@
 Two separate things, on purpose:
 
   THE HOME (`~/gtm` by default) holds everything shared between engines:
-  `shared/` (brand, channels, keys, assets, insights), the docs, `AGENTS.md`,
-  `published/`, and `engines.json` (the registry: which engines exist and
-  where they live). One home per person is the intended shape.
+  `.env` (the keys, at the root like any project), `shared/` (brand, channels,
+  assets, insights), the docs, `AGENTS.md`, `published/`, and `engines.json`
+  (the registry: which engines exist and where they live). One home per person
+  is the intended shape.
 
   AN ENGINE is one self-contained folder (engine.json, experiments.json,
   sources.json, templates/, inputs/, runs/, reports/) that can live ANYWHERE:
@@ -63,8 +64,7 @@ DOCS_SRC = REPO_ROOT / "docs"
 BASE_SRC = STARTERS / "_every-engine"
 
 HOME_GITIGNORE = """\
-# secrets
-shared/.env
+# secrets: .env sits at the root of the home, like any project
 .env
 *.local
 
@@ -84,7 +84,7 @@ published/*
 """
 
 ENGINE_GITIGNORE = """\
-# secrets never live in an engine; they live in <home>/shared/.env
+# secrets never live in an engine; they live in <home>/.env
 .env
 *.local
 
@@ -112,7 +112,7 @@ A gtm-engine engine: one growth channel, owning everything it needs.
 accounts, the keys and the house rules live there, shared with every engine.
 
 Log every piece you make with `runlog.py new --engine {name}`. Never publish or
-send without an explicit yes. Never read `{home}/shared/.env`.
+send without an explicit yes. Never read `{home}/.env`.
 """
 
 ENGINE_CLAUDE = """\
@@ -168,8 +168,8 @@ def engine_json(name: str, typ: str, home: Path, project: str,
         "primary_metric": "",
         "_primary_metric_hint": "The one number THIS engine optimises. "
                                 "A channel can override it in shared/channels.json.",
-        "_home_hint": "Everything shared lives in `home`: brand.md, channels.json, "
-                      ".env, assets/, insights.md. If you MOVE this folder, update "
+        "_home_hint": "Everything shared lives in `home`: .env at its root, then "
+                      "shared/brand.md, channels.json, assets/, insights.md. If you MOVE this folder, update "
                       "its entry in <home>/engines.json in the same breath: nothing "
                       "scans for engines, so an unregistered one is invisible.",
     }
@@ -189,11 +189,18 @@ def scaffold_home(home: Path, merge: bool) -> tuple[int, int]:
     c, s = copy_tree(SHARED_SRC, home / "shared")
     created, skipped = created + c, skipped + s
     if c:
-        print("  + shared/  (brand, channels, .env.example, assets/, docs/, insights.md)")
+        print("  + shared/  (brand, channels, assets/, docs/, insights.md)")
+
+    # .env.example sits at the root of the home, like any project, and .env
+    # next to it once the user fills it in.
+    c = write_if_missing(home / ".env.example", (HOME_SRC / ".env.example").read_text())
+    created += c
+    if c:
+        print("  + .env.example  (key NAMES; copy to .env and fill in the values)")
 
     # Root files of the home template: AGENTS.md (what every agent reads) and
-    # CLAUDE.md (a pointer to it). Dotfiles do not come across, which is what
-    # keeps .gtm-template out of a real home.
+    # CLAUDE.md (a pointer to it). Dotfiles do not come across in this loop,
+    # which is what keeps .gtm-template out of a real home.
     for item in sorted(HOME_SRC.iterdir()):
         if not item.is_file() or item.name.startswith("."):
             continue
@@ -344,7 +351,7 @@ Next:
   1. Install the skills for these engines:
        {REPO_ROOT}/skills/engine-setup/scripts/install_skills.sh --home {short(home)}
      (skills: {', '.join(skills)})
-  2. Copy {short(home)}/shared/.env.example to shared/.env and add any keys you need
+  2. Copy {short(home)}/.env.example to {short(home)}/.env and add any keys you need
   3. Tell your agent:  run engine-setup
 
 Every engine above is listed in {short(home / reg.REGISTRY)}. If you ever move

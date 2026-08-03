@@ -14,10 +14,10 @@ deciding a source, and come back here for the Pexels mechanics.
 
 ## Pexels download (portrait)
 
-Needs `PEXELS_API_KEY` in `shared/.env` (source the file; don't read it into chat).
+Needs `PEXELS_API_KEY` in `~/gtm/.env` (source the file; don't read it into chat).
 
 ```bash
-set -a; . ~/gtm/shared/.env; set +a
+set -a; . ~/gtm/.env; set +a
 
 QUERY="tired founder laptop night"
 OUT="shared/assets/pexels"

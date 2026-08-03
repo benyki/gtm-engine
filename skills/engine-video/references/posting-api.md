@@ -14,12 +14,12 @@ Never post without an explicit yes.
 
 ## Upload Post (best default for video)
 
-- Key: `UPLOADPOST_API_KEY` in home `shared/.env`
+- Key: `UPLOADPOST_API_KEY` in home `~/gtm/.env`
 - Accepts a **local file** (multipart) — no public URL required
 - Docs: https://docs.upload-post.com/
 
 ```bash
-set -a; . ~/gtm/shared/.env; set +a
+set -a; . ~/gtm/.env; set +a
 
 # List profiles (usernames are case-sensitive)
 curl -sS https://api.upload-post.com/api/uploadposts/users \

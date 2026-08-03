@@ -51,7 +51,7 @@ The free tier is 10 posts a month. If you're posting three times a week you'll
 hit it in the second week, so decide up front whether you're paying or staying
 manual — discovering the cap mid-run is annoying.
 
-Key goes in `shared/.env` as `UPLOADPOST_API_KEY`. Set the channel's `publish`
+Key goes in `~/gtm/.env` as `UPLOADPOST_API_KEY`. Set the channel's `publish`
 to `uploadpost` in `shared/channels.json`.
 
 ## Buffer
@@ -64,7 +64,7 @@ costs at roughly zero.
 
 For text-only LinkedIn and X posts this doesn't apply and Buffer is fine.
 
-Token goes in `shared/.env` as `BUFFER_ACCESS_TOKEN`. Set `publish` to
+Token goes in `~/gtm/.env` as `BUFFER_ACCESS_TOKEN`. Set `publish` to
 `buffer`.
 
 ---

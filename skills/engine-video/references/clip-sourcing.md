@@ -59,7 +59,7 @@ The highest-performing option and the least used. For an app:
 Good for hooks — a shot you can't film, a visual metaphor, five variants of the
 same idea in ten minutes.
 
-- Key: `FAL_KEY` in `shared/.env` (add the name to `.env.example` if it's
+- Key: `FAL_KEY` in `~/gtm/.env` (add the name to `.env.example` if it's
   missing). Never read `.env` itself
 - Model choice moves faster than any doc — check fal.ai's current text-to-video
   models rather than trusting a model id written down here

@@ -362,10 +362,10 @@ And point out `shared/insights.md` — the cross-engine learnings file every loo
 ### 7. Keys
 
 ```bash
-cp shared/.env.example shared/.env
+cp ~/gtm/.env.example ~/gtm/.env
 ```
 
-Have **them** paste the keys in. Never ask a user to give you a key in chat, and never read `shared/.env` — you read `.env.example` for the names only. If a key is missing, name the variable and where to get it; don't work around it.
+Have **them** paste the keys in. Never ask a user to give you a key in chat, and never read `~/gtm/.env` — you read `.env.example` for the names only. If a key is missing, name the variable and where to get it; don't work around it.
 
 Which keys they need depends on the engine — see `docs/useful-links.md`. For `seo`, `social` and `outreach`, usually none.
 
@@ -432,7 +432,7 @@ to stand alone because each run starts with no memory of the conversation:
 
 - **Confirm before writing anywhere outside the home.** Cloning and installing skills touch their home directory
 - **Never star, push or post without an explicit yes**
-- **Never read `shared/.env`.** Names come from `.env.example`
+- **Never read `~/gtm/.env`.** Names come from `.env.example`
 - **Copy skills into `~/.agents/skills/`, then symlink out** to agent folders and
   the home — never leave the only copy inside an agent-specific directory
 - **The clone is read-only.** Customised instructions go in `~/.agents/skills/`

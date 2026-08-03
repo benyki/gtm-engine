@@ -97,7 +97,7 @@ different experiments, different queues.
 | `UPLOADPOST_API_KEY` | posting, optional | free to 10 posts/month |
 | ~10 GB disk | video is large | — |
 
-Check `shared/.env.example` for the exact names. Never read `shared/.env` itself.
+Check `~/gtm/.env.example` for the exact names. Never read `~/gtm/.env` itself.
 
 These are the **defaults**, not requirements — each row is one way to satisfy a contract:
 

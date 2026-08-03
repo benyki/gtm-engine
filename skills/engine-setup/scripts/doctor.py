@@ -23,7 +23,7 @@ it safely can.
 Usage:
     doctor.py [--home PATH] [--fix]
 
-Secrets: this reads the NAMES of the keys in shared/.env to confirm they
+Secrets: this reads the NAMES of the keys in the home's .env to confirm they
 are set. It never reads, prints or logs a value.
 """
 from __future__ import annotations
@@ -217,7 +217,7 @@ def find_home(explicit: str | None) -> Path | None:
         shared = p / "shared"
         return shared.is_dir() and any(
             (shared / f).is_file()
-            for f in ("channels.json", "brand.md", ".env.example"))
+            for f in ("channels.json", "brand.md", "insights.md"))
 
     default = Path.home() / "gtm"
     if marked(default):
@@ -409,8 +409,13 @@ def check_env(home: Path, types: set[str] | None = None) -> None:
     Scaffolded is not the same as running: someone with a `video/` folder they
     haven't touched should read "for video", not "you're missing keys".
     """
-    example = home / "shared" / ".env.example"
-    env = home / "shared" / ".env"
+    # .env lives at the root of the home. v1 homes keep it in shared/.
+    example = home / ".env.example"
+    if not example.is_file():
+        example = home / "shared" / ".env.example"
+    env = home / ".env"
+    if not env.is_file() and (home / "shared" / ".env").is_file():
+        env = home / "shared" / ".env"
 
     if not example.is_file():
         return
@@ -436,11 +441,11 @@ def check_env(home: Path, types: set[str] | None = None) -> None:
 
     if not env.is_file():
         if required:
-            add("warn", "  shared/.env not created",
+            add("warn", "  .env not created",
                 f"copy .env.example → .env — {detail}"
                 " — only when you run that engine")
         else:
-            add("pass", "  shared/.env not created",
+            add("pass", "  .env not created",
                 f"nothing needs one yet — the {len(wanted)} keys in "
                 ".env.example are per-channel, add one when you add the channel")
         return

@@ -7,7 +7,8 @@ and one folder per workflow inside it. v2 splits that into a shared home
 
 What this does:
 
-  1. copies `<workspace>/shared/` into `~/gtm/shared/`, never overwriting a
+  1. copies `<workspace>/shared/` into `~/gtm/shared/`, lifting `.env` and
+     `.env.example` to `~/gtm/` where v2 keeps them, and never overwriting a
      file that is already there (so a second project's brand.md will NOT
      clobber the first; it is reported instead)
   2. copies `published/` and the root `AGENTS.md` / `CLAUDE.md` if the home
@@ -74,9 +75,9 @@ def main() -> int:
     plan: list[str] = []
     conflicts: list[str] = []
 
-    def copy_missing(src: Path, dst: Path, label: str) -> None:
+    def copy_missing(src: Path, dst: Path, label: str, skip=()) -> None:
         for item in sorted(src.rglob("*")):
-            if item.is_dir():
+            if item.is_dir() or item.name in skip:
                 continue
             target = dst / item.relative_to(src)
             if target.exists():
@@ -87,7 +88,21 @@ def main() -> int:
                 target.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(item, target)
 
-    copy_missing(ws / "shared", home / "shared", "shared")
+    # .env moved to the root of the home in v2. Carry v1's copies across, and
+    # never leave a second one behind in shared/ where nothing reads it.
+    for name in (".env", ".env.example"):
+        src = ws / "shared" / name
+        if not src.is_file():
+            continue
+        if (home / name).exists():
+            conflicts.append(f"shared/{name}: {short(home / name)} already exists, "
+                             f"so this one was left where it is. Merge the keys by hand")
+            continue
+        plan.append(f"copy  shared/{name}  ->  {short(home / name)}")
+        if a.apply:
+            shutil.copy2(src, home / name)
+    copy_missing(ws / "shared", home / "shared", "shared",
+                 skip=(".env", ".env.example"))
     if (ws / "published").is_dir():
         copy_missing(ws / "published", home / "published", "published")
     for name in ("AGENTS.md", "CLAUDE.md"):
