@@ -71,14 +71,11 @@ there is a good reason it has to be remote.
 
 ## Schedulers are the agent's own scheduled tasks
 
-Every recurring job here, the metric fetches, the weekly report, the drafting
-runs, is a **native scheduled task in the agent itself**: Claude Code's
-scheduled tasks, or the Codex equivalent. Never `cron`, never `launchd`, never
-a shell script on a timer.
-
-They need a model, a browser and judgement, which an OS-level job doesn't have.
-Each run also starts with no memory of this conversation, so the prompt has to
-stand alone: name the engine, its full path, and what to do.
+Every recurring job here is defined in the **native scheduled-task format of
+the harness you are running in**: Claude Code's scheduled tasks, the Codex
+equivalent, or your framework's own. Not `cron`, not `launchd`, not a shell
+script on a timer, unless something genuinely needs a deterministic job or the
+user asks for one.
 
 ## Boundaries that don't move
 

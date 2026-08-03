@@ -135,6 +135,14 @@ python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py \
 Then print the tree you actually created, with real paths. Not a diagram of
 the general case: the folders that now exist on their machine.
 
+**If they are not on Claude Code or Codex** (openclaw, Cursor, Hermes,
+Antigravity, or any other coding-agent framework), fetch that harness's current
+documentation first, then read through the installed skills and the `~/gtm`
+folder and adapt every Claude Code or Codex reference to their environment:
+where skills live, how scheduled tasks are defined, which instruction file the
+agent reads. Do it now, while the tree is fresh, rather than leaving them to
+hit each mismatch on their own.
+
 ---
 
 ## Step 4. Fill in the brand, once
