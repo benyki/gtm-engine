@@ -22,7 +22,7 @@ mobilerun — see `references/advanced.md`, account-risk section first.
 | Media | you upload it | handles video upload directly | **needs media already at a public URL** |
 | Platforms | all of them | TikTok, YouTube, Instagram, X, Threads, Facebook, LinkedIn | broad, strongest for text |
 | Analytics back to the loop | none — read them in the browser | via API | via API |
-| Best for | week one, everyone | the video workflow | you already use Buffer |
+| Best for | week one, everyone | the video engine | you already use Buffer |
 | The catch | you click post | the 10/month cap arrives fast | media hosting is real friction |
 
 ---
@@ -79,4 +79,4 @@ python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <id> --url 
 ```
 
 **Nothing posts without you.** All three modes end with a human approving. The
-workflows draft; you publish.
+engines draft; you publish.

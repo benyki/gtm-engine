@@ -51,7 +51,7 @@ lands within noise of the champion, and you suspect the ceiling is the format
 itself, not the first line.**
 
 That suspicion is often right, and testing a whole format against a working one
-is the way to find out. It is also the most expensive test in this workflow, so
+is the way to find out. It is also the most expensive test in this engine, so
 the entry conditions matter.
 
 ### Do this only when all three are true
@@ -84,11 +84,11 @@ runs and no answer.
 
 | | |
 |---|---|
-| **Where** | The challenger gets its **own workflow folder** — `--merge --workflow video-<format>:video`. Same `primary_metric`, same channel as the champion, so the numbers are comparable |
+| **Where** | The challenger gets its **own engine folder** — `--merge --engine video-<format>:video`. Same `primary_metric`, same channel as the champion, so the numbers are comparable |
 | **Why a folder** | Formats have their own templates, queues, experiments and shot logic. They don't fit as two arms of one experiment, and a folder keeps the champion's spine untouched |
 | **Split** | Roughly one run in three or four goes to the challenger. The working format keeps earning while the new one is unproven |
 | **Minimum** | Five or six runs before you judge it. A format's first attempt is also your worst attempt at it |
-| **Compare** | Both workflows' `reports/latest.json`, side by side, on the **median** of the shared metric. Not `score_arms.py` — nothing is pooled across folders, and that's deliberate |
+| **Compare** | Both engines' `reports/latest.json`, side by side, on the **median** of the shared metric. Not `score_arms.py` — nothing is pooled across folders, and that's deliberate |
 | **Why median** | Short-form is heavy-tailed. One viral run under a mean hands the verdict to whichever folder got lucky |
 
 ### Deciding

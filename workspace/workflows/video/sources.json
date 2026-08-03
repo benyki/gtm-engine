@@ -1,7 +1,0 @@
-{
-  "_comment": "Where this workflow's ideas and raw material come from. Free-form \u2014 add fields as needed.",
-  "footage_primary": "sourced",
-  "footage_fallback": "pexels",
-  "_footage_hint": "Your own clips and product recordings first. Pexels is the safety net so a run always completes \u2014 not the default look.",
-  "assets_dir": "shared/assets"
-}

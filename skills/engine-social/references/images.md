@@ -16,9 +16,9 @@ Two separate things, and they fail differently:
 ## Where images live
 
 ```
-<workflow>/inputs/images/            what the user dropped in — never modified
-<workflow>/inputs/images/README.md   what belongs here
-<workflow>/runs/<run_id>/output/     every edit lands here, next to the post
+<engine>/inputs/images/            what the user dropped in — never modified
+<engine>/inputs/images/README.md   what belongs here
+<engine>/runs/<run_id>/output/     every edit lands here, next to the post
 ```
 
 `inputs/images/` is the human's folder. Screenshots, product shots, photos from
@@ -26,8 +26,8 @@ a talk, charts they exported, the logo. **Read it, never write to it** — an
 edited file that lands back in `inputs/` becomes the source for the next edit,
 and three posts later nobody can tell what the original looked like.
 
-Reusable across workflows (a logo, a house background, a proof screenshot the
-whole brand uses) → `shared/assets/`. This workflow's own material stays here.
+Reusable across engines (a logo, a house background, a proof screenshot the
+whole brand uses) → `shared/assets/`. This engine's own material stays here.
 
 If the folder is empty, say so once and move on. Don't invent an image to fill
 a gap; short-form text posts do fine without one, and on LinkedIn a
@@ -65,7 +65,7 @@ cp inputs/images/dashboard.png runs/<run_id>/output/
 Note the filename in the run's `notes.md`, or pass it at log time:
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow social \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --engine social \
   --channel linkedin --notes "image: dashboard.png (picked, unedited)"
 ```
 
@@ -89,7 +89,7 @@ Either provider works. Pick one; there's no reason to hold both.
 | **Google — Gemini image models** ("nano banana") | [aistudio.google.com](https://aistudio.google.com) | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | Sign in with a Google account → **Create API key** → pick or create a project. Has a free tier; docs: [ai.google.dev/gemini-api/docs/image-generation](https://ai.google.dev/gemini-api/docs/image-generation) |
 | **OpenAI — GPT Image** | [platform.openai.com](https://platform.openai.com) | [platform.openai.com/api-keys](https://platform.openai.com/api-keys) | **Create new secret key** — shown once, copy it then. Prepaid credits, no free tier, and image edits may need org verification. Docs: [developers.openai.com](https://developers.openai.com/api/docs/guides/image-generation) |
 
-Then, in the workspace:
+Then, in the home:
 
 ```bash
 cp shared/.env.example shared/.env      # if it isn't there yet
@@ -127,7 +127,7 @@ python3 ~/.agents/skills/engine-social/scripts/edit_image.py --provider openai \
 ```
 
 Full flags in the script's docstring (`--model`, `--fidelity`, `--timeout`,
-`--workspace`). It never writes to `inputs/`, and it exits with the key page
+`--home`). It never writes to `inputs/`, and it exits with the key page
 URL if the key is missing.
 
 ### Writing the prompt
@@ -228,7 +228,7 @@ hide it a click deep in the composer and it's on you to fill it in.
 The image is part of the thing that shipped, so it goes with the run:
 
 - edited output stays in `runs/<run_id>/output/`
-- the shipped file is copied to the workflow's `published_dir` alongside the post
+- the shipped file is copied to the engine's `published_dir` alongside the post
 - `--notes` (or `notes.md`) records where it came from: picked as-is, edited
   with which provider and prompt, or none
 

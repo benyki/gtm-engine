@@ -110,9 +110,9 @@ shared/assets/pexels/<query-slug>-<n>.mp4
 runs/<run_id>/assets/…            # pulled for one run only
 ```
 
-Everything reusable goes in `shared/assets/` so sibling video workflows don't
+Everything reusable goes in `shared/assets/` so sibling video engines don't
 re-fetch it. Never a home-directory media tree — those don't travel with the
-workspace.
+home.
 
 ## Optional skills
 

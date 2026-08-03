@@ -24,11 +24,11 @@ Per-experiment knobs in experiments.json (both optional):
 When the mean is in use and one run dominates an arm's total, the verdict
 carries an outlier caution — read it before acting.
 
-Reads each workflow folder's own experiments.json and runs/index.csv —
-workflows are self-contained; nothing is scored across folders.
+Reads each engine folder's own experiments.json and runs/index.csv —
+engines are self-contained; nothing is scored across folders.
 
 Usage:
-    score_arms.py [--workspace PATH] [--workflow NAME] [--json]
+    score_arms.py [--home PATH] [--engine NAME] [--json]
 """
 from __future__ import annotations
 
@@ -39,7 +39,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from wsfind import find_workspace, find_workflow_dir, list_workflow_dirs  # noqa: E402
+from gtmfind import find_home, find_engine, list_engines  # noqa: E402
 
 DIM, BOLD, GREEN, YELLOW, RESET = "\033[2m", "\033[1m", "\033[32m", "\033[33m", "\033[0m"
 
@@ -142,8 +142,8 @@ def judge(stats: dict, min_runs: int, win_ratio: float,
                          f"(needs {win_ratio}x, on {label}) — keep running")
 
 
-def score_workflow(wd) -> list[dict]:
-    """Score one workflow folder's live experiments against its own runs."""
+def score_engine(wd) -> list[dict]:
+    """Score one engine folder's live experiments against its own runs."""
     cfg = wd / "experiments.json"
     if not cfg.is_file():
         return []
@@ -169,7 +169,7 @@ def score_workflow(wd) -> list[dict]:
         caution = outlier_note(cohort, aggregate)
 
         report.append({
-            "id": exp["id"], "workflow": wd.name,
+            "id": exp["id"], "engine": wd.name,
             "channel": (exp.get("channel") or "").strip(),
             "variable": exp.get("variable", ""), "started": started,
             "min_runs_per_arm": min_runs, "win_ratio": win_ratio,
@@ -184,37 +184,38 @@ def score_workflow(wd) -> list[dict]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--workflow", default="",
-                    help="scope to one workflow folder (default: all)")
+    ap.add_argument("--engine", "--workflow", dest="engine", default="",
+                    help="scope to one engine folder (default: all)")
     a = ap.parse_args()
 
-    ws = find_workspace(a.workspace)
-    if a.workflow:
-        dirs = [find_workflow_dir(ws, a.workflow)]
+    home = find_home(a.home)
+    if a.engine:
+        dirs = [find_engine(home, a.engine)]
     else:
-        dirs = list_workflow_dirs(ws)
+        dirs = list_engines(home)
         if not dirs:
-            sys.exit("error: no workflow folders in this workspace")
+            sys.exit("error: no engine folders in this home")
 
     report = []
     for wd in dirs:
-        report.extend(score_workflow(wd))
+        report.extend(score_engine(wd))
 
     if a.json:
         print(json.dumps(report, indent=2))
         return 0
 
     if not report:
-        print("\nNo live experiments. Add one to <workflow>/experiments.json.\n")
+        print("\nNo live experiments. Add one to <engine>/experiments.json.\n")
         return 0
 
     for e in report:
         tag = "".join((f" · {e['channel']}" if e["channel"] else "",
                        f" · {e['aggregate']}" if e["aggregate"] != "mean" else "",
                        " · lower is better" if e["direction"] == "down" else ""))
-        print(f"\n{BOLD}{e['id']}{RESET}  {e['workflow']} · {e['variable']}{tag}"
+        print(f"\n{BOLD}{e['id']}{RESET}  {e['engine']} · {e['variable']}{tag}"
               f"{DIM}  since {e['started'] or '—'}{RESET}")
         print(f"  {'arm':<16}{'runs':>6}{'measured':>10}{'mean':>10}{'median':>10}   source")
         better = 1 if e["direction"] == "down" else -1
@@ -234,7 +235,7 @@ def main() -> int:
 
         if e["verdict"] == "decided":
             print(f"  {DIM}next: promote the winner, move the loser to "
-                  f"{e['workflow']}/templates/losers/, write a challenger.{RESET}")
+                  f"{e['engine']}/templates/losers/, write a challenger.{RESET}")
     print()
     return 0
 

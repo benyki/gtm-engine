@@ -1,6 +1,6 @@
 # Remotion — when the render is React
 
-Default path for this workflow is ffmpeg + floating text
+Default path for this engine is ffmpeg + floating text
 (`references/floating-text.md`). Use Remotion when you need real composition:
 animated type, sequenced scenes, React-driven layout, or a house design system
 in code.

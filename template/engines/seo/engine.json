@@ -1,0 +1,9 @@
+{
+  "type": "seo",
+  "goal": "",
+  "primary_metric": "",
+  "_primary_metric_hint": "The one number THIS engine optimises : commonly clicks from Search Console. A channel can still override it in shared/channels.json.",
+  "published_dir": "",
+  "_published_dir_hint": "Where this engine's shipped artifacts go. Empty = the default, <home>/published/<this-engine>/. Accepts a home-relative path or an absolute one (an external drive, a synced folder, a shared team drive). Set to \"none\" to skip the copy and leave artifacts in runs/<run_id>/output/.",
+  "_comment": "This folder is fully self-contained: its own experiments, sources, templates, inputs, runs and reports. Want a second seo engine with a different goal or audience? Copy this whole folder to a new name (e.g. seo-partners/), rewrite this file's goal and metric, and run it independently. The folder name is the engine name; 'type' maps it to the engine-seo skill."
+}

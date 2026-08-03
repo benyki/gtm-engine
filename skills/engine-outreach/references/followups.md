@@ -10,7 +10,7 @@ starts. Ask before building any of this:
 > *"Do you want me to draft the follow-ups and reply handling, or would you
 > rather handle replies yourself?"*
 
-If they'd rather reply themselves, the workflow is complete without this file.
+If they'd rather reply themselves, the engine is complete without this file.
 The only thing still owed to the loop is the metric: when a reply lands, the
 run gets `--value 1` and the CRM row gets `replied_at`. Everything else here is
 optional machinery.
@@ -58,7 +58,7 @@ user's voice** — not by finding the matching template. That's why this is a
 library: the combinations are the point, and there are more of them than you'd
 ever pre-write.
 
-Keep it as one file per workflow — `<workflow>/templates/followups/blocks.md`
+Keep it as one file per engine — `<engine>/templates/followups/blocks.md`
 — with each block a short titled section. It sits alongside the templates but
 isn't an A/B arm: blocks are components, and the spine tracks the first-touch
 template that started the thread.
@@ -78,14 +78,14 @@ reply that doesn't fit an existing block is the signal**:
 Do this on the weekly pass, next to reading the numbers. Six weeks in, the
 library is a real map of what this audience actually says — which is worth more
 than the original template, and is exactly the thing a new agent picking up the
-workspace can't reconstruct.
+home can't reconstruct.
 
 When a reply theme keeps recurring, it has stopped being a follow-up problem:
 
 - Three people asking the same objection → that objection belongs in the
   **first-touch email**, answered before it's raised
 - The same question over and over → that's an article. Drop it in the seo
-  workflow's `inputs/queue/` if they run one, and a line in `shared/insights.md`
+  engine's `inputs/queue/` if they run one, and a line in `shared/insights.md`
   either way
 - The wrong people replying → the list is the problem, not the copy
   (`references/lead-sourcing.md`)
@@ -115,7 +115,7 @@ drafting touch two or three:
 
 ## Who to chase first: the click
 
-If the workflow is tracking clicks on its one link
+If the engine is tracking clicks on its one link
 (`references/first-touch.md` → §2), it has a third state beyond replied and
 silent: **clicked but hasn't replied.** That person opened the thing, went and
 looked, and didn't write back — which is much closer to interested than to no.

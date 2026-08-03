@@ -1,0 +1,5 @@
+{
+  "_comment": "This engine's experiments \u2014 self-contained, nothing global. Optional per-experiment fields: channel (scopes to one channel so several experiments can run concurrently here), direction ('up' default, 'down' for lower-is-better), aggregate ('mean' default, 'median' for heavy-tailed metrics). See engine-loop/references/ab-testing.md.",
+  "experiments": [],
+  "decision_log": []
+}

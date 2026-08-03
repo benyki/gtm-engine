@@ -1,7 +1,7 @@
 # Stay on top — what to follow
 
-The sources worth keeping an eye on, and the shared assets the workflows pull
-from. Two jobs: keeping your own head current, and **feeding the workflows**.
+The sources worth keeping an eye on, and the shared assets the engines pull
+from. Two jobs: keeping your own head current, and **feeding the engines**.
 
 The second one is the reason this file is in the repo rather than in a bookmarks
 folder. `engine-social`'s daily job takes 4 of its 12 subjects from RSS
@@ -37,7 +37,7 @@ exposes one. Better Stack's, for example, is `UCkVfrGwV-iG9bSsgCbrNPxQ`.
 |---|---|
 | [Syntax](https://syntax.fm) | web dev, twice weekly. The long-running one; good for what practitioners actually argue about |
 | [The AI Daily Brief](https://podcasts.apple.com/us/podcast/the-ai-daily-brief-artificial-intelligence-news/id1680633614) · [Spotify](https://open.spotify.com/show/7gKwwMLFLc6RmjmRpbMtEO) | daily AI news and analysis, ~15 min. The one that keeps you current without reading anything |
-| [Claude Code Daily](https://podcasts.apple.com/us/podcast/claude-code-daily/id1896883976) | daily briefing on the most useful Claude Code workflows, hacks, engineering patterns and community discoveries. Published by Pod Pub |
+| [Claude Code Daily](https://podcasts.apple.com/us/podcast/claude-code-daily/id1896883976) | daily briefing on the most useful Claude Code engines, hacks, engineering patterns and community discoveries. Published by Pod Pub |
 | [Hacker Newsroom — focus AI](https://podcasts.apple.com/us/podcast/hacker-newsroom-focus-ai/id1890584397) | 5 minutes a day of the top AI stories from Hacker News. Listed on Apple as *"AI Daily: 5-Minute, best of Hacker News"* |
 
 Podcast RSS: most Apple listings expose the feed through
@@ -67,7 +67,7 @@ gcloud storage ls gs://amo-assets/music/
 ```
 
 ```bash
-gcloud storage cp gs://amo-assets/music/<track>.mp3 workflows/shared/assets/music/
+gcloud storage cp gs://amo-assets/music/<track>.mp3 engines/shared/assets/music/
 ```
 
 `gs://` isn't readable by ffmpeg — copy the track down first and point

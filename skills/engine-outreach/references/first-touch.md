@@ -29,7 +29,7 @@ Then push on the parts that are vague:
 | **What must never appear** — claims, competitor names, regulated language | Cheaper to hear now than after 200 sends |
 
 Take the answers into `shared/brand.md` if they're not already there. They're
-not outreach-specific — every workflow needs them.
+not outreach-specific — every engine needs them.
 
 ## 2. Write it short
 
@@ -120,7 +120,7 @@ and ask which one they'd send *and what they'd change*. Then:
 
 Keep nudging until they engage with it properly. A user who shrugs and says
 "looks fine" hasn't read it, and you'll find that out 200 emails later when
-nobody replies. It's worth saying plainly: *this email is the whole workflow —
+nobody replies. It's worth saying plainly: *this email is the whole engine —
 ten minutes on it now is worth more than anything downstream.*
 
 ## 5. Save it and record it
@@ -150,7 +150,7 @@ That finding outlives the experiment that produced it.
 
 **Which one to run is a judgement call, and the user gets the final say.** Put
 the choice to them in one sentence with a recommendation — they know things
-about their market that aren't in the workspace. Roughly:
+about their market that aren't in the home. Roughly:
 
 | Test the **offer** when | Test the **wording** when |
 |---|---|
@@ -202,7 +202,7 @@ Put what each arm is leading with in the template's header comment *and* in the
 experiment's hypothesis. In six weeks that sentence is the only reason anyone
 will remember what the two files were for.
 
-**A won offer test doesn't stay in this workflow.** If leading with the revenue
+**A won offer test doesn't stay in this engine.** If leading with the revenue
 split beat leading with free access, that's a claim about what this audience
 wants — it belongs in `shared/insights.md`, and it should change the landing
 page the emails point at, not just the next template.

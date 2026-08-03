@@ -94,7 +94,7 @@ views. Three honest options:
 | Browser extension on the creator dashboard | watch-through, retention, impressions | needs the extension and a logged-in session |
 | **YouTube Analytics API** (OAuth, own channel) | average view duration and percentage — real watch-through | free, but YouTube only |
 
-If the user won't set up the extension, **say plainly that the workflow's metric
+If the user won't set up the extension, **say plainly that the engine's metric
 becomes views** and set `primary_metric` accordingly rather than leaving a
 `watch_through_rate` column that never gets filled. Views are a weak signal —
 they measure distribution, not whether the hook worked — but a weak measured
@@ -154,9 +154,9 @@ Paid, structured, precise. Worth it when:
 
 ## What to measure
 
-One primary metric per run: the channel's `primary_metric` override in `shared/channels.json` if set, else the workflow's own (`workflow.json`). The loop optimises it, so it has to be something real. Common choices:
+One primary metric per run: the channel's `primary_metric` override in `shared/channels.json` if set, else the engine's own (`engine.json`). The loop optimises it, so it has to be something real. Common choices:
 
-| Workflow | Usually |
+| Engine | Usually |
 |---|---|
 | outreach | replies (not opens — opens are noise and increasingly unmeasurable) |
 | seo | clicks from Search Console (not impressions) |

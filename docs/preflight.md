@@ -2,14 +2,14 @@
 
 **This one is deliberately rigid** — ordered so any machine reaches the same
 working state. Do the steps in sequence. The install gives you all four
-workflows and all six skills; **run one** of them first — outreach unless you'd
+engines and all six skills; **run one** of them first — outreach unless you'd
 rather start somewhere else. (Everywhere else in this repo, instructions are
 defaults you may adapt — here they're steps to follow.)
 
 Ten minutes. Run through it before you install anything, or paste the block at
 the bottom into your agent and let it check for you.
 
-You only need the accounts and keys for the workflow you're actually running —
+You only need the accounts and keys for the engine you're actually running —
 the other three sit there unconfigured until you want them. Downloads and signup
 links:
 [useful-links.md](useful-links.md).
@@ -20,10 +20,10 @@ links:
 
 | Check | How | If not |
 |---|---|---|
-| **Apple Silicon Mac** (M1 or newer) | → About This Mac → "Chip" says Apple M-something | Intel works for text workflows; video rendering will be slow. Linux mostly works. Windows needs adapting — ask us |
+| **Apple Silicon Mac** (M1 or newer) | → About This Mac → "Chip" says Apple M-something | Intel works for text engines; video rendering will be slow. Linux mostly works. Windows needs adapting — ask us |
 | **macOS 13+** | same screen | Update first — it's a long download |
 | **You can install apps** | try installing anything | Managed work laptops often block this. You need admin access. Sort it before you start |
-| **10 GB free disk** | Storage settings | Only needed for the video workflow |
+| **10 GB free disk** | Storage settings | Only needed for the video engine |
 | **Developer tools** | `xcode-select --install` in Terminal | 5–10 minutes. This is what gives you `git` |
 | **Python 3.9+** | `python3 --version` | Already on macOS. Scripts use the standard library only |
 
@@ -58,9 +58,9 @@ accounts.
 
 Install it **before** the session and confirm the agent can see the browser —
 ask it to open a page and tell you the title. If it can't, that's a ten-minute
-fix now and a blocked workflow later.
+fix now and a blocked engine later.
 
-| Workflow | Extension |
+| Engine | Extension |
 |---|---|
 | **`engine-social`** | **Mandatory.** LinkedIn and X have no free posting API worth using, and their analytics live behind your login. Without it, every post is copy-paste and every number is typed in by hand |
 | `engine-video` | Recommended, not required — **views, likes and comments come back without it** via `yt-dlp` on your own public URLs. What needs the login is **watch-through**, which is the number that tells you whether the hook worked |
@@ -72,27 +72,27 @@ Two things worth knowing before you install it:
 - **It uses your real logged-in sessions.** That's the point, and it's also why
   the agent never logs in, never touches credentials, and asks before anything
   publishes
-- **Only some workflows need it, and only for some steps.** If you'd rather not
+- **Only some engines need it, and only for some steps.** If you'd rather not
   install it, `engine-seo` and `engine-outreach` run fine without it — and every
-  workflow still records its numbers, they just get typed in rather than read
+  engine still records its numbers, they just get typed in rather than read
 
 ## 3. Everyone brings
 
 - **A Gmail account** for the agent to draft in. Drafts only; nothing sends
-  without you. Managed Workspace accounts sometimes block the connector — a
+  without you. Managed Home accounts sometimes block the connector — a
   personal Gmail works. Connecting it takes two minutes at setup and your
   agent walks you through it: on Claude Code it's claude.ai → Settings →
   Connectors → Gmail; on Codex it's a Gmail MCP server plus `codex mcp login`
 - **Who you'd reach** — prospects, creators, investors, journalists, partners.
   Bring a list or CRM export if you have one, **in whatever format it's already
   in** — spreadsheet, CSV, a pasted block of addresses, a screenshot. Don't
-  reformat it; the workflow converts it
+  reformat it; the engine converts it
 - **Three examples** of content you'd like output to resemble — inspiration
-  material for finding ideas later; the workflows don't ingest them
+  material for finding ideas later; the engines don't ingest them
 - **What you sell**, and the promise you make
 - **The one number that matters** — replies, signups, demos
 
-## 4. Your workflow
+## 4. Your engine
 
 Only set up the one you're running. **Outreach is the default first one** — its
 section is below, and it needs nothing but a Gmail your agent can reach. Start
@@ -106,12 +106,12 @@ browser. Output is local markdown first.
 
 Useful if you have them:
 
-- **Competitor URLs** — put them in the seo workflow's `sources.json`
+- **Competitor URLs** — put them in the seo engine's `sources.json`
 - **Google Search Console** — metric fetching becomes an API call
 - **Ahrefs or Semrush** — only if you already pay
 - **GA4 login**
 
-**No website yet?** The workflow builds an Astro site inside its own folder (`workflows/seo/site/`).
+**No website yet?** The engine builds an Astro site inside its own folder (`engines/seo/site/`).
 You can use a **Cloudflare Pages** or **Railway** account to deploy. Or bring
 your CMS login / GitHub access for a code-based site.
 
@@ -161,7 +161,7 @@ stop scaling — `skills/engine-outreach/references/advanced.md`.
 
 ### The improvement loop (`engine-loop`)
 
-Not a workflow you "pick" — it rides along with whatever content workflow you
+Not an engine you "pick" — it rides along with whatever content engine you
 run. It reads your run data (and your browser when needed) so seo / social /
 video / outreach learn and compound. Reporting stays inside Claude Code or
 Codex. Optional: Slack, Discord or Telegram alerts; Apify at volume for
@@ -177,11 +177,11 @@ structured analytics.
 
 ## 6. A home for the work
 
-Create a `workflows/` folder on this machine:
+Create an `engines/` folder on this machine:
 
-`~/code/acme/workflows/` or `~/Desktop/acme/workflows/`
+`~/code/acme/engines/` or `~/Desktop/acme/engines/`
 
-Full layout once scaffolded: [workspace.md](workspace.md).
+Full layout once scaffolded: [home.md](home.md).
 
 ---
 
@@ -204,8 +204,8 @@ can run — it's a helper for when something looks wrong, not a step you have to
 pass before starting:
 
 ```bash
-python3 <repo>/skills/engine-setup/scripts/doctor.py
+python3 ~/.gtm-engine/skills/engine-setup/scripts/doctor.py
 ```
 
-It also reads workspace, config and keys once those exist. `✗` means something
+It also reads home, config and keys once those exist. `✗` means something
 is genuinely broken; `!` is information, not a to-do list.

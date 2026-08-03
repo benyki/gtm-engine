@@ -1,0 +1,34 @@
+{
+  "description": "Default 9:16 floating-text look : hook + one detail over B-roll",
+  "duration_s": 15,
+  "output": {
+    "dir": "runs/<run_id>/output",
+    "filename_pattern": "final.mp4"
+  },
+  "background": {
+    "paths": ["shared/assets"],
+    "extensions": [".mp4", ".mov", ".m4v"],
+    "random": true
+  },
+  "crop": { "w": 1080, "h": 1920, "mode": "center-zoom-fill" },
+  "layout": "stacked-center",
+  "elements": [
+    {
+      "name": "hook",
+      "source": "literal",
+      "value": "Your hook goes here",
+      "font": "Helvetica Neue",
+      "size": 72,
+      "weight": "bold",
+      "align": "center"
+    },
+    {
+      "name": "detail",
+      "source": "literal",
+      "value": "One supporting line.",
+      "font": "Helvetica Neue",
+      "size": 48,
+      "align": "center"
+    }
+  ]
+}

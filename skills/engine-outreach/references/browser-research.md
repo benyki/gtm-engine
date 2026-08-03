@@ -1,7 +1,7 @@
 # Browser research — finding one real thing about one person
 
 Reading a person's public trail in the browser is the normal path for this
-workflow, not a workaround. What you're looking for is small and specific: one
+engine, not a workaround. What you're looking for is small and specific: one
 recent, checkable fact you could quote back to them. That's the difference
 between an email that gets read and a mail merge.
 

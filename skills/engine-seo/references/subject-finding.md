@@ -7,9 +7,9 @@ aren't.
 Run it weekly. The backlog is the product of this file
 (`inputs/backlog.csv`) and the writing run just takes the top row.
 
-Scoped to this workflow. `engine-social` has its own version in its own
+Scoped to this engine. `engine-social` has its own version in its own
 references — same shape, different signals, its own backlog. Two files that
-say similar things is the cost of workflows that can't break each other.
+say similar things is the cost of engines that can't break each other.
 
 The whole loop:
 
@@ -176,7 +176,7 @@ title,question,source,source_url,segment,demand,gap,proximity,potential,status,v
 | `parent_run_id` | for variants, the run that earned the right to spawn them |
 | `notes` | the angle. One line: what this piece does that the ranking page doesn't |
 
-Add columns if the workflow needs them — nothing parses this file but you and
+Add columns if the engine needs them — nothing parses this file but you and
 the next agent.
 
 ## Weekly, in order
@@ -198,6 +198,6 @@ it's an agent job, not a plain cron script.
 - **Never multiply a guess** — variants come from winners only
 - **Score before you fall in love with a title.** The order matters: a good
   headline makes a bad subject feel like a good one
-- Check `shared/insights.md` and the sibling workflows' `reports/latest.json`
+- Check `shared/insights.md` and the sibling engines' `reports/latest.json`
   before mining. An objection that keeps coming back in outreach replies is a
   validated subject that cost you nothing to find

@@ -7,10 +7,10 @@ session ever starts with "what should we post about today".
 Run it weekly. The output is `inputs/backlog.csv`; the writing run takes the
 top rows and drafts a batch.
 
-Scoped to this workflow. `engine-seo` has its own version — same shape, but it
+Scoped to this engine. `engine-seo` has its own version — same shape, but it
 mines for search demand and this one mines for feed attention. Don't merge
 them: an article subject and a post subject are validated against different
-evidence, and the two workflows have to be able to change independently.
+evidence, and the two engines have to be able to change independently.
 
 The loop:
 
@@ -36,7 +36,7 @@ performed. When it isn't empty, start here.
 
 **3. Their own published work.** One `engine-seo` article is three or four
 posts: the counterintuitive claim, the specific example, the number, the
-objection it answers. Check the seo workflow's `reports/latest.json` for which
+objection it answers. Check the seo engine's `reports/latest.json` for which
 articles earned something before mining them.
 
 **4. Questions the audience actually asks.** Replies to their posts, support
@@ -102,7 +102,7 @@ and note in `notes` that that's what you're doing.
 
 - **`potential < 5` → `status=killed`**, score kept in the row
 - **No proof and no way to get it** → killed. Don't upgrade an opinion into a
-  fake anecdote; that's the one mistake in this workflow that's unrecoverable
+  fake anecdote; that's the one mistake in this engine that's unrecoverable
 - **Timely rows expire.** Anything tied to a moment gets a kill date in
   `notes`; if it's still sitting there next week, it's gone
 - **Two rows making the same claim** → keep the one with better proof
@@ -177,6 +177,6 @@ logged-in browser, so it's an agent job.
 - **Never validate short-form with search volume.** Wrong room
 - **Score before you fall for a hook.** A great first line makes a hollow
   subject feel like a good one
-- Read `shared/insights.md` and the sibling workflows' `reports/latest.json`
+- Read `shared/insights.md` and the sibling engines' `reports/latest.json`
   before mining — an objection that keeps coming back in outreach replies is a
   validated subject you got for free

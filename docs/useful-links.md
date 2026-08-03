@@ -24,7 +24,7 @@ Python is already on macOS. This repo needs no Python packages.
 
 ---
 
-## Per workflow
+## Per engine
 
 ### engine-outreach
 
@@ -40,7 +40,7 @@ Cloud project, no API key.
 Either way, prove it with one draft addressed to yourself before drafting a batch.
 
 Your list can be in any format — CSV, spreadsheet, a pasted block of addresses,
-a CRM export, even a screenshot. The workflow converts it; don't reformat
+a CRM export, even a screenshot. The engine converts it; don't reformat
 anything first.
 
 ### engine-seo
@@ -55,7 +55,7 @@ Useful if you have them:
 | Ahrefs API | <https://ahrefs.com/api> | Only if you already pay |
 | Semrush API | <https://www.semrush.com/api-documentation/> | Only if you already pay |
 
-**If you don't have a website yet**, the workflow builds one — Astro plus your
+**If you don't have a website yet**, the engine builds one — Astro plus your
 markdown, deployed on push. All free at this size:
 
 | What | Where | Notes |
@@ -108,7 +108,7 @@ Video posting options (manual / Upload Post / Buffer):
 
 ### engine-loop
 
-Not a content workflow — the learning framework under the ones above. Nothing
+Not a content engine — the learning framework under the ones above. Nothing
 required; browser reading is free and works.
 
 | What | Where | Getting the token | Cost |
@@ -124,7 +124,7 @@ you already made.
 **What it needs is a website**, with the Clarity snippet on it — any site you
 control: an existing product site, a landing page, a blog you already run, or
 one `engine-seo` built for you. That's the only requirement. It's useful to any
-workflow that sends traffic somewhere: a social post's click-through lands on a
+engine that sends traffic somewhere: a social post's click-through lands on a
 page, and Clarity is what tells you whether that page worked.
 
 If there's no site at all, Clarity has nothing to record — skip it until there
@@ -206,7 +206,7 @@ Read the account-risk section in that reference before acting on it.
 
 ## Which key goes where
 
-Every value below lives in `workflows/shared/.env`. Copy `.env.example`
+Every value below lives in `engines/shared/.env`. Copy `.env.example`
 first, then paste your own keys in — never into a chat window.
 
 | Environment variable | Get it from | Needed for |

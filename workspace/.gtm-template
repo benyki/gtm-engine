@@ -1,5 +1,0 @@
-This folder is the SOURCE the scaffold copies from — not anyone's workspace.
-
-Its presence makes the workspace finders (wsfind.py, doctor.py) skip this
-directory, so running a loop script from the repo root can never write here.
-Do not copy this file into a real workspace.

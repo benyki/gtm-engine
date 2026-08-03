@@ -5,7 +5,7 @@ Resolve binaries in order: `$FFMPEG_BIN` / `$FFPROBE_BIN`, then
 for captions.
 
 All finals: H.264 + AAC + `yuv420p` + `-movflags +faststart`.
-Target canvas from this workflow's `workflow.json` → `video.resolution` (default `1080x1920`).
+Target canvas from this engine's `engine.json` → `video.resolution` (default `1080x1920`).
 
 ## Probe
 

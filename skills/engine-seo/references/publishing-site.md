@@ -1,6 +1,6 @@
 # Publishing — the gate, the metadata, the deploy
 
-`SKILL.md` decides *whether* the workflow builds a site. This file is what
+`SKILL.md` decides *whether* the engine builds a site. This file is what
 "published" has to mean once it does: a human moved the file, the page carries
 its metadata, and the URL is back in the run log.
 

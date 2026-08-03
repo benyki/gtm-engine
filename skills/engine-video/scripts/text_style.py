@@ -15,7 +15,7 @@ Usage:
 Font directory resolution, first hit wins:
     --fonts <dir>
     $GTM_FONTS_DIR
-    <workspace>/shared/assets/fonts/     — the user's brand font, if any
+    <home>/shared/assets/fonts/     — the user's brand font, if any
     <this skill>/assets/fonts/           — the faces this repo ships
 
 Style numbers come from references/ffmpeg-text-style.md and scale from a
@@ -52,13 +52,13 @@ def has_fonts(d: Path) -> bool:
     return d.is_dir() and any(p.suffix.lower() in FONT_EXTS for p in d.iterdir())
 
 
-def workspace_fonts() -> Path | None:
+def home_fonts() -> Path | None:
     try:
-        from wsfind import find_workspace  # noqa: PLC0415
+        from gtmfind import find_home  # noqa: PLC0415
     except ImportError:
         return None
     try:
-        ws = find_workspace(None)
+        ws = find_home(None)
     except SystemExit:
         return None
     d = ws / "shared" / "assets" / "fonts"
@@ -76,14 +76,14 @@ def resolve_fonts_dir(explicit: str | None) -> Path:
         d = Path(env).expanduser().resolve()
         if has_fonts(d):
             return d
-    ws = workspace_fonts()
+    ws = home_fonts()
     if ws:
         return ws.resolve()
     shipped = SKILL_DIR / "assets" / "fonts"
     if has_fonts(shipped):
         return shipped
     sys.exit("error: no fonts found — pass --fonts, set GTM_FONTS_DIR, or put "
-             "font files in <workspace>/shared/assets/fonts/")
+             "font files in <home>/shared/assets/fonts/")
 
 
 # --- family names, read out of the font file itself -------------------------

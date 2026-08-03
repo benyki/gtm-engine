@@ -10,15 +10,15 @@
   },
   "_authoring": {
     "_comment": "THE RULE THAT MATTERS: never hand-type numbers into a config. They're only right for one edition.",
-    "template": "<workflow>/templates/recap.template.json — the copy and structure, with {{tokens}} where numbers go. Edit this to change the format for EVERY edition.",
-    "vars": "<workflow>/inputs/<edition>/vars.json — this edition's numbers, derived from your source data, not typed. Edit this to change ONE edition.",
+    "template": "<engine>/templates/recap.template.json — the copy and structure, with {{tokens}} where numbers go. Edit this to change the format for EVERY edition.",
+    "vars": "<engine>/inputs/<edition>/vars.json — this edition's numbers, derived from your source data, not typed. Edit this to change ONE edition.",
     "compile": "template + vars → this config → render",
     "_why": "A number that's right this edition and stale the next is worse than no number, and nobody notices until a viewer does."
   },
   "brand": "<the recurring name in the corner — this is a series, make it look like one>",
   "accent": "<hex — one accent colour for every number, bar and highlight>",
   "voice": {
-    "id": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "id": "<from <engine>/engine.json → video.elevenlabs_voice_id>",
     "fallback": "<a second voice id, used if the first errors — and then for the rest of the run, so one edition never mixes two voices>",
     "settings": {
       "stability": "<0–1: higher is steadier and flatter, lower is more expressive>",

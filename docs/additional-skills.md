@@ -1,7 +1,7 @@
 # Additional skills
 
 Optional capabilities that pair with gtm-engine. `skills/engine-*` are the
-workflows; everything below is a tool one of them can reach for. Install only
+engines; everything below is a tool one of them can reach for. Install only
 what the run you're doing actually needs.
 
 They live in **[`benyki/skills`](https://github.com/benyki/skills)**, one folder
@@ -9,11 +9,11 @@ per skill. Three layers, and only the first installs itself:
 
 | Layer | Source | Installed |
 |---|---|---|
-| Workflows | this repo, `skills/engine-*` | by `install_skills.sh` |
+| Engines | this repo, `skills/engine-*` | by `install_skills.sh` |
 | Capabilities | `benyki/skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
 | Builders / one-offs | `misc/` in this repo | never |
 
-A workflow of type `N` maps to skill `engine-N` if it exists. Capabilities stay
+An engine of type `N` maps to skill `engine-N` if it exists. Capabilities stay
 off that map — nothing pulls them but an `engine-*` step that needs a tool it
 doesn't have.
 

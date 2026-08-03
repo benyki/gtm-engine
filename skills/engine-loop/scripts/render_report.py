@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
-"""Write the weekly report — same six sections, every week, per workflow.
+"""Write the weekly report — same six sections, every week, per engine.
 
-Each workflow folder gets its own report in its own reports/ (workflows are
-self-contained). Run with no --workflow and every folder is rendered.
+Each engine folder gets its own report in its own reports/ (engines are
+self-contained). Run with no --engine and every folder is rendered.
 
-Per workflow, produces three things:
+Per engine, produces three things:
 
   <wf>/reports/weekly-YYYY-Www.md   for you to read
   <wf>/reports/latest.json          for the NEXT agent to read
   <wf>/reports/index.csv            one row per report, ever
 
-The JSON is the important one. An agent picking a workflow up next week
+The JSON is the important one. An agent picking an engine up next week
 should read its `reports/latest.json` before deciding anything — it gets the
 numbers, the verdicts and what's still undecided as data, instead of parsing
 prose and guessing.
@@ -24,7 +24,7 @@ week — a mid-week check, a per-campaign cut — pass --tag and it gets its own
 slug: weekly-2026-W31-launch.md.
 
 Usage:
-    render_report.py [--days 7] [--workspace PATH] [--workflow NAME] [--tag NAME]
+    render_report.py [--days 7] [--home PATH] [--engine NAME] [--tag NAME]
 """
 from __future__ import annotations
 
@@ -37,8 +37,8 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from score_arms import find_workspace, rows, tally, judge, outlier_note, as_float  # noqa: E402
-from wsfind import find_workflow_dir, list_workflow_dirs, workflow_meta  # noqa: E402
+from score_arms import find_home, rows, tally, judge, outlier_note, as_float  # noqa: E402
+from gtmfind import find_engine, list_engines, engine_meta  # noqa: E402
 
 NEEDS_HUMAN = "_TODO — an agent or a human fills this in._"
 
@@ -97,7 +97,7 @@ def counts(runs: list[dict], key: str) -> dict:
     return dict(sorted(out.items(), key=lambda kv: -kv[1]))
 
 
-def render_workflow(wd, days: int, tag: str) -> None:
+def render_engine(wd, days: int, tag: str) -> None:
     runs = rows(wd / "runs" / "index.csv")
 
     now = datetime.now(timezone.utc)
@@ -108,7 +108,7 @@ def render_workflow(wd, days: int, tag: str) -> None:
     prev_runs = window(runs, "created_at", prev_start, start)
     shipped = window(runs, "published_at", start, end)
 
-    metric_name = (workflow_meta(wd).get("primary_metric") or "").strip()
+    metric_name = (engine_meta(wd).get("primary_metric") or "").strip()
 
     this_sum, prev_sum = summarise(this_runs), summarise(prev_runs)
 
@@ -126,7 +126,7 @@ def render_workflow(wd, days: int, tag: str) -> None:
             cohort = tally(runs, exp["id"], True, exp.get("started", ""))
             verdict, why = judge(cohort, min_runs, ratio, direction, aggregate)
             experiments.append({
-                "id": exp["id"], "workflow": wd.name,
+                "id": exp["id"], "engine": wd.name,
                 "channel": (exp.get("channel") or "").strip(),
                 "variable": exp.get("variable", ""), "verdict": verdict, "why": why,
                 "min_runs_per_arm": min_runs, "win_ratio": ratio,
@@ -150,7 +150,7 @@ def render_workflow(wd, days: int, tag: str) -> None:
     data = {
         "generated_at": now.strftime("%Y-%m-%dT%H:%M:%SZ"),
         "report": slug,
-        "workflow": wd.name,
+        "engine": wd.name,
         "period": {"from": start.strftime("%Y-%m-%d"),
                    "to": end.strftime("%Y-%m-%d"), "days": days},
         "primary_metric": metric_name,
@@ -207,7 +207,7 @@ def render_workflow(wd, days: int, tag: str) -> None:
             L += ["", f"> {this_sum['runs'] - this_sum['measured']} runs this period have no "
                       f"number yet. Treat everything above as partial."]
     else:
-        L.append("_No primary metric set in this workflow's `workflow.json`._")
+        L.append("_No primary metric set in this engine's `engine.json`._")
 
     if awaiting:
         L += ["", f"`{awaiting}` published runs are still waiting on a number "
@@ -217,7 +217,7 @@ def render_workflow(wd, days: int, tag: str) -> None:
     if experiments:
         for e in experiments:
             scope = f" · {e['channel']}" if e["channel"] else ""
-            L += [f"### {e['id']} — {e['workflow']}{scope} · {e['variable']}", ""]
+            L += [f"### {e['id']} — {e['engine']}{scope} · {e['variable']}", ""]
             if e["arms"]:
                 L += ["| arm | runs | measured | mean | median |", "|---|---|---|---|---|"]
                 better = 1 if e["direction"] == "down" else -1
@@ -233,10 +233,10 @@ def render_workflow(wd, days: int, tag: str) -> None:
         L.append("_No live experiments._")
 
     L += ["## 5. Proposed changes", "", NEEDS_HUMAN, "",
-          "> A concrete diff to this workflow's config, or 'none'. If an "
+          "> A concrete diff to this engine's config, or 'none'. If an "
           "experiment above is decided: promote the winner, move the loser to "
           "`templates/losers/`, write a challenger with its hypothesis. If a "
-          "finding generalises beyond this workflow, add a line to "
+          "finding generalises beyond this engine, add a line to "
           "`shared/insights.md`.", "",
           "## 6. Next actions", "", NEEDS_HUMAN, "", "> Three or fewer.", ""]
 
@@ -265,25 +265,26 @@ def render_workflow(wd, days: int, tag: str) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     ap.add_argument("--days", type=int, default=7)
-    ap.add_argument("--workflow", default="",
-                    help="render one workflow folder (default: all)")
+    ap.add_argument("--engine", "--workflow", dest="engine", default="",
+                    help="render one engine folder (default: all)")
     ap.add_argument("--tag", default="",
                     help="suffix for the report slug — a second report in the "
                          "same week overwrites the first unless it has one")
     a = ap.parse_args()
 
-    ws = find_workspace(a.workspace)
-    if a.workflow:
-        dirs = [find_workflow_dir(ws, a.workflow)]
+    home = find_home(a.home)
+    if a.engine:
+        dirs = [find_engine(home, a.engine)]
     else:
-        dirs = list_workflow_dirs(ws)
+        dirs = list_engines(home)
         if not dirs:
-            sys.exit("error: no workflow folders in this workspace")
+            sys.exit("error: no engine folders in this home")
 
     for wd in dirs:
-        render_workflow(wd, a.days, a.tag)
+        render_engine(wd, a.days, a.tag)
     return 0
 
 

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 """Create runs and record what they earned.
 
-Each workflow folder is self-contained and keeps its own spine at
-<workflow>/runs/index.csv: one row per thing that workflow ever made, the
+Each engine folder is self-contained and keeps its own spine at
+<engine>/runs/index.csv: one row per thing that engine ever made, the
 arm it used, and the number it got. Everything the loop knows about a
-workflow, it knows from that file — so every run writes there, always.
-`--workflow` names the workflow FOLDER (outreach, outreach-investors,
+engine, it knows from that file — so every run writes there, always.
+`--engine` names the engine FOLDER (outreach, outreach-investors,
 newsletter, ...); metric/publish/verdict find the run's folder by its id.
 
 Usage:
-    runlog.py new --workflow seo --channel blog \
+    runlog.py new --engine seo --channel blog \
                   [--experiment exp-001 --arm default --template first-touch.txt]
     runlog.py metric --run 2026-08-01-001-seo --value 340 --source browser
     runlog.py publish --run 2026-08-01-001-seo [--url https://...]
@@ -26,7 +26,7 @@ still records the moment it went out, which is what starts the metric
 clock in due_metrics.py.
 
 Extra columns are a supported extension point: add `segment`, `language`,
-`campaign` or anything else to a workflow's runs/index.csv and this script preserves
+`campaign` or anything else to an engine's runs/index.csv and this script preserves
 them on every rewrite. Only the columns listed below are ever written by
 the script itself.
 
@@ -45,9 +45,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from wsfind import find_workspace, find_workflow_dir, list_workflow_dirs, workflow_meta  # noqa: E402
+from gtmfind import find_home, find_engine, list_engines, engine_meta  # noqa: E402
 
-COLUMNS = ["run_id", "created_at", "workflow", "channel", "experiment_id", "arm",
+COLUMNS = ["run_id", "created_at", "engine", "channel", "experiment_id", "arm",
            "template_used", "status", "published_at", "url", "primary_metric",
            "metric_value", "metric_source", "metrics_fetched_at", "human_verdict"]
 
@@ -67,6 +67,12 @@ def read_rows(idx: Path) -> tuple[list[dict], list[str]]:
         reader = csv.DictReader(f)
         rows = list(reader)
         header = list(reader.fieldnames or [])
+    # v1 spines call the column `workflow`. Same column, older name: carry the
+    # values over so the next write leaves the file in the current shape.
+    if "workflow" in header and "engine" not in header:
+        for r in rows:
+            r["engine"] = r.pop("workflow", "")
+        header = [c for c in header if c != "workflow"]
     fields = list(COLUMNS) + [c for c in header if c and c not in COLUMNS]
     return rows, fields
 
@@ -80,10 +86,10 @@ def write_rows(idx: Path, rows: list[dict], fields: list[str]) -> None:
             w.writerow({c: r.get(c, "") for c in fields})
 
 
-def primary_metric(ws: Path, wd: Path, channel: str = "") -> str:
+def primary_metric(home: Path, wd: Path, channel: str = "") -> str:
     """The metric for this run: the channel's override in shared/channels.json
-    if set, else this workflow's own (workflow.json)."""
-    ch = ws / "shared" / "channels.json"
+    if set, else this engine's own (engine.json)."""
+    ch = home / "shared" / "channels.json"
     if channel and ch.is_file():
         try:
             data = json.loads(ch.read_text())
@@ -94,33 +100,33 @@ def primary_metric(ws: Path, wd: Path, channel: str = "") -> str:
                     return per
         except json.JSONDecodeError:
             pass
-    return (workflow_meta(wd).get("primary_metric") or "").strip()
+    return (engine_meta(wd).get("primary_metric") or "").strip()
 
 
-def find_run_dir(ws: Path, run_id: str) -> Path:
-    """The workflow folder that owns this run id."""
-    for wd in list_workflow_dirs(ws):
+def find_run_dir(home: Path, run_id: str) -> Path:
+    """The engine folder that owns this run id."""
+    for wd in list_engines(home):
         idx = wd / "runs" / "index.csv"
         if not idx.is_file():
             continue
         with idx.open(newline="") as f:
             if any(r.get("run_id") == run_id for r in csv.DictReader(f)):
                 return wd
-    sys.exit(f"error: no run {run_id} in any workflow's runs/index.csv")
+    sys.exit(f"error: no run {run_id} in any engine's runs/index.csv")
 
 
-def cmd_new(ws: Path, a) -> int:
-    wd = find_workflow_dir(ws, a.workflow)
+def cmd_new(home: Path, a) -> int:
+    wd = find_engine(home, a.engine)
     idx = wd / "runs" / "index.csv"
     rows, fields = read_rows(idx)
     today = datetime.now().strftime("%Y-%m-%d")
     seq = sum(1 for r in rows if r.get("run_id", "").startswith(today)) + 1
-    run_id = f"{today}-{seq:03d}-{a.workflow}"
+    run_id = f"{today}-{seq:03d}-{a.engine}"
 
     folder = wd / "runs" / run_id
     (folder / "output").mkdir(parents=True, exist_ok=True)
     (folder / "input.json").write_text(json.dumps({
-        "run_id": run_id, "created_at": now(), "workflow": a.workflow,
+        "run_id": run_id, "created_at": now(), "engine": a.engine,
         "channel": a.channel, "experiment_id": a.experiment, "arm": a.arm,
         "template_used": a.template, "notes": a.notes,
     }, indent=2) + "\n")
@@ -129,7 +135,7 @@ def cmd_new(ws: Path, a) -> int:
     # every re-read go here. Add keys freely — the script only manages
     # value/source/fetched_at/history.
     (folder / "metrics.json").write_text(json.dumps({
-        "run_id": run_id, "metric": primary_metric(ws, wd, a.channel),
+        "run_id": run_id, "metric": primary_metric(home, wd, a.channel),
         "value": None, "source": None, "fetched_at": None,
         "history": [], "secondary": {},
     }, indent=2) + "\n")
@@ -139,10 +145,10 @@ def cmd_new(ws: Path, a) -> int:
         f"works if you keep it consistent -->\n")
 
     rows.append({
-        "run_id": run_id, "created_at": now(), "workflow": a.workflow,
+        "run_id": run_id, "created_at": now(), "engine": a.engine,
         "channel": a.channel, "experiment_id": a.experiment, "arm": a.arm,
         "template_used": a.template, "status": "draft",
-        "primary_metric": primary_metric(ws, wd, a.channel),
+        "primary_metric": primary_metric(home, wd, a.channel),
     })
     write_rows(idx, rows, fields)
 
@@ -162,11 +168,11 @@ def update(wd: Path, run_id: str, changes: dict) -> dict:
     sys.exit(f"error: no run {run_id} in {idx}")
 
 
-def cmd_metric(ws: Path, a) -> int:
+def cmd_metric(home: Path, a) -> int:
     source = a.source.strip()
     if not source:
         sys.exit("error: --source can't be empty — name where the number came from")
-    wd = find_run_dir(ws, a.run)
+    wd = find_run_dir(home, a.run)
     row = update(wd, a.run, {"metric_value": a.value, "metric_source": source,
                              "metrics_fetched_at": now()})
     mfile = wd / "runs" / a.run / "metrics.json"
@@ -181,21 +187,21 @@ def cmd_metric(ws: Path, a) -> int:
     return 0
 
 
-def cmd_publish(ws: Path, a) -> int:
+def cmd_publish(home: Path, a) -> int:
     stamp = now()
-    wd = find_run_dir(ws, a.run)
+    wd = find_run_dir(home, a.run)
     update(wd, a.run, {"status": "published", "published_at": stamp, "url": a.url})
     print(f"{a.run}: published" + (f" → {a.url}" if a.url else ""))
     return 0
 
 
-def cmd_verdict(ws: Path, a) -> int:
+def cmd_verdict(home: Path, a) -> int:
     verdict = a.verdict.strip()
     if not verdict:
         sys.exit("error: --verdict can't be empty")
     # good | meh | bad is the suggested scale, not a rule — use whatever
     # taxonomy you'll actually keep consistent (keep/kill, 1-5, ...).
-    update(find_run_dir(ws, a.run), a.run, {"human_verdict": verdict})
+    update(find_run_dir(home, a.run), a.run, {"human_verdict": verdict})
     print(f"{a.run}: {verdict}")
     return 0
 
@@ -203,12 +209,13 @@ def cmd_verdict(ws: Path, a) -> int:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     sub = ap.add_subparsers(dest="cmd", required=True)
 
     n = sub.add_parser("new", help="start a run")
-    n.add_argument("--workflow", required=True,
-                   help="the workflow FOLDER name (outreach, seo, or your own)")
+    n.add_argument("--engine", "--workflow", dest="engine", required=True,
+                   help="the engine FOLDER name (outreach, seo, or your own)")
     n.add_argument("--channel", default="")
     n.add_argument("--experiment", default="")
     n.add_argument("--arm", default="")
@@ -234,9 +241,9 @@ def main() -> int:
                    help="free text — good | meh | bad is the suggested scale")
 
     a = ap.parse_args()
-    ws = find_workspace(a.workspace)
+    home = find_home(a.home)
     return {"new": cmd_new, "metric": cmd_metric,
-            "publish": cmd_publish, "verdict": cmd_verdict}[a.cmd](ws, a)
+            "publish": cmd_publish, "verdict": cmd_verdict}[a.cmd](home, a)
 
 
 if __name__ == "__main__":

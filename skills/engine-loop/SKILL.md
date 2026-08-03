@@ -1,13 +1,13 @@
 ---
 name: engine-loop
-description: Framework that makes gtm-engine workflows learn, grow, and compound over time — not a content workflow itself. Pulls metrics in (platform API, browser, or Apify), scores A/B arms, promotes winners and retires losers to a losers/ folder, writes a new challenger template with a stated hypothesis, generates next week's content inputs from what performed, and renders the weekly report. Use when the user says "run the loop", "score my experiments", "fetch my numbers", "weekly report", "which version is winning", or asks what to make next.
+description: Framework that makes gtm-engine engines learn, grow, and compound over time — not a content engine itself. Pulls metrics in (platform API, browser, or Apify), scores A/B arms, promotes winners and retires losers to a losers/ folder, writes a new challenger template with a stated hypothesis, generates next week's content inputs from what performed, and renders the weekly report. Use when the user says "run the loop", "score my experiments", "fetch my numbers", "weekly report", "which version is winning", or asks what to make next.
 ---
 
 # engine-loop
 
-**Not a workflow.** Seo, social, video, outreach (and any custom workflow) are
-the workflows. `engine-loop` is the framework underneath them: it turns their
-runs into learning so those workflows grow and compound over time.
+**Not an engine.** Seo, social, video, outreach (and any custom engine) are
+the engines. `engine-loop` is the framework underneath them: it turns their
+runs into learning so those engines grow and compound over time.
 
 Four jobs; run them in this order, because each depends on the one before.
 
@@ -18,25 +18,25 @@ Four jobs; run them in this order, because each depends on the one before.
 | generate inputs | weekly | see *What to make next* |
 | report | weekly | `render_report.py` |
 
-**Call them by full path — `python3 ~/.agents/skills/engine-loop/scripts/<script>.py` — from anywhere.** That's the canonical store every install writes to, so the path is the same on every machine. Two shorter forms look tempting and both fail: `scripts/…` only resolves if the cwd is the skill folder, which is the one place the workspace *isn't* found from, and `skills/…` needs the workspace symlink, which is optional. The scripts locate the workspace from the current directory, so run them from the workspace or anywhere inside it — or pass `--workspace <path>` from outside. `weekly.sh` chains the deterministic ones and resolves its own paths.
+**Call them by full path — `python3 ~/.agents/skills/engine-loop/scripts/<script>.py` — from anywhere.** That's the canonical store every install writes to, so the path is the same on every machine. Two shorter forms look tempting and both fail: `scripts/…` only resolves if the cwd is the skill folder, which is the one place the home *isn't* found from, and `skills/…` needs the home symlink, which is optional. The scripts locate the home from the current directory, so run them from the home or anywhere inside it — or pass `--home <path>` from outside. `weekly.sh` chains the deterministic ones and resolves its own paths.
 
-**The workspace is one folder per workflow, plus `shared/`.** Each workflow folder is self-contained — its own `workflow.json` (type, goal, primary metric), `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`, `reports/`. The loop scripts operate per folder and default to all of them; `--workflow <folder>` scopes to one. Nothing is pooled across workflows, so an agent rewriting one workflow cannot break another — and two workflows of the same type (`outreach/` and `outreach-investors/`) are just two folders.
+**The home is one folder per engine, plus `shared/`.** Each engine folder is self-contained — its own `engine.json` (type, goal, primary metric), `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`, `reports/`. The loop scripts operate per folder and default to all of them; `--engine <folder>` scopes to one. Nothing is pooled across engines, so an agent rewriting one engine cannot break another — and two engines of the same type (`outreach/` and `outreach-investors/`) are just two folders.
 
-**Starting fresh in a workspace you don't know? Read each workflow's `reports/latest.json` first** (and `shared/insights.md` for what the workflows have learned from each other). It gives you the last period's runs, what shipped, the metric totals and their sources, every live experiment with its verdict, and how many runs are still owed a number — as data. Don't reconstruct that by reading CSVs.
+**Starting fresh in a home you don't know? Read each engine's `reports/latest.json` first** (and `shared/insights.md` for what the engines have learned from each other). It gives you the last period's runs, what shipped, the metric totals and their sources, every live experiment with its verdict, and how many runs are still owed a number — as data. Don't reconstruct that by reading CSVs.
 
 ---
 
-## What every workflow owes the loop
+## What every engine owes the loop
 
-Workflows differ — a LinkedIn post has a public URL and an analytics screen, an outreach email has neither — and the loop doesn't care, as long as every workflow leaves the same three traces in its own folder:
+Engines differ — a LinkedIn post has a public URL and an analytics screen, an outreach email has neither — and the loop doesn't care, as long as every engine leaves the same three traces in its own folder:
 
-1. **A run at creation.** `runlog.py new`, with the experiment, arm and template actually used. A piece of work that isn't in the workflow's `runs/index.csv` doesn't exist to the loop
-2. **A live moment.** `runlog.py publish` when it goes out, whatever "out" means for that workflow — posted, deployed, or sent. Pass `--url` when one exists; an email has none and publishes without it. Either way, this is what starts the metric clock
+1. **A run at creation.** `runlog.py new`, with the experiment, arm and template actually used. A piece of work that isn't in the engine's `runs/index.csv` doesn't exist to the loop
+2. **A live moment.** `runlog.py publish` when it goes out, whatever "out" means for that engine — posted, deployed, or sent. Pass `--url` when one exists; an email has none and publishes without it. Either way, this is what starts the metric clock
 3. **One number, once the channel's window has passed.** `runlog.py metric` with `--source`. A written `metric_value` — zero counts — is what marks a run as analysed. `due_metrics.py` lists exactly the live runs that don't have one yet, so nothing is measured twice and nothing is forgotten
 
-*How* the number is fetched is the part that adapts: an analytics page in the browser for social, the mail thread for outreach replies, Search Console for articles. The traces are the contract; the fetching is judgement. When a new or unusual workflow shows up — newsletter, podcast, paid ads, community — map it onto these three traces rather than forcing it through another workflow's mechanics. The setup layer supports this directly: `scaffold_workspace.py --merge --workflow <any-name>` scaffolds a custom workflow folder, `runlog.py --channel` is free text, and its experiments live in its own `experiments.json` like any other. A second workflow of the same type is just another folder: scaffold it (`--merge --workflow outreach-investors:outreach`), or copy an existing folder and **empty its `runs/`, `reports/` and `crm.csv`** — history belongs to the original; imported runs would poison the new workflow's verdicts.
+*How* the number is fetched is the part that adapts: an analytics page in the browser for social, the mail thread for outreach replies, Search Console for articles. The traces are the contract; the fetching is judgement. When a new or unusual engine shows up — newsletter, podcast, paid ads, community — map it onto these three traces rather than forcing it through another engine's mechanics. The setup layer supports this directly: `scaffold.py --merge --engine <any-name>` scaffolds a custom engine folder, `runlog.py --channel` is free text, and its experiments live in its own `experiments.json` like any other. A second engine of the same type is just another folder: scaffold it (`--merge --engine outreach-investors:outreach`), or copy an existing folder and **empty its `runs/`, `reports/` and `crm.csv`** — history belongs to the original; imported runs would poison the new engine's verdicts.
 
-Each spine is also extensible sideways: add your own columns to a workflow's `runs/index.csv` (`segment`, `language`, `campaign`, …) and `runlog.py` preserves them; put secondary metrics and re-read history in each run's `metrics.json`, which is open for extra keys. One caveat, loudly: **the CSV has a single-writer assumption.** Every update rewrites the whole file, so two agents or machines logging at once will silently lose rows — serialize your writers, or move the spine to a database first (`references/advanced.md`).
+Each spine is also extensible sideways: add your own columns to an engine's `runs/index.csv` (`segment`, `language`, `campaign`, …) and `runlog.py` preserves them; put secondary metrics and re-read history in each run's `metrics.json`, which is open for extra keys. One caveat, loudly: **the CSV has a single-writer assumption.** Every update rewrites the whole file, so two agents or machines logging at once will silently lose rows — serialize your writers, or move the spine to a database first (`references/advanced.md`).
 
 ---
 
@@ -56,7 +56,7 @@ Three common ways to get the number, in this order. **Always record which one yo
 
 **1. Platform API** — where it's free and already connected. Gmail for replies, Search Console for clicks and impressions, YouTube Data API. Exact and cheap. Use it when it's there.
 
-**Free behavioural data, whenever a workflow sends traffic to a page you control:** Microsoft Clarity's export API is free at any volume and tells you what Search Console can't — scroll depth, dead and rage clicks, quick-backs, which sections people actually reach. It's the cheapest signal for *what to write next*, not just how the last piece did: a page with traffic and a 30% scroll depth is a rewrite, and a rage-click cluster is a fix. Install `clarity-api-seo` (`docs/additional-skills.md`), set `CLARITY_API_KEY`, and read it alongside the metrics — `engine-seo/references/clarity-rewrite.md` turns the findings into the next article.
+**Free behavioural data, whenever an engine sends traffic to a page you control:** Microsoft Clarity's export API is free at any volume and tells you what Search Console can't — scroll depth, dead and rage clicks, quick-backs, which sections people actually reach. It's the cheapest signal for *what to write next*, not just how the last piece did: a page with traffic and a 30% scroll depth is a rewrite, and a rage-click cluster is a fix. Install `clarity-api-seo` (`docs/additional-skills.md`), set `CLARITY_API_KEY`, and read it alongside the metrics — `engine-seo/references/clarity-rewrite.md` turns the findings into the next article.
 
 **Other free APIs an agent can call directly**, when the user already has the account — no scraping, no browser, usually one token:
 
@@ -90,7 +90,7 @@ python3 ~/.agents/skills/engine-loop/scripts/score_arms.py
 
 It reports and nothing else — it never promotes an arm or edits config. Read the verdict, then act.
 
-**A new workflow has nothing to score, and that's the intended state.** The starter experiments ship paused: the first phase is one template, shipped repeatedly, changed by hand from what the numbers say. Everything else in the loop — the metric window, the spine, the report, the queue — runs normally throughout, so nothing is lost by waiting. When a workflow has a format the user would ship unedited and 5–10 measured pieces behind it, raise the question of what one variable is worth an answer, and only then flip an experiment live. `references/ab-testing.md` → R0.
+**A new engine has nothing to score, and that's the intended state.** The starter experiments ship paused: the first phase is one template, shipped repeatedly, changed by hand from what the numbers say. Everything else in the loop — the metric window, the spine, the report, the queue — runs normally throughout, so nothing is lost by waiting. When an engine has a format the user would ship unedited and 5–10 measured pieces behind it, raise the question of what one variable is worth an answer, and only then flip an experiment live. `references/ab-testing.md` → R0.
 
 ### If undecided
 
@@ -102,8 +102,8 @@ First, sanity-check the win. Social metrics are heavy-tailed, and `score_arms.py
 
 Then four things, in order:
 
-1. **Promote.** The winning template becomes the base for that workflow.
-2. **Retire.** Move the losing template into the workflow's `templates/losers/`. Runs never read that folder, so it can't come back by accident — but it's kept, because something that lost against one audience often wins against the next.
+1. **Promote.** The winning template becomes the base for that engine.
+2. **Retire.** Move the losing template into the engine's `templates/losers/`. Runs never read that folder, so it can't come back by accident — but it's kept, because something that lost against one audience often wins against the next.
 3. **Write a challenger.** This is the part that matters. Read the winner, the arms that lost, and the numbers that decided it. Then write a *new* template that attacks the winner — usually by pushing the trait that won a little further, or going after the weakness the winner still has.
 
    **Most challengers should be small.** Once you have winners to protect, you're refining, not reinventing — a different opening line, a tighter ask, a different proof point. Every fifth or sixth experiment, or whenever results have gone flat, put up a genuinely different proposition instead; most of those lose, but they're the only way to find a ceiling you didn't know about. Raise `min_runs_per_arm` as the differences get subtler, or you'll start calling winners out of noise.
@@ -118,11 +118,11 @@ Then four things, in order:
 
    In six weeks that comment is the only reason anyone will remember why the file exists.
 
-4. **Register it** in the workflow's `experiments.json` as a new arm, update `started` to today, and set the old experiment's `decision`.
+4. **Register it** in the engine's `experiments.json` as a new arm, update `started` to today, and set the old experiment's `decision`.
 
 **Guardrails**
 - Two live arms per experiment is the working default — more arms means proportionally more data before anything is decided. Volume advice, not law
-- Concurrent experiments in one workflow are fine when scoped to different channels (`"channel"` on the experiment, `--channel` on `assign_arm.py`). Don't run more concurrent tests than the run volume can feed
+- Concurrent experiments in one engine are fine when scoped to different channels (`"channel"` on the experiment, `--channel` on `assign_arm.py`). Don't run more concurrent tests than the run volume can feed
 - You write the challenger automatically; **promoting it to default still needs the user's yes**
 - A template you wrote to fill a gap starts as an ordinary arm. It earns default status by winning, not by being new
 
@@ -134,7 +134,7 @@ Full rules, and why each exists: `references/ab-testing.md`.
 
 The second loop, and the one people skip. Analytics should decide *what* gets made, not only grade what already was.
 
-Per workflow: read its `runs/index.csv`, the recent metrics, and its last report. Then write the next batch of content configs into its `inputs/queue/`, each with a one-line reason pointing at the run that justifies it:
+Per engine: read its `runs/index.csv`, the recent metrics, and its last report. Then write the next batch of content configs into its `inputs/queue/`, each with a one-line reason pointing at the run that justifies it:
 
 - Which topics, hooks and formats actually earned the metric — and which quietly didn't
 - What's saturated: six of these, returns flat, stop
@@ -150,7 +150,7 @@ anything:
 | **Microsoft Clarity** (`clarity-api-seo`) | Where readers stop, what they rage-click, which pages get quick-backs. A page with traffic and 30% scroll depth is a rewrite brief; a section everyone reaches is the next article's topic |
 | **Search Console** | Queries you already rank 8–20 for — the cheapest wins on the board, and each one is a title |
 | **Replies and comments** | The objection that keeps recurring in outreach is an article; the question asked twice under a post is a video |
-| **The sibling reports** | A hook that won on social usually says something about the video hook — `reports/latest.json` across workflows |
+| **The sibling reports** | A hook that won on social usually says something about the video hook — `reports/latest.json` across engines |
 
 Clarity is worth calling out because it's free at any volume and behavioural
 rather than positional — it answers "what did they do on the page", which no
@@ -164,11 +164,11 @@ The user reviews the queue and approves. They never start from a blank page, and
 ## The report
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/render_report.py            # every workflow
-python3 ~/.agents/skills/engine-loop/scripts/render_report.py --workflow seo
+python3 ~/.agents/skills/engine-loop/scripts/render_report.py            # every engine
+python3 ~/.agents/skills/engine-loop/scripts/render_report.py --engine seo
 ```
 
-Each workflow gets its own report in its own `reports/` — three files:
+Each engine gets its own report in its own `reports/` — three files:
 
 | File | For |
 |---|---|
@@ -180,7 +180,7 @@ Re-running in the same ISO week regenerates that week's report in place — that
 
 Six sections, same order every week. Sections 1–4 are filled in for you (what ran, what shipped, the numbers with their sources, every experiment with its verdict). **Sections 5 and 6 are left blank on purpose** — proposed config changes and next actions need judgement, and they're listed in the JSON under `needs_human` so nobody has to guess whether a blank section means "nothing to say" or "not done yet".
 
-Fill them in after generating. Section 5 is a concrete diff to the workflow's config or the word "none"; section 6 is three actions or fewer.
+Fill them in after generating. Section 5 is a concrete diff to the engine's config or the word "none"; section 6 is three actions or fewer.
 
 **Don't redesign the format.** Comparability week to week is the entire value — a report that changes shape every week is just a pile of unrelated documents.
 
@@ -188,14 +188,14 @@ Reporting stays in the terminal by default. Telegram and WhatsApp are in `refere
 
 ---
 
-## Bridges between workflows
+## Bridges between engines
 
 Self-contained does not mean isolated. The folders keep the *mechanics* apart so nothing breaks; the *learning* should flow. `shared/` exists for exactly that, and building these bridges is part of running the loop, not an extra:
 
-- **Read the sibling reports.** On a weekly or monthly pass, read the other workflows' `reports/latest.json` next to your own. The hook that wins on social usually says something about the video hook; an objection that keeps appearing in outreach replies is an article the seo workflow should write. This cross-reading tends to be worth more than the reports themselves
-- **When an insight generalises, write it down** — one line in `shared/insights.md` (date, source run, the insight). A verdict that only matters to one workflow stays in that workflow's report; a truth about the audience, a claim that always lands, a format that died — those belong to everyone
-- **When an asset is reusable, move it up** — a winning image, a proof point, a b-roll clip, a customer quote goes in `shared/assets/`; longer write-ups in `shared/docs/`. The next workflow shouldn't recreate what a sibling already made
-- **Feed the queues across.** When one workflow's numbers justify an idea for another (`seo` article performing → `social` posts; `outreach` reply theme → `video` topic), write it into *that* workflow's `inputs/queue/` with the source run as the reason
+- **Read the sibling reports.** On a weekly or monthly pass, read the other engines' `reports/latest.json` next to your own. The hook that wins on social usually says something about the video hook; an objection that keeps appearing in outreach replies is an article the seo engine should write. This cross-reading tends to be worth more than the reports themselves
+- **When an insight generalises, write it down** — one line in `shared/insights.md` (date, source run, the insight). A verdict that only matters to one engine stays in that engine's report; a truth about the audience, a claim that always lands, a format that died — those belong to everyone
+- **When an asset is reusable, move it up** — a winning image, a proof point, a b-roll clip, a customer quote goes in `shared/assets/`; longer write-ups in `shared/docs/`. The next engine shouldn't recreate what a sibling already made
+- **Feed the queues across.** When one engine's numbers justify an idea for another (`seo` article performing → `social` posts; `outreach` reply theme → `video` topic), write it into *that* engine's `inputs/queue/` with the source run as the reason
 
 ## Scheduling
 
@@ -207,12 +207,12 @@ The half that reads TikTok and LinkedIn analytics needs a browser and judgement,
 
 | Label | When | Why it can't wait |
 |---|---|---|
-| `engine-metrics-<workflow>` — **one per workflow** | on that workflow's clock | Runs come due on a rolling basis as each clears its channel's window. A job that reads late records a distorted number |
-| `engine-weekly` — one for the workspace | weekly | Scores, reports, fills the queue. Without it the spine grows and nothing reads it |
+| `engine-metrics-<engine>` — **one per engine** | on that engine's clock | Runs come due on a rolling basis as each clears its channel's window. A job that reads late records a distorted number |
+| `engine-weekly` — one for the home | weekly | Scores, reports, fills the queue. Without it the spine grows and nothing reads it |
 
-**Metrics are per workflow; the weekly pass is not.** Each workflow reads a different system (browser, mailbox, Search Console) on a different clock, so `due_metrics.py --workflow <name>` per job keeps the prompts short and stops one dead browser session from costing you the outreach numbers too. The weekly pass stays whole-workspace because reading the sibling reports together is the only place cross-workflow learning happens — split it and each job knows a quarter of the story.
+**Metrics are per engine; the weekly pass is not.** Each engine reads a different system (browser, mailbox, Search Console) on a different clock, so `due_metrics.py --engine <name>` per job keeps the prompts short and stops one dead browser session from costing you the outreach numbers too. The weekly pass stays whole-home because reading the sibling reports together is the only place cross-engine learning happens — split it and each job knows a quarter of the story.
 
-If they don't exist yet, say so and offer to set them up. The full catalogue — including the optional per-workflow content jobs — is [`docs/scheduling.md`](../../docs/scheduling.md).
+If they don't exist yet, say so and offer to set them up. The full catalogue — including the optional per-engine content jobs — is [`docs/scheduling.md`](../../docs/scheduling.md).
 
 ---
 

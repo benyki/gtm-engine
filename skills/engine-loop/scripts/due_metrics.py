@@ -12,11 +12,11 @@ honours it; a channel without one gets the 72h default. Once a number is in
 the spine it affects every verdict from then on and nothing flags it as
 early — so the window has to bite before the number is written, not after.
 
-Scans every workflow folder's runs/index.csv; --workflow scopes to one.
+Scans every engine folder's runs/index.csv; --engine scopes to one.
 
 Usage:
-    due_metrics.py                 # all workflows: read now vs still too young
-    due_metrics.py --workflow seo  # just one workflow folder
+    due_metrics.py                 # all engines: read now vs still too young
+    due_metrics.py --engine seo  # just one engine folder
     due_metrics.py --json          # machine-readable
     due_metrics.py --hours 96      # override every channel's window this call
 """
@@ -30,15 +30,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from wsfind import find_workspace, find_workflow_dir, list_workflow_dirs  # noqa: E402
+from gtmfind import find_home, find_engine, list_engines  # noqa: E402
 
 DEFAULT_HOURS = 72
 DIM, GREEN, YELLOW, RESET = "\033[2m", "\033[32m", "\033[33m", "\033[0m"
 
 
-def channel_delays(ws: Path) -> dict[str, float]:
+def channel_delays(home: Path) -> dict[str, float]:
     """Per-channel metric_delay_hours from shared/channels.json."""
-    ch = ws / "shared" / "channels.json"
+    ch = home / "shared" / "channels.json"
     if not ch.is_file():
         return {}
     try:
@@ -69,23 +69,24 @@ def parse_ts(v: str) -> datetime | None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--workspace")
+    ap.add_argument("--home", "--workspace", dest="home", default="",
+                    help="the gtm home (default: ~/gtm, or $GTM_HOME)")
     ap.add_argument("--hours", type=float, default=None,
                     help="override every channel's window for this call")
     ap.add_argument("--json", action="store_true")
-    ap.add_argument("--workflow", default="",
-                    help="scope to one workflow folder (default: all)")
+    ap.add_argument("--engine", "--workflow", dest="engine", default="",
+                    help="scope to one engine folder (default: all)")
     a = ap.parse_args()
 
-    ws = find_workspace(a.workspace)
-    if a.workflow:
-        dirs = [find_workflow_dir(ws, a.workflow)]
+    home = find_home(a.home)
+    if a.engine:
+        dirs = [find_engine(home, a.engine)]
     else:
-        dirs = list_workflow_dirs(ws)
+        dirs = list_engines(home)
         if not dirs:
-            sys.exit("error: no workflow folders in this workspace")
+            sys.exit("error: no engine folders in this home")
 
-    delays = channel_delays(ws)
+    delays = channel_delays(home)
     now = datetime.now(timezone.utc)
     due, early, unpublished = [], [], []
 
@@ -106,7 +107,7 @@ def main() -> int:
                 threshold = a.hours if a.hours is not None \
                     else delays.get(channel, DEFAULT_HOURS)
                 ts = parse_ts(r.get("published_at", ""))
-                item = {"run_id": r.get("run_id", ""), "workflow": wd.name,
+                item = {"run_id": r.get("run_id", ""), "engine": wd.name,
                         "channel": channel,
                         "url": r.get("url", ""), "arm": r.get("arm", ""),
                         "metric": r.get("primary_metric", ""),
@@ -134,7 +135,7 @@ def main() -> int:
           f"{DIM} — past their channel's window, no number yet{RESET}")
     for d in due or []:
         age = f"{d['age_hours']}h" if d["age_hours"] is not None else "age unknown"
-        print(f"  {d['run_id']:<30} {d['workflow']:<14} {d['channel']:<12} "
+        print(f"  {d['run_id']:<30} {d['engine']:<14} {d['channel']:<12} "
               f"{DIM}{age}{RESET}  {d['url']}")
     if not due:
         print(f"  {DIM}nothing{RESET}")
@@ -144,7 +145,7 @@ def main() -> int:
               f"{DIM} — leave these empty, they'll come round{RESET}")
         for d in early:
             wait = d["threshold_hours"] - (d["age_hours"] or 0)
-            print(f"  {d['run_id']:<30} {d['workflow']:<14} {d['channel']:<12} "
+            print(f"  {d['run_id']:<30} {d['engine']:<14} {d['channel']:<12} "
                   f"{DIM}{d['age_hours']}h — {wait:.0f}h to go "
                   f"(window {d['threshold_hours']:.0f}h){RESET}")
 

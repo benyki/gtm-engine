@@ -10,9 +10,9 @@
     "platform": "<tiktok | reels | shorts>"
   },
   "_topic": {
-    "_comment": "Volume formats work off a rotating list of topics so every run is a different video. Keep the list in the workflow folder — inputs/topics.json with {waiting:[], used:[]} — and move one across per run. Never pick a used topic; that's how the same video gets made twice.",
+    "_comment": "Volume formats work off a rotating list of topics so every run is a different video. Keep the list in the engine folder — inputs/topics.json with {waiting:[], used:[]} — and move one across per run. Never pick a used topic; that's how the same video gets made twice.",
     "value": "<the subject of THIS video — the query, symptom, use case or persona it speaks to>",
-    "source": "<workflow>/inputs/topics.json"
+    "source": "<engine>/inputs/topics.json"
   },
   "segments": [
     {
@@ -69,7 +69,7 @@
   ],
   "voiceOverlay": {
     "_comment": "Optional in this format. When present it carries the demo and the music MUST drop to 0.03 — see musicBackground below.",
-    "voiceId": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "voiceId": "<from <engine>/engine.json → video.elevenlabs_voice_id>",
     "_voiceRule": "Match the voice to whoever is on screen in the hook. A woman on screen with a male narrator is a mismatch viewers feel without naming.",
     "maximumCharacters": 620,
     "_scriptTemplate": [
