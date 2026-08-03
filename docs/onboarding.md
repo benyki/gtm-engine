@@ -148,6 +148,16 @@ project needing a different voice gets an override in its own engine folder.
 Then point at `~/gtm/shared/.env.example`: copy it to `.env` and fill in only
 the keys for the channels they are actually running. Never read `.env` back.
 
+Say what this file becomes: it is read before anything is written, and it grows
+with the business. Every engine, every session, reads three things before it
+produces anything, in this order:
+
+1. `shared/brand.md`: voice, audience, banned claims. If it's thin, say so
+   rather than guessing at a voice
+2. `shared/insights.md`: what previous runs taught, across every engine
+3. That engine's `reports/latest.json` and its `inputs/best/`: what worked
+   there, and what the user's own good work looks like
+
 ---
 
 ## Step 5. Hand over

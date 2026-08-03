@@ -53,13 +53,13 @@ Next:
   · you: paste the Bluesky app password into shared/.env if you want that channel live
 ```
 
-## Before you produce anything
+## Keep brand.md and insights.md growing
 
-1. `shared/brand.md`: voice, audience, banned claims. If it's thin, say so
-   rather than guessing at a voice
-2. `shared/insights.md`: what previous runs taught, across every engine
-3. That engine's `reports/latest.json` and its `inputs/best/`: what worked
-   there, and what the user's own good work looks like
+`shared/brand.md` holds the guidelines every engine writes from: whenever the
+user brings new material, or you find something current about the brand, the
+product or the business, add it there and tell them what you added.
+`shared/insights.md` holds the clues: when the user tells you something they
+have learned about their market or their audience, write it down as a line.
 
 ## Everything runs locally
 
