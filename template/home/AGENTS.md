@@ -10,10 +10,10 @@ Skills get rewritten by `git pull`; nothing in here does.
 `experiments.json`, `sources.json`, `templates/`, `inputs/`, `runs/`,
 `reports/`. Engines can live anywhere: in `engines/` here, or in an `engines/`
 folder inside the project they grow, and `engines.json` here records which is
-which. **Never reach into another engine's folder to change something.**
-Reading a sibling's `reports/latest.json` is fine and encouraged; writing to it
-is not. `engine.json` gives the `type`, which says which skill runs the folder
-(`social` runs `engine-social`).
+which. **Read other engines freely; write into the one you're running.** A
+sibling's `reports/latest.json` is worth reading. `engine.json` gives the
+`type`, which says which skill runs the folder (`social` runs
+`engine-social`).
 
 ## Stay flexible
 
@@ -35,9 +35,35 @@ checklist to enforce.
   process that works, fit around it rather than migrating them onto ours
 - **Nothing here is a required-choices screen.** Take the sensible default, say
   which one you took, keep moving
+- **A/B tests are worth more once there's one template the user is happy with.**
+  Experiments ship paused for that reason
 
 The boundaries at the bottom of this file are the exception; those don't bend.
 Everything else is negotiable, and the user is who negotiates it.
+
+## Write for agents, not machines
+
+Everything in this repo and in the engine folders is read and used by capable
+agents. Write policies, modular instructions and templates, not rigid systems,
+and don't over-specify what an agent can infer from context. Prefer intent,
+boundaries and defaults over step-by-step procedure: leave room for judgment,
+suggest sensible defaults, and involve the user whenever a decision depends on
+their goals, preferences or context. Explain why something is recommended
+rather than promoting the recommendation to a rule.
+
+| Instead of | Write |
+|---|---|
+| Never do X | Avoid X unless the situation calls for it |
+| Do these in order | The order below is the default one |
+| Confirm the paths in steps 2 and 3 | The paths in steps 2 and 3 are worth confirming, because… |
+| You need X | X is useful when… |
+| Use X | X is the default |
+| You must X | X is expected when relevant |
+| Do not X | Avoid X unless the situation calls for it |
+
+**Safety rules stay hard.** None of the above applies to safety, damage control
+or destructive actions. When a rule exists to prevent data loss, an
+irreversible action or real damage, keep it explicit and absolute.
 
 ## Always end with next steps
 
@@ -81,7 +107,7 @@ user asks for one.
 
 - **Never invent a fact about a person**, and never generate an image that
   functions as proof (a metrics screenshot, a revenue chart, a testimonial)
-- **Never start an A/B test that isn't already live.** Experiments ship paused
-  on purpose: one template the user is happy with comes first
+- **Never delete a template.** Losers move to `losers/`: it is the only record
+  of what didn't work, and deleting it can't be undone
 
 Each skill states the rest of its own rules; those override nothing here.

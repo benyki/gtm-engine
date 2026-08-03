@@ -115,7 +115,7 @@ starter experiments ship paused on purpose. Ship one video until the user is
 happy with the format, then start testing. `engine-loop/references/ab-testing.md`
 → R0 has the three conditions for flipping an experiment live.
 
-Testing a whole **format** against a working one is a different, slower test: worth doing once this engine is solid and the hook loop has stopped teaching you anything, never as the way to find your first winner. `references/advanced.md` → *A/B testing whole formats*.
+Testing a whole **format** against a working one is the slow test; hooks get to a first winner faster. Worth doing once this engine is solid and the hook loop has stopped teaching you anything. `references/advanced.md` → *A/B testing whole formats*.
 
 ### 2. Plan the structure
 

@@ -138,9 +138,8 @@ Two folders, two different jobs, and both are read before writing anything:
 | `inputs/best/` | **their own** top-performing posts | the voice — vocabulary, rhythm, formatting, how blunt they are |
 | `inputs/swipe/` | **posts by other people** they wish they'd written | the shapes — how a good post in their world opens, turns and lands |
 
-Voice is copied from examples, never from a description of a voice. If
-`inputs/best/` is empty, say so and ask for five links before drafting; no
-amount of prompting fixes a generic voice.
+Examples beat a description of a voice. If `inputs/best/` is empty, say so and
+ask for five links; no amount of prompting fixes a generic voice.
 
 **Then ask for the swipe file — explicitly, and early.** Most people have never
 been asked, and it's the highest-value thing they can hand over in two minutes:

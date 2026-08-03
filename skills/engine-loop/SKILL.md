@@ -221,5 +221,5 @@ If they don't exist yet, say so and offer to set them up. The full catalogue —
 - **Never invent a number.** No metric is better than a guessed one — it poisons every future verdict
 - **Never promote an arm the user hasn't approved**
 - **Never delete a template.** Losers move to `losers/`
-- **Never mix cohort and all-time.** Rows predating an experiment sit in the default arm and make it look settled when it isn't. Cohort decides; all-time is context
+- **The cohort decides; all-time is context.** Say which one you're quoting: rows predating an experiment sit in the default arm and make it look settled when it isn't
 - If `metric_value` is empty for most runs, say that plainly before reporting anything. A verdict on three measured rows is not a verdict

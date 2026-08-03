@@ -89,7 +89,7 @@ more than one location**: with one location there is nothing to keep in sync.
 
 ## Steps
 
-Do these in order. Confirm each one before moving on — a wrong path here is annoying to unpick later.
+The order below is the safe one. The paths in steps 2 and 3 are the ones worth confirming, since a wrong path is annoying to unpick later.
 
 **Before you scaffold there are exactly two questions, and both already have
 their answer:** where the engines go (default: `~/gtm/engines/`) and which one
@@ -194,10 +194,10 @@ Other shapes, when they ask for them:
   the same traces, you supply the craft. Enable its channel(s) in
   `shared/channels.json` and write its experiments as part of this setup
 - `--engine none`: the home only
-- Delete a default folder **if they ask**, it's theirs. Don't propose it: an
-  unrun folder costs a few empty files, and deleting it turns "try video next
-  month" back into a setup task. Deleting one means removing its entry from
-  `engines.json` too
+- Deleting a default folder is theirs to ask for, and rarely worth proposing:
+  an unrun folder costs a few empty files, and deleting it turns "try video
+  next month" back into a setup task. Deleting one means removing its entry
+  from `engines.json` too
 
 Every engine created this way is registered automatically. An engine folder
 made by hand is not: `registry.py add <name> <path>` or `doctor.py --fix`.

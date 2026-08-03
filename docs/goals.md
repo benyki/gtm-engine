@@ -1,6 +1,8 @@
-# Goals — what has to exist when setup is done
+# Goals — what a finished setup looks like
 
-Not a plan, and not a list of intentions. A list of **achievements**: specific,
+A reference to check against when something feels missing, not a gate to clear
+before work starts. Not a plan, and not a list of intentions: a list of
+**achievements**, specific,
 factual things that exist on your machine and run without you when you close the
 laptop. Every line is checkable — a file that opens, a scheduler that fires, a
 run row with a number in it.
