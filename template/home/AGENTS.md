@@ -107,10 +107,11 @@ Each skill states the rest of its own rules; those override nothing here.
 
 Anything you write in here is read by capable agents: this file, `brand.md`, an
 engine's templates and config. So write policies and defaults, not rigid
-systems, and don't over-specify what an agent can infer from context. Prefer intent, boundaries and defaults over
-step-by-step procedure, involve the user whenever a decision depends on their
-goals or context, and explain why something is recommended rather than
-promoting it to a rule.
+systems, and don't over-specify what an agent can infer from context. Prefer
+intent, boundaries and defaults over step-by-step procedure, involve the user
+whenever a decision depends on their goals
+or context, and explain why something is recommended rather than promoting it
+to a rule.
 
 | Instead of | Write |
 |---|---|
