@@ -91,8 +91,8 @@ def api_key(provider: str, home: str | None) -> str:
         return key
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "engine-loop" / "scripts"))
-        from wsfind import find_workspace  # noqa: PLC0415
-        ws = find_workspace(home)
+        from gtmfind import find_home  # noqa: PLC0415
+        ws = find_home(home)
     except (ImportError, SystemExit):
         ws = None
     if ws:

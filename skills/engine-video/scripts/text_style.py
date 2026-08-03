@@ -52,13 +52,13 @@ def has_fonts(d: Path) -> bool:
     return d.is_dir() and any(p.suffix.lower() in FONT_EXTS for p in d.iterdir())
 
 
-def workspace_fonts() -> Path | None:
+def home_fonts() -> Path | None:
     try:
-        from wsfind import find_workspace  # noqa: PLC0415
+        from gtmfind import find_home  # noqa: PLC0415
     except ImportError:
         return None
     try:
-        ws = find_workspace(None)
+        ws = find_home(None)
     except SystemExit:
         return None
     d = ws / "shared" / "assets" / "fonts"
@@ -76,7 +76,7 @@ def resolve_fonts_dir(explicit: str | None) -> Path:
         d = Path(env).expanduser().resolve()
         if has_fonts(d):
             return d
-    ws = workspace_fonts()
+    ws = home_fonts()
     if ws:
         return ws.resolve()
     shipped = SKILL_DIR / "assets" / "fonts"
