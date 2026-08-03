@@ -63,9 +63,9 @@ If a managed Home or tenant blocks the connector at the admin level, that's an I
 
 ### 1. Load the list — in whatever shape it arrives
 
-**Take the list in the format the user already has it in.** Never ask them to
-reformat, re-export, rename a column or "put it in a CSV with these headers"
-first — converting it is your job, and a user who has to reshape a spreadsheet
+**Take the list in the format the user already has it in.** Converting it is
+your job, not theirs: no reformatting, re-exporting, renaming a column or
+"put it in a CSV with these headers" first, and a user who has to reshape a spreadsheet
 before anything happens often just doesn't come back. Whatever lands in
 `inputs/audience/`, or gets pasted into the chat, or is a file somewhere else on
 their machine, is a valid starting point:
@@ -87,10 +87,9 @@ bare email addresses is a list. Twenty names with no addresses is also a list
 (turning profiles into addresses is a step in `references/lead-sourcing.md`, not
 the user's homework). Work with the columns that are there, fill the ones you
 can, leave the rest empty, and say once — in the summary line below — what's
-thin and what it costs. **Never stop and ask the user to complete a row before
-anything can happen.** A row with no contact route stays in the CRM flagged as
-such rather than being dropped; a row with nothing but a name is still worth
-researching.
+thin and what it costs. **A thin row doesn't block the batch.** A row with no
+contact route stays in the CRM flagged as such rather than being dropped; a row
+with nothing but a name is still worth researching.
 
 Then **convert it into `crm.csv`**, which is the one format everything
 downstream reads:
@@ -358,7 +357,7 @@ reusable blocks in the user's voice, and **the library grows every time a reply
 arrives that nothing covers**. That upkeep is the point, and it's what makes the
 engine smarter in month three than in week one. `references/followups.md`.
 
-The rules that never change:
+The defaults:
 
 - Same arm as the first touch, always (`--entity` on every call)
 - Stop when someone replies. `replied_at` set means no further sequence mail, ever

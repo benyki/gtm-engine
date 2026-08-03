@@ -44,7 +44,7 @@ anything — the sources below are the raw material it draws on.
 
 **Competitor URLs.** If they're listed in `sources.json`, read them and find what they left out, what they got wrong, and what's aged badly. Beat the page that exists; don't write a worse copy of it.
 
-**Ahrefs / Semrush.** Only if they already pay. Never suggest buying one.
+**Ahrefs / Semrush.** Use them if they already pay. The free path is enough to start.
 
 No API for something? Read it in the browser. That's the normal path here, not a workaround.
 
@@ -161,8 +161,8 @@ If Clarity is set up, turn behavior into the next rewrite with
 
 - **Never publish without a yes.** Deploying is a git push, which is easy to do by accident and hard to undo from someone's index. The agent never writes into the built folder — `references/publishing-site.md`
 - **Never invent a statistic, study or quote.** If a claim needs a source, find one or cut the claim. A fabricated number in a published article is the kind of mistake that outlives the article
-- **Never write about a question nobody asked.** Every article traces to a backlog row with a `source_url` — a real thread, a real SERP, a real competitor gap. No source, no article
-- **Never multiply a guess.** Localised and segmented variants come off articles that already earned numbers, never off a hunch — `references/subject-finding.md`
+- **Articles are worth tracing to a real question**: a backlog row with a `source_url`, a real thread, a real SERP, a real competitor gap. Flag the ones that aren't
+- **Variants pay off best on articles that already earned numbers** — `references/subject-finding.md`
 - Don't write ten pieces in a batch. One good piece, published, measured, beats ten in a folder
 - An objection or question that keeps appearing in other engines' replies is your next article — check `shared/insights.md` and the siblings' `reports/latest.json` when picking topics, and add a line back when an article's numbers teach something general
 
