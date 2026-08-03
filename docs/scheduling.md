@@ -1,6 +1,6 @@
 # Schedulers — the full list
 
-Nothing here compounds if you have to remember to run it. A workflow that runs
+Nothing here compounds if you have to remember to run it. An engine that runs
 when you think of it produces a burst in week one, a gap in week three, and no
 verdict ever, because the runs are too clumped to compare.
 
@@ -11,14 +11,14 @@ Read this to decide what to create; read that to create it.
 
 **Create these with your agent's own scheduler.** Claude Code calls them
 *scheduled tasks*; other agents have an equivalent. Ask for one by name and the
-agent creates it — it already has the tool, the workspace and the logged-in
+agent creates it — it already has the tool, the home and the logged-in
 browser these jobs need:
 
 > Create a daily scheduled task `engine-metrics-social` that runs the engine-loop
-> metric pass for the `social` workflow on `~/code/your-project/workflows`.
+> metric pass for the `social` engine on `~/code/your-project/engines`.
 
 Pick the **local** kind, not a cloud routine: every job here reads your
-workspace off disk, and the metric jobs read analytics from behind your own
+home off disk, and the metric jobs read analytics from behind your own
 login. A cloud run gets a fresh clone and no browser.
 
 ## Two kinds of job
@@ -36,44 +36,44 @@ without a human**, and every job's prompt has to say so out loud.
 
 ---
 
-## The rule: split what touches the outside, keep what reads the workspace
+## The rule: split what touches the outside, keep what reads the home
 
 Before the list, the principle that decides how many jobs you need:
 
-- **One job per workflow** when it touches the outside world — fetching numbers,
-  drafting, publishing. Each workflow reads a *different system* (a browser
+- **One job per engine** when it touches the outside world — fetching numbers,
+  drafting, publishing. Each engine reads a *different system* (a browser
   session, a mailbox, Search Console), on a *different clock*, and fails in a
   *different way*. Pooling them means one dead browser session silently costs
   you the outreach numbers too
-- **One job for the whole workspace** when it reads what's already on disk and
+- **One job for the whole home** when it reads what's already on disk and
   reasons across it — scoring, reporting, insights, cross-feeding queues. That
-  work is *supposed* to see every workflow at once; splitting it destroys the
-  only place cross-workflow learning happens
+  work is *supposed* to see every engine at once; splitting it destroys the
+  only place cross-engine learning happens
 
 Everything below follows from that.
 
 ---
 
-## Mandatory — metrics per workflow, one weekly for the workspace
+## Mandatory — metrics per engine, one weekly for the home
 
-Create these as soon as one workflow has shipped anything. Without them the
+Create these as soon as one engine has shipped anything. Without them the
 spine fills with runs that never get a number, and every report says "no runs
 measured".
 
-### One metric job per workflow
+### One metric job per engine
 
 | Label | When | What it does |
 |---|---|---|
-| `engine-metrics-<workflow>` | per that workflow's clock | `due_metrics.py --workflow <name>`, then fetch each READY run's number the way *that* channel allows and record it with `runlog.py metric --source`. Skips anything still inside its window |
+| `engine-metrics-<engine>` | per that engine's clock | `due_metrics.py --engine <name>`, then fetch each READY run's number the way *that* channel allows and record it with `runlog.py metric --source`. Skips anything still inside its window |
 
 So `engine-metrics-social`, `engine-metrics-outreach`, `engine-metrics-seo`, one
-per workflow folder you actually run. All three loop scripts take `--workflow`,
+per engine folder you actually run. All three loop scripts take `--engine`,
 so this needs no extra machinery.
 
 **Set each one's cadence from its channel's `metric_delay_hours`**, not from a
 shared default. Roughly:
 
-| Workflow | Cadence | Because |
+| Engine | Cadence | Because |
 |---|---|---|
 | `outreach` | daily, working days | replies settle in 24–48h; `metric_delay_hours` 24–48 |
 | `social` | daily | 72h window, and runs clear it on a rolling basis |
@@ -89,25 +89,25 @@ shared default. Roughly:
 | **Different failures** | A dead browser session should cost you social numbers, not the outreach ones. Isolated jobs fail visibly and separately; one job fails once and hides the rest |
 
 There's also a mechanical reason: `runs/index.csv` is rewritten whole on every
-update, so two jobs writing the **same** workflow concurrently lose rows. Per
-workflow, that can't happen — each job owns one file. Just don't schedule two
-jobs against the same workflow.
+update, so two jobs writing the **same** engine concurrently lose rows. Per
+engine, that can't happen — each job owns one file. Just don't schedule two
+jobs against the same engine.
 
-### One weekly job for the workspace
+### One weekly job for the home
 
 | Label | When | Shape | What it does |
 |---|---|---|---|
-| `engine-weekly` | weekly, Mon morning | deterministic (`weekly.sh`) + agent | Scores whatever is live, renders each workflow's report, then — as the agent half — fills report sections 5 and 6, writes next week's `inputs/queue/`, and adds to `shared/insights.md` |
+| `engine-weekly` | weekly, Mon morning | deterministic (`weekly.sh`) + agent | Scores whatever is live, renders each engine's report, then — as the agent half — fills report sections 5 and 6, writes next week's `inputs/queue/`, and adds to `shared/insights.md` |
 
-**This one stays whole-workspace on purpose.** Its scoring and reporting are
+**This one stays whole-home on purpose.** Its scoring and reporting are
 pure arithmetic over files that are already written — nothing to conflict. And
-its agent half is the *only* place the workflows meet: reading the sibling
+its agent half is the *only* place the engines meet: reading the sibling
 reports side by side, noticing that the hook winning on social explains the
-video numbers, writing one workflow's finding into another's queue. Split it per
-workflow and you get four jobs that each know a quarter of the story.
+video numbers, writing one engine's finding into another's queue. Split it per
+engine and you get four jobs that each know a quarter of the story.
 
-If you're running four or more workflows and the weekly agent pass is getting
-long, split the **queue-writing** half per workflow and keep one cross-reading
+If you're running four or more engines and the weekly agent pass is getting
+long, split the **queue-writing** half per engine and keep one cross-reading
 pass — not the other way round.
 
 **Order matters.** Fetch before score, score before report. Reporting on stale
@@ -116,16 +116,16 @@ in the day than `engine-weekly`, or the Monday report scores last week's data.
 
 ---
 
-## Per-workflow — optional, and worth it once the workflow is settled
+## Per-engine — optional, and worth it once the engine is settled
 
-None of these are needed on day one. Add one when its workflow is producing
+None of these are needed on day one. Add one when its engine is producing
 something you'd ship, and when doing that step by hand has become the thing you
-skip. A scheduler wrapped around a workflow you're still figuring out just
+skip. A scheduler wrapped around an engine you're still figuring out just
 automates the wrong version.
 
-**Each of these is *in addition to* that workflow's `engine-metrics-<workflow>`
+**Each of these is *in addition to* that engine's `engine-metrics-<engine>`
 job above** — the metric job records numbers and nothing else; these do the
-workflow's own work.
+engine's own work.
 
 ### SEO
 
@@ -151,7 +151,7 @@ into deliberately.
 | Label | When | What it does | Never |
 |---|---|---|---|
 | `engine-video-app-hooks` | weekly | Reads what earned watch-through and rewrites the hook library from it, against the rules in `engine-video/references/hook-guide.md` | promote a template to default |
-| `engine-video-info-source` | daily | Pulls new items from the text source (RSS, subreddit, your own blog) into `inputs/source-texts/` — only if the informative workflow *fetches* its source rather than being handed one | render or upload anything |
+| `engine-video-info-source` | daily | Pulls new items from the text source (RSS, subreddit, your own blog) into `inputs/source-texts/` — only if the informative engine *fetches* its source rather than being handed one | render or upload anything |
 
 Rendering is deliberately not on a scheduler: it's slow, disk-hungry, and it's
 the step where a human eye is cheapest.
@@ -161,7 +161,7 @@ the step where a human eye is cheapest.
 | Label | When | What it does | Never |
 |---|---|---|---|
 | `engine-outreach-daily` | daily, working days | Drafts `<n>` personalised emails into the user's mail system, updates the CRM | send. Not with permission, not "just this once" |
-| `engine-outreach-leads` | weekly | Keeps the list alive: **finds** new leads from this workflow's `sources.json` and dedupes them against the CRM, **enriches** thin rows (missing email or role, empty or stale `research` / `research_source` / `researched_at`), and **retires** the ones that no longer fit — `status=closed` with the reason in `notes` | delete a row, contact anyone, or re-add someone with a `sent_at` or `status=closed` |
+| `engine-outreach-leads` | weekly | Keeps the list alive: **finds** new leads from this engine's `sources.json` and dedupes them against the CRM, **enriches** thin rows (missing email or role, empty or stale `research` / `research_source` / `researched_at`), and **retires** the ones that no longer fit — `status=closed` with the reason in `notes` | delete a row, contact anyone, or re-add someone with a `sent_at` or `status=closed` |
 
 Pick `<n>` deliberately — a daily job drafting 50 emails produces a mailbox
 nobody reviews, which is the same as not doing outreach.
@@ -177,7 +177,7 @@ deletion — a deleted row is a person who gets contacted again next quarter.
 so it belongs to `engine-metrics-outreach` above: a reply is `--value 1` plus
 `replied_at`, a closed sequence with no reply is the zero. Running a separate
 weekly job to "check replies" means two jobs writing the same `runs/index.csv`
-and the same CRM — which is exactly the collision the per-workflow split exists
+and the same CRM — which is exactly the collision the per-engine split exists
 to prevent.
 
 ---
@@ -187,14 +187,14 @@ to prevent.
 1. **Never post, send, deploy or promote.** A job may draft, stage, score,
    report and queue. The last click is a human's, and the prompt says so
 2. **The prompt stands alone.** Every scheduled run starts with no memory of
-   the conversation that created it — name the workspace path, the commands in
+   the conversation that created it — name the home path, the commands in
    order, and the never-rules inside the prompt itself
 3. **Log to a file** and read it for the first month. An unattended agent that
    drifts is worse than no automation, and you only notice by reading output
 4. **Idempotent.** Re-running in the same period regenerates rather than
    duplicating — `render_report.py` overwrites that ISO week's report on purpose
 5. **One writer at a time.** `runs/index.csv` is rewritten whole on every
-   update, so two jobs writing the same workflow concurrently will silently lose
+   update, so two jobs writing the same engine concurrently will silently lose
    rows. Stagger the schedules
 6. **Fail loudly, do nothing quietly.** A job that can't reach a platform should
    leave the cell empty and say so, never guess a number
@@ -221,7 +221,7 @@ So split the job by what each side is actually good at:
 
 The loop:
 
-1. The agent writes its proposal to a file — `<workflow>/inputs/queue/` or a
+1. The agent writes its proposal to a file — `<engine>/inputs/queue/` or a
    scratch file for this run
 2. The script reads it and emits a **verdict per item, with a reason** —
    `dup-registry`, `dup-in-batch`, `too-long(47)`, `missing-proof`, `already-published`
@@ -233,7 +233,7 @@ The loop:
 
 Two things that make it work in practice: the script writes **why**, not just
 pass/fail, or round two repeats round one's mistake; and the registry it checks
-against is a file that survives runs — the workflow's `runs/index.csv`, its
+against is a file that survives runs — the engine's `runs/index.csv`, its
 `crm.csv`, its `backlog.csv`, or a plain list of what's been used. That file is
 the memory the model doesn't have.
 
@@ -253,12 +253,12 @@ One optional job, worth adding once video is running weekly:
 
 | Label | When | What it does | Never |
 |---|---|---|---|
-| `engine-cleanup` | weekly or monthly | Delete artifacts older than N days (30 is a reasonable default) from each workflow's publish folder, report how much was reclaimed | touch `runs/`, `inputs.json`, any CSV, or anything outside those folders |
+| `engine-cleanup` | weekly or monthly | Delete artifacts older than N days (30 is a reasonable default) from each engine's publish folder, report how much was reclaimed | touch `runs/`, `inputs.json`, any CSV, or anything outside those folders |
 
 A publish folder holds shipped artifacts and nothing else — no state, no
 configs, no metrics — which is exactly why it's the only thing safe to put on a
-timer. **Resolve the paths before you write the prompt**: each workflow's
-`published_dir` in its `workflow.json`, defaulting to `published/<workflow>/`,
+timer. **Resolve the paths before you write the prompt**: each engine's
+`published_dir` in its `engine.json`, defaulting to `published/<engine>/`,
 and skip any set to `"none"`. Then hardcode the resolved list into the prompt
 and say what's out of bounds — "clean up old files" is a dangerous instruction
 to give an agent with a shell, and a wildcard it resolves itself is worse.
@@ -270,14 +270,14 @@ is cheap; the job is for the ones who'd rather not think about it.
 
 Don't create ten jobs on setup day. In order:
 
-1. `engine-metrics-<workflow>` for the **one** workflow you're running — as soon
+1. `engine-metrics-<engine>` for the **one** engine you're running — as soon
    as it has published anything
 2. `engine-weekly` — same week
-3. One content job for that same workflow (subjects, backlog, drafting)
-4. A second `engine-metrics-<workflow>` only when you start a second workflow —
+3. One content job for that same engine (subjects, backlog, drafting)
+4. A second `engine-metrics-<engine>` only when you start a second engine —
    on *its* clock, not a copy of the first one's
 
-Running one workflow means two jobs, not ten. The per-workflow split is what
+Running one engine means two jobs, not ten. The per-engine split is what
 keeps that true as you add the third and fourth: you add one metric job at a
 time instead of growing one prompt until nobody can read it.
 

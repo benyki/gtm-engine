@@ -1,6 +1,6 @@
 # Duplicate safety — never ship the same video twice
 
-A video workflow at volume is a factory: one look, one template, many configs.
+A video engine at volume is a factory: one look, one template, many configs.
 The failure mode is producing two videos that are the same video, and the
 punishment isn't a warning — TikTok, Reels and Shorts quietly bury the second
 one. You see it as a run that mysteriously got no distribution, and you learn
@@ -41,7 +41,7 @@ of kilobytes.
 That file is the whole memory. There is no ledger, no index, no second copy to
 keep in sync — the fingerprints are **derived** from the configs every time they
 are needed, so they can't disagree with what shipped. Writing `inputs.json` *is*
-the logging step; if it exists, this workflow remembers the video.
+the logging step; if it exists, this engine remembers the video.
 
 Queued configs in `inputs/queue/` have the same shape and count the same way, so
 two queued configs that collide with each other are caught before either one is
@@ -59,16 +59,16 @@ mechanical:
 ```bash
 # before you render
 python3 ~/.agents/skills/engine-video/scripts/combo_check.py check \
-  --workflow video --inputs runs/<run_id>/inputs.json
+  --engine video --inputs runs/<run_id>/inputs.json
 ```
 
 Exit 1 with a named collision means change one side and re-check.
 
 ```bash
-# what this workflow has already made, with both fingerprints
-python3 …/combo_check.py list --workflow video
+# what this engine has already made, with both fingerprints
+python3 …/combo_check.py list --engine video
 
-# fingerprints for one config, no workspace needed
+# fingerprints for one config, no home needed
 python3 …/combo_check.py fp --inputs <config.json>
 ```
 
@@ -83,8 +83,8 @@ including queued ones that were never rendered and renders that were never
 posted. That's the right question before you spend a render.
 
 Before you *post*, the question is **did this already go out**, and the answer is
-this workflow's publish folder — `published_dir` in `workflow.json`, default
-`published/<workflow>/` (plus the run's `published_url` in `runs/index.csv`). It
+this engine's publish folder — `published_dir` in `engine.json`, default
+`published/<engine>/` (plus the run's `published_url` in `runs/index.csv`). It
 matters most when a video gets re-rendered: a fixed version and the original
 share a subject but differ in every fingerprint, so nothing flags them — and the
 older file is still sitting in the queue looking postable. Two habits cover it:

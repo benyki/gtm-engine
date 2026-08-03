@@ -1,18 +1,19 @@
 # Architecture v2: `~/.gtm-engine`, `~/gtm`, and engines that live anywhere
 
-A plan, not a change. Nothing below is implemented yet except this file and
-[`onboarding.md`](onboarding.md).
+**Shipped.** This is the design record for the layout the repo now uses. The
+onboarding script is [`onboarding.md`](onboarding.md); what it means for a
+setup built on the older shape is [`changelog.md`](changelog.md).
 
-## What changes
+## What changed
 
-Today there is exactly one shape: a clone at `<project>/gtm-engine/` and a
-workspace at `<project>/workflows/` holding `shared/` plus one folder per
-workflow. Shared config is duplicated per project, and the workspace has to be
-one directory because every script finds workflows by listing that directory.
+v1 had exactly one shape: a clone at `<project>/gtm-engine/` and a workspace at
+`<project>/workflows/` holding `shared/` plus one folder per workflow. Shared
+config was duplicated per project, and the workspace had to be one directory
+because every script found workflows by listing that directory.
 
-v2 splits the three things that are currently fused:
+v2 splits the three things that were fused:
 
-| | Today | v2 |
+| | v1 | v2 |
 |---|---|---|
 | The code | `<project>/gtm-engine/`, one clone per project | `~/.gtm-engine`, one clone per machine |
 | Shared data (brand, keys, assets, insights, docs) | `<project>/workflows/shared/` | `~/gtm/` |
@@ -49,14 +50,12 @@ name to absolute path. Every engine folder also carries `home` in its
 home, from the home you find every engine. A missing path is reported by
 `doctor.py`, never silently skipped.
 
-**4. Scripted default and interviewed default differ, deliberately.**
-`install.sh` with no arguments is non-interactive, so it creates `~/gtm` plus
-the four default engines in `~/gtm/engines/`. The agent running the onboarding
-in [`onboarding.md`](onboarding.md) has a user in front of it, so it recommends
-`<cwd>/engines/` and offers `~/gtm/engines/` as the "all in one place" answer.
-**This is the one thing in this plan worth confirming before implementation**:
-the alternative is to make both defaults `~/gtm/engines/` and treat the
-in-project folder as the deliberate choice.
+**4. One default, asked out loud.** `~/gtm/engines/` is the default
+everywhere: `install.sh` with no arguments uses it, and the agent running
+[`onboarding.md`](onboarding.md) names it in the question rather than assuming
+it. Keeping a project's engines with the project is the deliberate choice,
+`--at ./engines --project <name>`, and it is the one to recommend to anyone
+running more than one brand.
 
 **5. Naming.** Engines inside `~/gtm/engines/` are named
 `engine-<type>-<project>`, because that folder mixes projects and a bare
@@ -102,14 +101,14 @@ detectable in a single check. The scaffolder should refuse to merge into an
 existing `engines/` it did not create and fall back to `gtm-engines/`, which
 covers the Rails case completely.
 
-If you would rather not carry the rename, the fallback is to keep `workflows/`
-as the folder name and use "engine" only for the skills. Everything else in
-this plan is unaffected. The rename is roughly 80 files of find and replace
-plus 12 files of real logic, so it is worth doing in one commit or not at all.
+The rename went in as one mechanical sweep over about 80 files, separate from
+the logic changes. `workflow.json`, `--workflow`, `--workspace`,
+`GTM_WORKSPACE` and the `workflow` column in `runs/index.csv` are all still
+read, so no existing setup breaks on the word alone.
 
-## The plan, file by file
+## What shipped, file by file
 
-### Phase 1: path resolution (the load-bearing change)
+### Path resolution (the load-bearing change)
 
 | File | Change |
 |---|---|
@@ -117,7 +116,7 @@ plus 12 files of real logic, so it is worth doing in one commit or not at all.
 | `skills/engine-setup/scripts/workflows.py` | Rename to `engines.py`. `parse_workflows` becomes `parse_engines` (accepting `name[:type]` still), `workspace_types` becomes `registry_types` reading `engines.json` rather than listing a directory. Add `engine_folder_name(type, project, in_home: bool)` implementing the `engine-<type>-<project>` convention. |
 | **new** `skills/engine-setup/scripts/registry.py` | Read, write and repair `~/gtm/engines.json`: `register(path, type)`, `unregister`, `prune()` (drop paths that no longer exist, only when asked), `resolve(name)`. Every write is atomic and preserves unknown keys, because users will hand-edit this file. |
 
-### Phase 2: scaffolding and install
+### Scaffolding and install
 
 | File | Change |
 |---|---|
@@ -127,7 +126,7 @@ plus 12 files of real logic, so it is worth doing in one commit or not at all.
 | `skills/engine-setup/scripts/doctor.py` | New checks: `~/gtm` exists and has `shared/`; `engines.json` parses; every registered path exists and holds an `engine.json`; no engine is registered twice; the clone is at `~/.gtm-engine` and is a git repo; v1 workspaces still on disk get a "run migrate_v1.py" warning. |
 | `install.sh` | Default `ENGINE_DIR` to `~/.gtm-engine`. Drop the "add gtm-engine/ to .gitignore" block. Add `--home`, `--engine`, `--at`. With no arguments: create `~/gtm`, scaffold the four default engines into `~/gtm/engines/`, install all six skills. Update the usage text and the closing "Next" block to the new paths. |
 
-### Phase 3: the template
+### The template
 
 | File | Change |
 |---|---|
@@ -138,7 +137,7 @@ plus 12 files of real logic, so it is worth doing in one commit or not at all.
 | `workspace/shared/{brand.md,channels.json,insights.md,.env.example}` | Wording only: "workflow" to "engine", plus a line in `brand.md` about being shared across projects and how to override per engine. |
 | `workspace/published/README.md` | Wording, and a note that `published/` is per home, not per project. |
 
-### Phase 4: the loop scripts
+### The loop scripts
 
 All of these import `wsfind` and assume "workspace directory holds the
 workflow folders". Each needs the import swapped to `gtmfind`, the workflow
@@ -152,12 +151,12 @@ lookup swapped to a registry lookup, and `--workspace` swapped to
 `render_report.py` needs the most thought: it reports across engines, which
 now means iterating the registry and handling an engine whose path has moved.
 
-### Phase 5: docs and skill instructions
+### Docs and skill instructions
 
 | File | Change |
 |---|---|
 | `README.md` | Install section (one clone at `~/.gtm-engine`, `~/gtm` as home, engines anywhere), the "How it's put together" table, and the terminology throughout. Link `docs/onboarding.md`. |
-| `docs/workspace.md` | Rename to `docs/home.md`. Rewrite the tree and the "one folder per workflow" framing. This is the doc that changes most. |
+| `docs/workspace.md` -> `docs/home.md` | Rename to `docs/home.md`. Rewrite the tree and the "one folder per workflow" framing. This is the doc that changes most. |
 | **new** `docs/onboarding.md` | Written. The exact onboarding script the agent follows. |
 | **new** `docs/architecture-v2.md` | This file. Delete it once v2 ships, or keep it as the design record. |
 | `docs/preflight.md`, `docs/scheduling.md`, `docs/goals.md`, `docs/useful-links.md`, `docs/additional-skills.md`, `docs/stay-on-top-content.md` | Paths (`<project>/workflows/` to `~/gtm` and the engine path) and terminology. `scheduling.md` also needs the scheduled-task prompts updated, since each one names a workspace path that no longer exists. |

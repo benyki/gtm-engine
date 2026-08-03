@@ -1,6 +1,6 @@
 # SEO — going further
 
-The base workflow already builds a site: Astro, local markdown, deployed to Cloudflare Pages or Railway. This is what comes after that.
+The base engine already builds a site: Astro, local markdown, deployed to Cloudflare Pages or Railway. This is what comes after that.
 
 **Symptom: the markdown files have become the bottleneck.** Two machines writing the same folder, content you want to reuse across a site and an app, or a hundred-plus articles where "find the one about pricing" means grepping a directory.
 
@@ -96,6 +96,6 @@ So the honest ordering:
 
 None of the infrastructure above changes what ranks.
 
-A site of AI-generated pages ranks like a site of AI-generated pages. What ranks is content that answers a real question better than the page currently answering it — which is why the base workflow mines real questions rather than keyword lists. A hundred thin pages will do more damage to a domain than ten good ones will do good.
+A site of AI-generated pages ranks like a site of AI-generated pages. What ranks is content that answers a real question better than the page currently answering it — which is why the base engine mines real questions rather than keyword lists. A hundred thin pages will do more damage to a domain than ten good ones will do good.
 
 If you wouldn't send a page to a customer, don't publish it. Moving it into Postgres first doesn't help.

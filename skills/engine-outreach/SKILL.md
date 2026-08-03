@@ -1,19 +1,19 @@
 ---
 name: engine-outreach
-description: Personalised cold outreach that ends in mail drafts, never sends. Takes the user's audience list in whatever format they already have it (CSV, spreadsheet, pasted text, screenshot, CRM export) and converts it, researches each person, writes a genuinely specific email from the workflow's current template (or the assigned A/B arm once one is live), records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
+description: Personalised cold outreach that ends in mail drafts, never sends. Takes the user's audience list in whatever format they already have it (CSV, spreadsheet, pasted text, screenshot, CRM export) and converts it, researches each person, writes a genuinely specific email from the engine's current template (or the assigned A/B arm once one is live), records everything in the CRM, and logs the run. Use when the user says "run outreach", "email my list", "write cold emails", "follow up with the people I contacted", or drops a list of leads.
 ---
 
 # engine-outreach
 
 Writes outreach worth reading, one person at a time, and stops at the draft.
 
-This skill runs any workflow folder of **type `outreach`**. The default folder
+This skill runs any engine folder of **type `outreach`**. The default folder
 is `outreach/`; paths below (`inputs/audience/`, `crm.csv`, `templates/`,
 `runs/`) are inside that folder, while brand, accounts and keys live in
-`shared/`. **Multiple outreach workflows are a normal shape** — `outreach/`
+`shared/`. **Multiple outreach engines are a normal shape** — `outreach/`
 for customers and `outreach-investors/` for fundraising are two independent
 folders with their own CRMs, templates, experiments and metrics — scaffold one
-with `--merge --workflow <name>:outreach`, or copy a folder and empty its
+with `--merge --engine <name>:outreach`, or copy a folder and empty its
 `runs/`, `reports/` and `crm.csv` (history belongs to the original).
 
 **It never sends.** Not with permission, not "just this once". Drafts land in the user's own mail system and a human clicks send. Everything downstream — the CRM, the A/B verdicts, the report — assumes that boundary holds.
@@ -57,7 +57,7 @@ Then **prove it with one draft addressed to the user themselves** before
 building a batch on top of it. `/mcp` and `codex mcp login` are the user's to
 run — they're interactive.
 
-If a managed Workspace or tenant blocks the connector at the admin level, that's an IT conversation, not a workaround hunt. Don't steer a company toward routing work mail through a personal account — for an individual using their own address it's a fine fallback, for an organisation it's a data-governance problem. Name the block, offer the file-based degraded mode, and let them take it up with their admin.
+If a managed Home or tenant blocks the connector at the admin level, that's an IT conversation, not a workaround hunt. Don't steer a company toward routing work mail through a personal account — for an individual using their own address it's a fine fallback, for an organisation it's a data-governance problem. Name the block, offer the file-based degraded mode, and let them take it up with their admin.
 
 ## The run
 
@@ -120,7 +120,7 @@ a bad import before fifty drafts are built on it.
 
 **A list of names with no emails is not a blocked run, and "no list at all" is
 not a blocked run either.** Both are the normal starting point, and finding the
-addresses is *your* job in this workflow. Never end a message with "send me a
+addresses is *your* job in this engine. Never end a message with "send me a
 list with emails and I'll continue" — say what you can do and offer to start it.
 
 The path that works for B2B, in one afternoon:
@@ -132,7 +132,7 @@ The path that works for B2B, in one afternoon:
    the work. Uses the user's own logged-in session; needs the browser extension
    ([`docs/preflight.md`](../../docs/preflight.md) §2b)
 2. **Turn the profile URLs into addresses** with a finder tool — table below
-3. **Run this workflow normally.** Nothing downstream is different
+3. **Run this engine normally.** Nothing downstream is different
 
 Expect a **50–70% hit rate** on professional audiences: that's normal, not a
 failed run, and it's why you search thirty to land twenty.
@@ -186,19 +186,19 @@ normal state, not a to-do list you hand back to the user. An observable that
 arrived with the list goes into `research` on normalisation, with wherever it
 came from in `research_source`; `notes` is for everything else about the person.
 
-**Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this workflow can make, and it's silent unless you check.
+**Never contact someone already in the CRM with a `sent_at`.** That's the single most damaging mistake this engine can make, and it's silent unless you check.
 
 ### 2. Get the arm
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow outreach --entity someone@example.com
+python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --engine outreach --entity someone@example.com
 ```
 
 Pass `--entity` every time. It keeps people in the arm they were first assigned, including on follow-ups — otherwise you're measuring noise.
 
 If it returns `action: write_template`, write the template it names using the hypothesis it gives you, then carry on. **Don't fall back to another template and don't stop.** Record the file you actually used.
 
-**On a fresh workflow this returns `use_template` and that's correct** — the
+**On a fresh engine this returns `use_template` and that's correct** — the
 starter experiments ship paused on purpose. Ship one sequence until the user is
 happy with the format, then start testing. `engine-loop/references/ab-testing.md`
 → R0 has the three conditions for flipping an experiment live.
@@ -242,7 +242,7 @@ Putting it in the row and not only in the email is what makes this compound:
 
 - the **follow-up** three weeks later reuses it instead of re-researching from scratch
 - the **user can read it and correct you** before anything goes out — they often know the person
-- a second workflow, or the same one next quarter, starts warm
+- a second engine, or the same one next quarter, starts warm
 - an observation with **no source URL is unverifiable**, and an unverifiable claim in a cold email is the one mistake you can't take back
 
 What goes in the cell: what they *did*, not what you think of them. No adjectives
@@ -256,11 +256,11 @@ Pull the voice and the constraints from `shared/brand.md` — especially the ban
 
 ### 4. Draft
 
-**First run of a new workflow?** There's no template yet. Write it with the
+**First run of a new engine?** There's no template yet. Write it with the
 user — `references/first-touch.md` walks the interview: ask what the email
 absolutely has to say, keep it under 120 words, run the anti-slop pass, then
 show them three versions and iterate until they'd send it unedited. That
-conversation is the highest-leverage work in this workflow; don't shortcut it.
+conversation is the highest-leverage work in this engine; don't shortcut it.
 
 After that, render the current template (or the assigned arm once an experiment
 is live) with the research. Keep it short. The opening line has to prove you
@@ -316,7 +316,7 @@ pass happens before, never after.
 ### 5. Record
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow outreach --channel email \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --engine outreach --channel email \
   --experiment exp-001 --arm partner --template first-touch-partner.txt
 ```
 
@@ -356,7 +356,7 @@ Real replies don't sort into interested / not interested — they're "how much?"
 about one feature, a polite no. You answer by combining two or three short
 reusable blocks in the user's voice, and **the library grows every time a reply
 arrives that nothing covers**. That upkeep is the point, and it's what makes the
-workflow smarter in month three than in week one. `references/followups.md`.
+engine smarter in month three than in week one. `references/followups.md`.
 
 The rules that never change:
 
@@ -412,14 +412,14 @@ old runs vote on the new version.**
 
 ## Make it run without you
 
-Outreach is the workflow where irregularity costs most: a sequence that pauses
+Outreach is the engine where irregularity costs most: a sequence that pauses
 for two weeks is a sequence that never gets its follow-up, and the CRM quietly
 fills with people mid-thread. Once the first email is one the user would send
 unedited:
 
 | Label | When | What |
 |---|---|---|
-| `engine-metrics-outreach` | daily, working days | read the mailbox: any reply — including a no — is `--value 1` plus `replied_at`, a closed sequence with no reply at all is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any workflow |
+| `engine-metrics-outreach` | daily, working days | read the mailbox: any reply — including a no — is `--value 1` plus `replied_at`, a closed sequence with no reply at all is the zero. Replies settle in 24–48h, so this is the fastest metric clock of any engine |
 | `engine-outreach-daily` | daily, working days | draft `<n>` personalised emails into their mail system, update the CRM |
 | `engine-outreach-leads` | weekly | keep the list alive: find new leads from `sources.json` and dedupe them against the CRM, enrich thin rows (no email or role, empty or stale `research`), retire the ones that no longer fit as `status=closed` with a reason. List hygiene only — it writes `crm.csv`, never a draft, and never deletes a row |
 

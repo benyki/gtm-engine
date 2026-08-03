@@ -3,7 +3,7 @@
 The default Remotion-free render path: centered typography over a background clip.
 Use when the arm is text-led (hook on screen) or you need a reliable first ship.
 
-Starter template in the workflow folder: `templates/floating-text-default.json`
+Starter template in the engine folder: `templates/floating-text-default.json`
 (copied by scaffold). Write each video's resolved config to
 `runs/<run_id>/inputs.json`.
 

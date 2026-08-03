@@ -249,7 +249,12 @@ def check_registry(home: Path, fix: bool) -> list[Path]:
     stale = reg.stale(home)
     if stale and fix:
         dropped = reg.prune(home)
-        add("pass", "  registry pruned", f"dropped {', '.join(dropped)}")
+        # Pruning only forgets the entry. If the folder was MOVED rather than
+        # deleted, it is now unregistered and invisible, and only the user
+        # knows where it went.
+        add("pass", "  registry pruned",
+            f"dropped {', '.join(dropped)}. If you moved one rather than "
+            f"deleting it, put it back on the map: registry.py add <name> <new path>")
     else:
         for name, path in stale:
             add("fail", f"  {name} is registered at a path that is gone",
@@ -395,8 +400,8 @@ def parse_env_example(example: Path) -> list[tuple[str, str, bool]]:
 def check_env(home: Path, types: set[str] | None = None) -> None:
     """Confirm key NAMES are set. Never reads a value.
 
-    Every key here is optional until a engine that needs it exists. Only a
-    key whose section matches a engine in this home, and that the file
+    Every key here is optional until an engine that needs it exists. Only a
+    key whose section matches an engine in this home, and that the file
     doesn't mark optional, is worth a warning.
 
     All four engines scaffold by default, so a key is attributed to the

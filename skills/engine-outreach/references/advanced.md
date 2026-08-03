@@ -8,7 +8,7 @@
 
 Take it in order. Skipping to step 3 on day one is how domains get burned.
 
-1. **Gmail drafts** — you read every one before it sends. Where this workflow starts and where most people should stay for months
+1. **Gmail drafts** — you read every one before it sends. Where this engine starts and where most people should stay for months
 2. **Gmail send after review** — same account, batch-approved. Still your reputation, still your rate limits
 3. **Your own domain via a sending API** — volume, deliverability, and a sender that isn't your personal inbox
 
@@ -44,7 +44,7 @@ This is the step that removes the human click. Read the next paragraph before yo
 
 ### What you give up, and what replaces it
 
-The base workflow's safety property is not "Gmail" — it's that **a person reads each email before it leaves**. A sending API has no drafts. Every call sends, immediately, to a real person. Swapping it in doesn't automate the review step, it deletes it.
+The base engine's safety property is not "Gmail" — it's that **a person reads each email before it leaves**. A sending API has no drafts. Every call sends, immediately, to a real person. Swapping it in doesn't automate the review step, it deletes it.
 
 So replace it with something, and pick deliberately:
 
@@ -63,12 +63,12 @@ Use both. They cost about twenty lines and they are the reason this stays recove
 
 ### Setup
 
-Verify your domain in the Resend dashboard, then create an API key. Put it in `workflows/shared/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
+Verify your domain in the Resend dashboard, then create an API key. Put it in `engines/shared/.env` as `RESEND_API_KEY` — the same rules as every other key here: you paste it in yourself, `.env` stays gitignored, your agent reads `.env.example` for the name and never the value.
 
 Load it at run time rather than hardcoding it anywhere:
 
 ```bash
-set -a; . workflows/shared/.env; set +a
+set -a; . engines/shared/.env; set +a
 ```
 
 ### The send call

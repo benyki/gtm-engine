@@ -10,7 +10,7 @@ Two providers, same command:
     OpenAI ("gpt-image")     OPENAI_API_KEY   https://platform.openai.com/api-keys
 
 The key is read from the environment, and if it isn't there, from the
-workspace's `shared/.env` — parsed, never printed, never echoed back. Nothing
+home's `shared/.env` — parsed, never printed, never echoed back. Nothing
 here writes a key anywhere.
 
 Usage:
@@ -35,7 +35,7 @@ Flags:
     --quality         openai only: auto | low | medium | high
     --fidelity        openai only: low | high — how closely to hold the input
     --n               how many variants (default 1)
-    --workspace       workspace root, if shared/.env isn't found from the cwd
+    --home       home root, if shared/.env isn't found from the cwd
     --timeout         seconds per request (default 180)
 """
 from __future__ import annotations
@@ -84,7 +84,7 @@ def read_env_file(path: Path, name: str) -> str:
     return ""
 
 
-def api_key(provider: str, workspace: str | None) -> str:
+def api_key(provider: str, home: str | None) -> str:
     name = KEY_VAR[provider]
     key = (os.environ.get(name) or "").strip()
     if key:
@@ -92,7 +92,7 @@ def api_key(provider: str, workspace: str | None) -> str:
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "engine-loop" / "scripts"))
         from wsfind import find_workspace  # noqa: PLC0415
-        ws = find_workspace(workspace)
+        ws = find_workspace(home)
     except (ImportError, SystemExit):
         ws = None
     if ws:
@@ -101,7 +101,7 @@ def api_key(provider: str, workspace: str | None) -> str:
         sys.exit(
             f"error: no {name}.\n"
             f"  Get one: {KEY_HELP[provider]}\n"
-            f"  Then paste it into your workspace's shared/.env as {name}=…\n"
+            f"  Then paste it into your home's shared/.env as {name}=…\n"
             f"  (paste it yourself — never into a chat window)"
         )
     return key
@@ -270,7 +270,7 @@ def main() -> int:
     ap.add_argument("--quality", default="", help="openai only")
     ap.add_argument("--fidelity", choices=("low", "high"), default="")
     ap.add_argument("--n", type=int, default=1)
-    ap.add_argument("--workspace", default=None)
+    ap.add_argument("--home", default=None)
     ap.add_argument("--timeout", type=int, default=180)
     a = ap.parse_args()
 
@@ -278,7 +278,7 @@ def main() -> int:
         sys.exit("error: --n must be at least 1")
     a.model = a.model or DEFAULT_MODEL[a.provider]
     images = load_images(a.image)
-    key = api_key(a.provider, a.workspace)
+    key = api_key(a.provider, a.home)
 
     if a.provider == "openai":
         blobs = call_openai(a, images, key)

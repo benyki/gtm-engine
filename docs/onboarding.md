@@ -4,10 +4,10 @@ This is the script `engine-setup` follows the first time someone installs
 gtm-engine. It is written for the agent, not the user: read it top to bottom
 before you touch their disk.
 
-Target state, written against the architecture in
-[`architecture-v2.md`](architecture-v2.md). Terminology here is **engine**, not
-workflow: an engine is one self-contained growth channel folder (its own
-config, templates, inputs, runs, reports).
+An **engine** is one self-contained growth channel folder: its own config,
+templates, inputs, runs and reports. The design behind the layout is
+[`architecture-v2.md`](architecture-v2.md); what changed from the older shape,
+and what to do when you meet one, is [`changelog.md`](changelog.md).
 
 Two rules over everything below:
 
@@ -63,37 +63,38 @@ because the loop only has something to say once there are runs on the board.
 
 ## Step 2. Ask where the engines live
 
-This is the one question worth asking properly, because moving engines later
-means re-registering paths. Give them the picture first:
+**Ask this one properly.** It is the only question in setup whose answer is
+awkward to change later, because moving an engine means re-registering its
+path. Ask it as a yes-or-something-else, with the default named:
 
-> Each engine can live in a different place. If you have several products or
-> brands, I recommend one `engines/` folder inside each project, holding that
-> project's engines. Everything shared still lives in `~/gtm`, so your brand
-> voice and your keys are written once.
->
-> By default I'll create `engines/` in the folder we are in right now
-> (`<cwd>`).
+> By default your engines go in `~/gtm/engines/`, right next to everything they
+> share. Is that what you want, or would you rather pick a folder yourself?
 
-Then offer the alternative, explicitly:
+Then, in the same message, say what picking a folder is for, so they can answer
+without knowing the system yet:
 
-> If you would rather keep every engine for every project in one place, that
-> works too: they all go in `~/gtm/engines/`. In that case I recommend naming
-> each folder `engine-<type>-<project>`, for example
-> `engine-outreach-acme/`, so it is obvious at a glance which project a folder
-> belongs to.
+> If you have several products or brands, I'd suggest an `engines/` folder
+> inside each project, holding that project's engines. Everything shared still
+> lives in `~/gtm`, so your brand voice and your keys are only written once.
+> We're in `<cwd>` right now, so that would be `<cwd>/engines/`.
 
 Three answers, three behaviours:
 
 | They say | Where engines go | How folders are named |
 |---|---|---|
-| nothing / "the default" | `<cwd>/engines/` | `<type>/`, for example `outreach/` |
-| "keep them all together" | `~/gtm/engines/` | `engine-<type>-<project>/` |
+| nothing / "the default" | `~/gtm/engines/` | `engine-<type>-<project>/` when you know the project, else `<type>/` |
+| "keep them with the project" | `<cwd>/engines/` | `<type>/`, for example `outreach/` |
 | a path of their own | that path | ask for a project name, then `engine-<type>-<project>/` |
 
-Override the cwd default without asking when the current directory is a bad
-home for data: the home directory itself, `~/Downloads`, a temp directory, or
-the `~/.gtm-engine` clone. In those cases use `~/gtm/engines/` and say why in
-one line.
+Two things you settle without asking:
+
+- **Never scaffold into a bad home for data.** If the cwd is the home directory
+  itself, `~/Downloads`, a temp directory, or the `~/.gtm-engine` clone, use
+  `~/gtm/engines/` and say why in one line.
+- **Engine names are unique across every project**, because `engines.json` is
+  keyed on them. Two engines cannot both be called `outreach`. The scaffolder
+  refuses rather than overwrite, so pass `--project <name>` and let it name the
+  folder `engine-<type>-<project>`.
 
 If the cwd is a git repo, say so and ask whether the engine folder should be
 committed or gitignored. Recommend committing it when the repo is theirs and
@@ -114,9 +115,22 @@ Create, in this order:
    insights), the docs, `AGENTS.md`, `CLAUDE.md`, and `engines.json` (the
    registry of where every engine lives).
 2. Each engine folder at the location from step 2, each one registered in
-   `~/gtm/engines.json`.
+   `~/gtm/engines.json`. An engine that lives away from the home also gets its
+   own short `AGENTS.md` pointing back at `~/gtm`, so an agent opening that
+   project alone still finds the house rules and the registry rule.
 3. The skills for the engine types they scaffolded, into `~/.agents/skills/`,
    symlinked into whichever agents are installed.
+
+```bash
+# the default
+python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py --project acme
+
+# engines kept with the project
+python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py \
+  --engine all --at ./engines --project acme
+
+~/.gtm-engine/skills/engine-setup/scripts/install_skills.sh --home ~/gtm
+```
 
 Then print the tree you actually created, with real paths. Not a diagram of
 the general case: the folders that now exist on their machine.
@@ -151,10 +165,27 @@ Next:
 
 ## Adding an engine later
 
-Same two questions, much shorter: which type, and where it goes (default: an
-`engines/` folder in the project they are in). Register it in
-`~/gtm/engines.json`, install the skill for its type if it is missing, and stop.
-Never rescaffold `~/gtm/shared/`: it already exists and it is theirs.
+Same two questions, much shorter: which type, and where it goes (default:
+`~/gtm/engines/`, or the project's own `engines/` if that is where their other
+engines for this project are). `scaffold.py --engine <name> --at <path>
+--project <name>` registers it and fills the gaps; install the skill for its
+type if it is missing, and stop. Never rescaffold `~/gtm/shared/`: it already
+exists and it is theirs.
+
+## When an engine moves
+
+`~/gtm/engines.json` is the only map of where engines are. If you move, rename
+or delete an engine folder, or copy a project to another machine, fix the
+registry in the same breath:
+
+```bash
+registry.py mv <name> <newpath>
+registry.py rm <name>
+doctor.py --fix          # prune dead entries, register loose folders
+```
+
+An unregistered engine is invisible: absent from the weekly report, unreadable
+by the other engines, unknown to the next agent.
 
 ## What onboarding never does
 

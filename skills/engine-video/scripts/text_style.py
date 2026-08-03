@@ -15,7 +15,7 @@ Usage:
 Font directory resolution, first hit wins:
     --fonts <dir>
     $GTM_FONTS_DIR
-    <workspace>/shared/assets/fonts/     — the user's brand font, if any
+    <home>/shared/assets/fonts/     — the user's brand font, if any
     <this skill>/assets/fonts/           — the faces this repo ships
 
 Style numbers come from references/ffmpeg-text-style.md and scale from a
@@ -83,7 +83,7 @@ def resolve_fonts_dir(explicit: str | None) -> Path:
     if has_fonts(shipped):
         return shipped
     sys.exit("error: no fonts found — pass --fonts, set GTM_FONTS_DIR, or put "
-             "font files in <workspace>/shared/assets/fonts/")
+             "font files in <home>/shared/assets/fonts/")
 
 
 # --- family names, read out of the font file itself -------------------------

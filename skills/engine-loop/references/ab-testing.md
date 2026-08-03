@@ -2,15 +2,15 @@
 
 The rules below come from a cold-outreach system that has been running these tests for months. Each one exists because breaking it produced a wrong answer that took weeks to notice.
 
-They apply to **any workflow built from a template plus config** — outreach emails, video hooks, article openings, LinkedIn posts. If the output is rendered from a template, it can be tested this way.
+They apply to **any engine built from a template plus config** — outreach emails, video hooks, article openings, LinkedIn posts. If the output is rendered from a template, it can be tested this way.
 
 ---
 
 ## R0 — Don't test on day one
 
-**A new workflow ships with one template and no live experiment.** Every
-starter `experiments.json` in the workspace is `"status": "paused"` for this
-reason, and flipping one to `live` before the workflow is settled is the most
+**A new engine ships with one template and no live experiment.** Every
+starter `experiments.json` in the home is `"status": "paused"` for this
+reason, and flipping one to `live` before the engine is settled is the most
 common way to waste the first month.
 
 Three reasons, in order of how much they hurt:
@@ -42,7 +42,7 @@ Flip an experiment to `live` when all three are true:
   without editing. If they're still rewriting every draft, keep iterating
 - **You've shipped enough to know the format works** — roughly 5–10 pieces with
   numbers on them. Not a rule, a smell test: you should be able to say what
-  "normal" looks like for this workflow
+  "normal" looks like for this engine
 - **You can name the one variable worth an answer.** "Does a question opener
   beat a claim opener" is a test. "Let's see what works" is not
 
@@ -53,7 +53,7 @@ Everything below applies from that moment on.
 
 ## R1 — A variant is a whole template file
 
-`<workflow>/templates/<base>-<variant>.txt`. The file is the unit, even when the change inside it is one line. That way what was actually sent is always recoverable, and a diff between two arms is a real diff rather than a config lookup.
+`<engine>/templates/<base>-<variant>.txt`. The file is the unit, even when the change inside it is one line. That way what was actually sent is always recoverable, and a diff between two arms is a real diff rather than a config lookup.
 
 **How big the difference should be is not fixed — it shrinks as you learn.**
 
@@ -85,13 +85,13 @@ The original implementation hard-errored when a variant's file was absent. That'
 
 Instead:
 
-- Rotate across whatever exists in the workflow's active folder
+- Rotate across whatever exists in the engine's active folder
 - If the assigned arm has no template, **write it** from the hypothesis in `experiments.json`, then use it
 - Record the template you **actually rendered**, never the one that was requested
 
 That last line is the part that matters. The real failure was never the missing file — it was mislabelling. Rows tagged `partner` that actually received the default content leave the attribution quietly wrong for weeks, with nothing in any log to show for it. Write the missing template, record what shipped, and you never have to stop.
 
-The same spirit applies when no experiment is live at all: `assign_arm.py` doesn't guess a filename, it reports what's actually in the workflow's active folder — one template to use, a list to choose from (`action: choose_template` — nothing is being tested, so pick what fits), or `write_template` when the folder is empty. Whatever you decide, record the file you actually rendered.
+The same spirit applies when no experiment is live at all: `assign_arm.py` doesn't guess a filename, it reports what's actually in the engine's active folder — one template to use, a list to choose from (`action: choose_template` — nothing is being tested, so pick what fits), or `write_template` when the folder is empty. Whatever you decide, record the file you actually rendered.
 
 ## R5 — `default` and `none` mean the base template
 
@@ -128,7 +128,7 @@ Whatever you pick, the sanity check before acting on any `decided` verdict is th
 ## After a verdict
 
 1. **Promote** the winner to the base template
-2. **Retire** the loser to the workflow's `templates/losers/` — never delete it. Runs only read the active folder, so it can't return by accident, but something that lost against one audience often wins against the next, and the folder is the cheapest record you'll keep of what doesn't work
+2. **Retire** the loser to the engine's `templates/losers/` — never delete it. Runs only read the active folder, so it can't return by accident, but something that lost against one audience often wins against the next, and the folder is the cheapest record you'll keep of what doesn't work
 3. **Write a challenger** that attacks the winner, with the hypothesis in a header comment
 4. **Register** it in `experiments.json`, reset `started` to today, record the decision
 
@@ -157,7 +157,7 @@ you reach a verdict in weeks rather than months.
 
 Eventually you'll want to know whether a different *format* — not a different
 hook, a different kind of video — would do better. That's a real question and
-worth answering, but it is an **advanced practice for a workflow that's already
+worth answering, but it is an **advanced practice for an engine that's already
 solid**, not a way to find your first winner. Do it only when:
 
 - one format is genuinely working, with a **measured baseline** — enough runs
@@ -174,14 +174,14 @@ itching to make goes into the challenger.
 
 How to run it:
 
-1. **Give the challenger its own workflow folder** (`--merge --workflow
+1. **Give the challenger its own engine folder** (`--merge --engine
    video-<format>:video`) with the **same `primary_metric` and channel** as the
    champion. Formats have different templates, queues and experiments — they
    don't fit as two arms of one experiment, and nothing is pooled across folders
 2. **Send it a minority of the run stream** — roughly one in three or one in
    four. The working format keeps earning while the new one is unproven
 3. **Compare at the report level**, not with `score_arms.py`: read both
-   workflows' `reports/latest.json` side by side and compare the **medians** on
+   engines' `reports/latest.json` side by side and compare the **medians** on
    the same metric. Means lie here — one viral video in either folder decides
    nothing
 4. **Give it five or six runs minimum before judging.** A format's first attempt
@@ -198,7 +198,7 @@ you're chasing a number. A format that lost a year ago can win now.
 ## Guardrails
 
 - Two live arms per **experiment** is the working default — every extra arm multiplies the runs needed before anything is decided. It's volume advice, not law: at real volume, three arms is a choice you can afford
-- Concurrent experiments in one workflow are fine **when they're scoped to different channels** — set `"channel"` on each and pass `--channel` to `assign_arm.py`. What's not fine is two live experiments competing for the same runs: the first one in the file wins and the script warns
+- Concurrent experiments in one engine are fine **when they're scoped to different channels** — set `"channel"` on each and pass `--channel` to `assign_arm.py`. What's not fine is two live experiments competing for the same runs: the first one in the file wins and the script warns
 - Don't run more concurrent tests than your volume can decide. Every live experiment divides the same run stream; four half-starved tests decide nothing while one fed test decides something
 - The challenger is written automatically; **promoting it needs a human yes**
 - A template written to fill a gap starts as an ordinary arm — it earns default status by winning, not by being newest
@@ -213,7 +213,7 @@ you're chasing a number. A format that lost a year ago can win now.
     {
       "id": "exp-001",
       "status": "live",
-      "workflow": "outreach",
+      "engine": "outreach",
       "template_base": "first-touch",
       "variable": "offer",
       "min_runs_per_arm": 15,
@@ -241,4 +241,4 @@ you're chasing a number. A format that lost a year ago can win now.
 
 `status` is `live`, `paused` or `decided`. Only `live` experiments are assigned or scored.
 
-Optional per-experiment fields: `channel` scopes the experiment to one channel so several can run concurrently in a workflow (see Guardrails); `direction` and `aggregate` shape the comparison (see *Which number the arms are compared on*).
+Optional per-experiment fields: `channel` scopes the experiment to one channel so several can run concurrently in an engine (see Guardrails); `direction` and `aggregate` shape the comparison (see *Which number the arms are compared on*).

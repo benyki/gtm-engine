@@ -44,4 +44,4 @@ That boundary is what keeps the templates explainable. Once it starts promoting 
 
 **Re-test old losers deliberately.** Audience changes, product changes, market changes. A template that lost in March is worth another run in September. This is why nothing is ever deleted.
 
-**Cross-workflow learning.** The hook that wins on LinkedIn usually tells you something about the video hook. Nothing automates this — but reading the reports side by side once a month tends to be worth more than the reports themselves.
+**Cross-engine learning.** The hook that wins on LinkedIn usually tells you something about the video hook. Nothing automates this — but reading the reports side by side once a month tends to be worth more than the reports themselves.

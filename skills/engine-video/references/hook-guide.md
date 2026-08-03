@@ -30,7 +30,7 @@ Five principles apply to every overlay, hook or not:
 The hook is the scroll-stopper. Its only job is to create curiosity, tension,
 identification, or payoff fast enough that the viewer stays for the second beat.
 
-It is also **the A/B variable** for this workflow — question versus claim, face
+It is also **the A/B variable** for this engine — question versus claim, face
 versus text, first-second payoff versus slow build. Hold everything else
 constant across arms or the verdict means nothing (`references/formats.md`,
 `engine-loop/references/ab-testing.md`).
@@ -58,7 +58,7 @@ constant across arms or the verdict means nothing (`references/formats.md`,
 4. **Identity / obsession bit** — leaning into a character trait or fandom-style behavior the audience already shares.
 
 This ranking came from consumer social apps. It is a starting order, not a law —
-once this workflow has 5–10 videos with numbers, the ranking that matters is the
+once this engine has 5–10 videos with numbers, the ranking that matters is the
 one in your own `runs/`.
 
 ### Recommended hook formats
@@ -285,8 +285,8 @@ Before shipping any overlay:
 This file is the *default*. What earned watch-through on your account beats it.
 
 - The weekly `engine-video-app-hooks` job reads the numbers and rewrites the
-  workflow's own hook library from them (`docs/scheduling.md`)
-- A hook finding that outlives this workflow — a length, an angle, an audience
-  truth — goes in `shared/insights.md`, because the social workflow is writing
+  engine's own hook library from them (`docs/scheduling.md`)
+- A hook finding that outlives this engine — a length, an angle, an audience
+  truth — goes in `shared/insights.md`, because the social engine is writing
   first lines against the same audience
 - When a rule here is contradicted by your own numbers twice, change the rule

@@ -10,7 +10,7 @@ Per engine, produces three things:
   <wf>/reports/latest.json          for the NEXT agent to read
   <wf>/reports/index.csv            one row per report, ever
 
-The JSON is the important one. An agent picking a engine up next week
+The JSON is the important one. An agent picking an engine up next week
 should read its `reports/latest.json` before deciding anything — it gets the
 numbers, the verdicts and what's still undecided as data, instead of parsing
 prose and guessing.

@@ -47,7 +47,7 @@ up somewhere you can find it, its filename carries the `run_id` so it traces
 back to `runs/index.csv`, and wherever it lands holds artifacts only : never
 state. Any layout that satisfies that is correct.
 
-Set `published_dir` in a engine's `engine.json`. It's per engine, so
+Set `published_dir` in an engine's `engine.json`. It's per engine, so
 different answers can coexist : video on an external drive, social in the
 home:
 
@@ -84,4 +84,4 @@ find published -type f \( -name '*.mp4' -o -name '*.mov' -o -name '*.png' \) -mt
 ```
 
 Worth a scheduled task once the video engine is running weekly :
-[`docs/scheduling.md`](../../docs/scheduling.md) → *Housekeeping*.
+[`docs/scheduling.md`](../docs/engine/scheduling.md) → *Housekeeping*.

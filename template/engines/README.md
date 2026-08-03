@@ -1,7 +1,7 @@
 # Engine starters
 
-What `scaffold.py` copies to create a engine folder. Two kinds live
-here, and only one of them is a engine type.
+What `scaffold.py` copies to create an engine folder. Two kinds live
+here, and only one of them is an engine type.
 
 ## `outreach/` `seo/` `social/` `video/` : the type starters
 

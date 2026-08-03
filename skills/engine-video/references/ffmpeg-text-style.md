@@ -107,7 +107,7 @@ script resolves a directory, first hit wins:
 
 1. `--fonts <dir>`
 2. `$GTM_FONTS_DIR`
-3. **`<workspace>/shared/assets/fonts/`** — the user's own font, if they have one
+3. **`<home>/shared/assets/fonts/`** — the user's own font, if they have one
 4. **`<this skill>/assets/fonts/`** — the bundled TikTok Sans 12pt
 
 ```bash
@@ -207,11 +207,11 @@ Three things to know if you install it:
 - Its bundled font smoke test looks for a fixture path from the author's
   machine and fails everywhere else. Use `probe` instead
 
-## In the workspace
+## In the home
 
 - A brand font: install it (Plan A) so everything on the machine sees it, and
-  keep a copy in **`shared/assets/fonts/`** so the workspace carries it to the
-  next machine — every video workflow picks that up automatically, no config
+  keep a copy in **`shared/assets/fonts/`** so the home carries it to the
+  next machine — every video engine picks that up automatically, no config
 - Overlay copy comes from the config (`references/structure-plan.md` →
   `segments[].textOverlay.lines`); this file only decides how it looks. What it
   should *say* is `references/hook-guide.md`

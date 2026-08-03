@@ -1,18 +1,18 @@
 ---
 name: engine-video
-description: Makes short-form vertical video — plan (VideoArchitecture), voiceover, footage, render 9:16 (ffmpeg floating-text by default, Remotion optional), optional looks/music, then post and log. Use when the user says "make a video", "run the video workflow", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
+description: Makes short-form vertical video — plan (VideoArchitecture), voiceover, footage, render 9:16 (ffmpeg floating-text by default, Remotion optional), optional looks/music, then post and log. Use when the user says "make a video", "run the video engine", "turn this into a Reel/TikTok/Short", or asks for short-form video content.
 ---
 
 # engine-video
 
-Script to rendered 9:16 mp4. The heaviest workflow in the repo — it needs disk, keys and patience — so don't pick it as a first workflow unless video is genuinely the channel.
+Script to rendered 9:16 mp4. The heaviest engine in the repo — it needs disk, keys and patience — so don't pick it as a first engine unless video is genuinely the channel.
 
-This skill runs any workflow folder of **type `video`**. The default folder is
+This skill runs any engine folder of **type `video`**. The default folder is
 `video/`; paths below (`templates/`, `runs/`, `inputs/`) are inside it, while
 brand, accounts, keys and **reusable footage/fonts/logos live in `shared/`**
-(`shared/assets/` — any workflow can use them).
+(`shared/assets/` — any engine can use them).
 
-**Several video workflows are the normal shape, one per format**, each with its
+**Several video engines are the normal shape, one per format**, each with its
 own templates, experiments and metric. Name them after the format they run:
 
 | Folder | Format |
@@ -22,11 +22,11 @@ own templates, experiments and metric. Name them after the format they run:
 | `video-info/` | informative |
 
 All of them are type `video` — scaffold one with
-`--merge --workflow video-vibe:video`, or copy a folder and empty its `runs/`
+`--merge --engine video-vibe:video`, or copy a folder and empty its `runs/`
 and `reports/` (history belongs to the original). Running a single format? Keep
 the shipped `video/` folder and ignore the rest. Render knobs (`resolution`,
-`target_seconds`, voice id) live in each folder's `workflow.json` under `video`,
-so two video workflows can render differently.
+`target_seconds`, voice id) live in each folder's `engine.json` under `video`,
+so two video engines can render differently.
 
 ## Three formats, by default
 
@@ -55,9 +55,9 @@ where the product appears — is expected, and **inventing a format that isn't
 here is encouraged**: talking head, before/after, POV, reaction, silent tutorial.
 Your read on how your audience watches beats this table. Change one thing per
 experiment so the verdict means something, and give a genuinely new format its
-own workflow folder. `references/formats.md` covers how.
+own engine folder. `references/formats.md` covers how.
 
-Running two formats means **two workflow folders** (`video-app/` and
+Running two formats means **two engine folders** (`video-app/` and
 `video-vibe/`), not one folder with two kinds of run: different metrics,
 different experiments, different queues.
 
@@ -105,17 +105,17 @@ These are the **defaults**, not requirements — each row is one way to satisfy 
 ### 1. Get the arm before you write
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow video
+python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --engine video
 ```
 
 The hook is the variable worth testing — question versus claim, face versus text, first-second payoff versus slow build. Everything else is noise by comparison, and it converges fastest. If it returns `write_template`, write that template from the hypothesis. How to actually write one: `references/hook-guide.md`.
 
-**On a fresh workflow this returns `use_template` and that's correct** — the
+**On a fresh engine this returns `use_template` and that's correct** — the
 starter experiments ship paused on purpose. Ship one video until the user is
 happy with the format, then start testing. `engine-loop/references/ab-testing.md`
 → R0 has the three conditions for flipping an experiment live.
 
-Testing a whole **format** against a working one is a different, slower test: worth doing once this workflow is solid and the hook loop has stopped teaching you anything, never as the way to find your first winner. `references/advanced.md` → *A/B testing whole formats*.
+Testing a whole **format** against a working one is a different, slower test: worth doing once this engine is solid and the hook loop has stopped teaching you anything, never as the way to find your first winner. `references/advanced.md` → *A/B testing whole formats*.
 
 ### 2. Plan the structure
 
@@ -126,11 +126,11 @@ Pick the format first (`references/formats.md`), then copy the matching
 the dedupe fingerprints are derived from it — so don't invent new scenes
 mid-render without updating it.
 
-Then check you're not about to remake something this workflow already made:
+Then check you're not about to remake something this engine already made:
 
 ```bash
 python3 ~/.agents/skills/engine-video/scripts/combo_check.py check \
-  --workflow video --inputs runs/<run_id>/inputs.json
+  --engine video --inputs runs/<run_id>/inputs.json
 ```
 
 **Never reuse the same inputs *and* the same scene durations.** Same inputs
@@ -159,7 +159,7 @@ localization) are in `references/hook-guide.md`; the copy goes on
 ### 4. Voiceover
 
 Follow `references/voiceover.md`. ElevenLabs by default, voice id in
-this workflow's `workflow.json` — or whatever TTS the user already uses. Same voice across
+this engine's `engine.json` — or whatever TTS the user already uses. Same voice across
 arms. Timed multi-beat scripts = one clip per line, then assemble.
 
 ### 5. Footage
@@ -193,7 +193,7 @@ Take whatever they name, in whatever form: a title, an artist, a YouTube link, a
 vibe, or a file they already own.
 
 **Fetching it** — when they name a track or paste a URL they have the rights to
-reuse, download it with `yt-dlp` into `shared/assets/music/` so every workflow
+reuse, download it with `yt-dlp` into `shared/assets/music/` so every engine
 can use it:
 
 ```bash
@@ -223,11 +223,11 @@ one. Nothing in between. Mechanics, the mix and the trim/fade:
 
 ### 6. Render
 
-Defaults: 9:16 at 1080×1920 (this workflow's `workflow.json` → `video.resolution` /
+Defaults: 9:16 at 1080×1920 (this engine's `engine.json` → `video.resolution` /
 `target_seconds`), H.264, audio at −14 LUFS, captions burned in.
 
 **Default path:** floating text over B-roll — `references/floating-text.md` +
-workspace starter `templates/floating-text-default.json` (in the workflow folder) +
+home starter `templates/floating-text-default.json` (in the engine folder) +
 `references/ffmpeg-recipes.md`.
 
 **Optional looks** after the base render: `references/looks.md` (keep identical
@@ -245,14 +245,14 @@ Write the mp4 to `runs/<run_id>/output/final.mp4`.
 ### 7. Log and post
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow video --channel tiktok \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --engine video --channel tiktok \
   --experiment exp-004 --arm tension --template script-tension.txt
 ```
 
 Two records, two jobs: the run row says a video was made and what it earned;
 `runs/<run_id>/inputs.json` says what it was made of, which is what makes the
 next `combo_check` mean anything. Keep the config with the run — it's the only
-memory this workflow has of what has already been built.
+memory this engine has of what has already been built.
 
 **When a video has to get specific things right, write a checker.** Some formats
 carry a factual payload — exact words, numbers, prices, names, a claim that has
@@ -271,7 +271,7 @@ feels finished without it. It matters most in the formats where the product
 never appears on screen — then the caption is the *only* place attribution
 happens.
 
-Keep the workflow's captions in one file, `<workflow>/templates/captions.md`,
+Keep the engine's captions in one file, `<engine>/templates/captions.md`,
 grouped by which kind of video each one fits. Four rules:
 
 - **Short, and written like a person, not an ad.** If the product belongs in it,
@@ -303,9 +303,9 @@ Device posting: `references/advanced.md` (account-risk first). Record the URL:
 python3 ~/.agents/skills/engine-loop/scripts/runlog.py publish --run <run_id> --url https://...
 ```
 
-Then move the mp4 to the workspace archive so you can find it later and delete it
+Then move the mp4 to the home archive so you can find it later and delete it
 easily — `<published_dir>/<run_id>-<slug>.mp4`, which defaults to
-`published/<workflow>/` and is set per workflow in `workflow.json`. Leave
+`published/<engine>/` and is set per engine in `engine.json`. Leave
 `runs/<run_id>/inputs.json` where it is; that one is never disposable.
 `published/README.md`.
 
@@ -324,12 +324,12 @@ protects the account:
   trusting the render pace. One video every 12 hours is a safe floor for a new
   account
 
-Same rule per *account*, not per workflow — two workflows feeding one TikTok
+Same rule per *account*, not per engine — two engines feeding one TikTok
 handle share that ceiling.
 
 ## Getting the numbers back
 
-Two routes, and which one you have decides what this workflow's metric can be.
+Two routes, and which one you have decides what this engine's metric can be.
 
 **With the browser extension** — the creator dashboard, where watch-through
 lives:
@@ -350,7 +350,7 @@ yt-dlp -J --no-warnings "<the url you recorded on publish>" | python3 -c \
 
 **What yt-dlp cannot give you on any platform is watch-through** — average view
 duration, retention, impressions and traffic source exist only behind the
-account login. So if there's no extension, set this workflow's `primary_metric`
+account login. So if there's no extension, set this engine's `primary_metric`
 to `views` rather than leaving a `watch_through_rate` column that never fills.
 Say that out loud to the user; a weak measured signal beats an empty one, and
 the loop works identically either way. (YouTube-only exception: its Analytics
@@ -370,10 +370,10 @@ Views alone are a weak signal. Watch-through rate is the one that tells you whet
 - **Never clone a real person's voice** without their explicit permission
 - **Never render a config that reuses both the same inputs and the same durations.** `references/duplicate-safety.md`
 - **Never exceed four or five posts a day on one account**, and space them out
-- Delete the intermediate files after a successful render. Video fills a disk faster than anyone expects — but **never delete `runs/<run_id>/inputs.json`**. It's two kilobytes and it's the only record of what this workflow has already made. Shipped mp4s live in this workflow's `published_dir` and *are* safe to delete
+- Delete the intermediate files after a successful render. Video fills a disk faster than anyone expects — but **never delete `runs/<run_id>/inputs.json`**. It's two kilobytes and it's the only record of what this engine has already made. Shipped mp4s live in this engine's `published_dir` and *are* safe to delete
 - If a render fails, fix it — don't ship a broken or half-length file
 
-A hook verdict here usually says something about the social workflow's hooks
+A hook verdict here usually says something about the social engine's hooks
 too — when a finding generalises, add a line to `shared/insights.md`, and put
 reusable clips or end-cards in `shared/assets/` so siblings don't re-make them.
 
@@ -386,11 +386,11 @@ is cheapest. What's worth scheduling is everything around it:
 |---|---|---|
 | `engine-metrics-video` | daily | record what each published video earned. Daily because the 72h window clears on a rolling basis |
 | `engine-video-app-hooks` | weekly | read what earned watch-through, rewrite the hook library from it |
-| `engine-video-info-source` | daily | pull new items from the text source into `inputs/source-texts/` — only when the informative workflow *fetches* its source rather than being handed one |
-| `engine-cleanup` | monthly | delete artifacts older than 30 days from wherever this workflow publishes and report what was reclaimed. Optional, and ask first — some people want the year of videos on disk |
+| `engine-video-info-source` | daily | pull new items from the text source into `inputs/source-texts/` — only when the informative engine *fetches* its source rather than being handed one |
+| `engine-cleanup` | monthly | delete artifacts older than 30 days from wherever this engine publishes and report what was reclaimed. Optional, and ask first — some people want the year of videos on disk |
 
 Neither of the first two renders and neither uploads — rendering stays manual,
-and so does posting. Without the metric job this workflow accumulates videos and no
+and so does posting. Without the metric job this engine accumulates videos and no
 verdicts, which is the most common way a video channel goes quiet. Catalogue:
 [`docs/scheduling.md`](../../docs/scheduling.md); how to create one:
 `engine-loop/references/scheduling.md`.

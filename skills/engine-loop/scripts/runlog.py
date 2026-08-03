@@ -26,7 +26,7 @@ still records the moment it went out, which is what starts the metric
 clock in due_metrics.py.
 
 Extra columns are a supported extension point: add `segment`, `language`,
-`campaign` or anything else to a engine's runs/index.csv and this script preserves
+`campaign` or anything else to an engine's runs/index.csv and this script preserves
 them on every rewrite. Only the columns listed below are ever written by
 the script itself.
 

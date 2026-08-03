@@ -1,20 +1,20 @@
 # Voiceover — ElevenLabs (default)
 
 Contract: **same voice id across every arm** of an experiment.
-Id lives in this workflow's `workflow.json` → `video.elevenlabs_voice_id`.
+Id lives in this engine's `engine.json` → `video.elevenlabs_voice_id`.
 Never invent a new voice mid-test.
 
-Load secrets from the workspace (never read `.env` into chat):
+Load secrets from the home (never read `.env` into chat):
 
 ```bash
-set -a; . /absolute/path/to/workflows/shared/.env; set +a
+set -a; . /absolute/path/to/engines/shared/.env; set +a
 [[ -n "$ELEVENLABS_API_KEY" ]] && echo set
 ```
 
 ## Single script → one file
 
 ```bash
-VOICE_ID="$(jq -r '.video.elevenlabs_voice_id' workflow.json)"
+VOICE_ID="$(jq -r '.video.elevenlabs_voice_id' engine.json)"
 body="$(jq -n --arg t "$SCRIPT" --arg m "eleven_multilingual_v2" \
   '{text:$t, model_id:$m, voice_settings:{stability:0.45, similarity_boost:0.80, style:0.0, use_speaker_boost:true}}')"
 curl -sS -X POST \

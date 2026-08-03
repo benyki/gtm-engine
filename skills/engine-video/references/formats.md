@@ -1,6 +1,6 @@
-# The three formats this workflow makes
+# The three formats this engine makes
 
-Short-form is not one thing. This workflow ships **three** default formats, and
+Short-form is not one thing. This engine ships **three** default formats, and
 picking the wrong one is the most expensive mistake available — a demo cut like a
 vibe video sells nothing, and a vibe video cut like a demo gets scrolled.
 
@@ -53,20 +53,20 @@ about how your people watch, that instinct is worth more than this table.
 
 How to run a new format without losing the thread:
 
-- **Give it its own workflow folder** (`--merge --workflow video-<name>:video`)
+- **Give it its own engine folder** (`--merge --engine video-<name>:video`)
   with its own goal, metric and experiments. Formats aren't arms of each other —
   they have different watch patterns, and pooling them into one folder makes
   every verdict mush
 - **Ship five or six before you judge it.** One video tells you about that
   video. Short-form is heavy-tailed, and a format's first attempt is also your
   worst attempt at it
-- **Write down what it is** — a `formats.md`-style note in the workflow folder
+- **Write down what it is** — a `formats.md`-style note in the engine folder
   saying the structure, the durations, the rules. A format nobody wrote down
   drifts into a different format by run four, and then the numbers span two
   things wearing one name
 - **Keep what it teaches.** When a new format wins, the reason usually
   generalises — a hook style, a length, an audience truth. One line in
-  `shared/insights.md`, and the other workflows get it too
+  `shared/insights.md`, and the other engines get it too
 
 A format that loses isn't waste either: the reason it lost is information about
 your audience, and it belongs in `shared/insights.md` next to the wins.
@@ -191,7 +191,7 @@ any of them; the loop needs runs in one place. Product demo if you have an app
 and no audience, vibe if you have a look and no product story yet, informative
 if you already have written content you're proud of.
 
-Two formats = two workflow folders, named after the format they run —
+Two formats = two engine folders, named after the format they run —
 `video-app/`, `video-vibe/`, `video-info/`, all of type `video`. Not one folder
 with two kinds of run: they have different metrics, different experiments and
 different queues.

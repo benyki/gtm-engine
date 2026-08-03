@@ -50,7 +50,7 @@
     "Broad, universally-appealing themes are worth MANY videos each with fresh items — 50 videos on a proven theme beats one on an obscure theme. Split a big theme into granular sub-themes so each video stays distinct."
   ],
   "voiceOverlay": {
-    "voiceId": "<from <workflow>/workflow.json → video.elevenlabs_voice_id>",
+    "voiceId": "<from <engine>/engine.json → video.elevenlabs_voice_id>",
     "_lineTemplate": {
       "prompt": "<the spoken question, built from the item — same phrasing every time so the format is recognisable>",
       "answer": "<the spoken reveal; add a terminal full stop or the TTS clips it>"

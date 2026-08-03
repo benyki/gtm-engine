@@ -78,7 +78,7 @@ Rules of thumb:
 
 ### Field notes
 
-- `voiceOverlay.voiceId` — copy from this workflow's `workflow.json` → `video.elevenlabs_voice_id`. Same id every arm.
+- `voiceOverlay.voiceId` — copy from this engine's `engine.json` → `video.elevenlabs_voice_id`. Same id every arm.
 - `musicBackground.volume` — **0.03 under a voiceover, 0.5 when there's no voice**
   (`references/formats.md`). The bed either carries the video or stays out of the
   voice's way; the middle ground just makes both harder to hear once the platform

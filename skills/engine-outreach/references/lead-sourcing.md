@@ -62,7 +62,7 @@ it uses the user's own logged-in session, so nothing is scraped anonymously.
 The profile URL is the input; a finder tool returns the address. **Offer this
 step — don't wait to be asked.** A user who hands over a list of names doesn't
 always know the addresses are gettable, and "send me their emails" is the answer
-that ends the workflow.
+that ends the engine.
 
 Three worth naming, and the deciding question is whether **you** can drive it or
 whether the *user* has to sit and click:
@@ -141,7 +141,7 @@ exists and fill the gaps later rather than holding the list back.
 
 - **Dedupe on email**, falling back to LinkedIn URL, then name + company
 - **Never import over someone with a `sent_at`.** That's the one silent mistake
-  this workflow can make, and it costs the relationship, not just the row
+  this engine can make, and it costs the relationship, not just the row
 - **Fill `source` and `notes` whenever you have them.** In two months "where did
   these 300 people come from and were they any good?" is a question you'll
   actually ask, and `runs/index.csv` can answer it per source once the column is
@@ -169,7 +169,7 @@ the full attribution. Specifically:
   world now, not for fields to fill a template with — comes from
   [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0)
 
-Both go far beyond what this workflow needs — sequencing, deliverability,
+Both go far beyond what this engine needs — sequencing, deliverability,
 campaign grading, CRM sync. Worth reading in full if outreach becomes your main
 channel.
 

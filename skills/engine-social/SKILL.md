@@ -1,6 +1,6 @@
 ---
 name: engine-social
-description: Writes short-form social posts (LinkedIn, X, Bluesky, and similar text channels) in the user's own voice, learned from their best-performing work, and logs every run (assigning an A/B arm once an experiment is live). LinkedIn and X post from the user's browser; Bluesky posts via its AT Protocol API after approval. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social workflow", "turn this into a post", or asks for short-form written content.
+description: Writes short-form social posts (LinkedIn, X, Bluesky, and similar text channels) in the user's own voice, learned from their best-performing work, and logs every run (assigning an A/B arm once an experiment is live). LinkedIn and X post from the user's browser; Bluesky posts via its AT Protocol API after approval. Use when the user says "write LinkedIn posts", "draft some tweets", "post to Bluesky", "run the social engine", "turn this into a post", or asks for short-form written content.
 ---
 
 # engine-social
@@ -10,17 +10,17 @@ channels. Much shorter feedback loop than `engine-seo` — you learn what works
 in weeks rather than months.
 
 **This skill stands alone.** It shares ideas with `engine-seo` and repeats some
-of them in its own words, on purpose: the two workflows are validated against
+of them in its own words, on purpose: the two engines are validated against
 different evidence (a feed versus a search result), they'll drift apart as each
-learns, and neither should be able to break the other. Everything this workflow
+learns, and neither should be able to break the other. Everything this engine
 needs is in *its* `references/`. Don't reach into another skill's folder.
 
-This skill runs any workflow folder of **type `social`**. The default folder
+This skill runs any engine folder of **type `social`**. The default folder
 is `social/`; paths below (`inputs/`, `templates/`, `runs/`) are inside that
 folder, while brand, accounts and keys are in `shared/`. **Feel free to run
-several social workflows** — `social/` and `social-founder-brand/` with
+several social engines** — `social/` and `social-founder-brand/` with
 different goals and metrics are two independent folders — scaffold with
-`--merge --workflow social-founder-brand:social`, or copy one and empty its
+`--merge --engine social-founder-brand:social`, or copy one and empty its
 `runs/` and `reports/` (history belongs to the original). Channels stay platform-named (`linkedin`, `x`,
 `bluesky`, …).
 
@@ -31,14 +31,14 @@ different goals and metrics are two independent folders — scaffold with
 | Find and validate subjects | `references/subject-finding.md` |
 | Platforms / threads in the browser | `references/browser-research.md` |
 | **Cut AI slop / keep voice — every batch, every run** | `references/anti-slop-writing.md` |
-| Pre-built post parts with variations *(optional)* | `templates/blocks/README.md` (in the workspace) |
+| Pre-built post parts with variations *(optional)* | `templates/blocks/README.md` (in the home) |
 | Pick an image, or edit one via an image API *(optional)* | `references/images.md` |
 | Write a thread + post on X / LinkedIn (browser) | `references/threads-and-x.md` |
 | Post on Bluesky (API) | `references/bluesky-post.md` |
 
 ## Before the first run
 
-**This workflow needs the browser extension** — *Claude in Chrome*, or the
+**This engine needs the browser extension** — *Claude in Chrome*, or the
 equivalent for whatever agent is running. LinkedIn and X have no free posting
 API worth using and their analytics sit behind the user's login, so without it
 every post is copy-paste and every number is typed in by hand. Check it's
@@ -54,9 +54,9 @@ Whether one experiment can span both platforms depends on the metric, not the pl
 
 ## Where posts come from
 
-`references/subject-finding.md` is this workflow's own method — where subjects
+`references/subject-finding.md` is this engine's own method — where subjects
 come from, how to validate a claim *on the platform* rather than against search
-volume, the 0–9 score, the kill step. Its output is this workflow's
+volume, the 0–9 score, the kill step. Its output is this engine's
 `inputs/backlog.csv`, and **the bar is ≥20 rows at `status=validated`**. Short-form
 burns subjects fast — a batch is five to seven posts — so a thin backlog shows
 up as generic content within two weeks.
@@ -71,7 +71,7 @@ In order of what actually works:
 ### The daily twelve — recommend this by default
 
 **Short-form starves on subjects long before it starves on writing**, so the
-default recommendation for this workflow is a **daily scheduled task that
+default recommendation for this engine is a **daily scheduled task that
 produces twelve candidates and keeps one.** Propose it as soon as the first
 batch is drafted — not on day one, when there's nothing to learn from yet, and
 not months later, when the backlog has already gone thin.
@@ -107,25 +107,25 @@ credibility and which quietly brought in customers:
 
 Write what they say into `sources.json` → `rating_criteria` so every later run
 and every scheduled run uses the same bar. Until they've answered, fall back to
-this workflow's own three factors (`references/subject-finding.md` → the 0–9
+this engine's own three factors (`references/subject-finding.md` → the 0–9
 score: attention, proof, proximity) and say that's what you used.
 
 Then: **score all twelve, keep the top one, kill the rest.** Killed rows stay in
 the file with their score — that's the record of what was already decided
 against, and it's what stops the same subject cycling back in March. A single
-survivor a day is roughly a batch a week, which is the pace this workflow wants.
+survivor a day is roughly a batch a week, which is the pace this engine wants.
 
 If the top two are genuinely tied, keep both and say so — but the default is
 one. Keeping "the best three" every day is how a backlog silts up with things
 nobody will ever write.
 
 `shared/insights.md` sits across all of it — read it before picking, and add to
-it when a verdict here teaches something bigger than this workflow. Reading a
-sibling workflow's `reports/latest.json` is worth doing; reaching into another
+it when a verdict here teaches something bigger than this engine. Reading a
+sibling engine's `reports/latest.json` is worth doing; reaching into another
 skill's `references/` is not.
 
 `shared/insights.md` sits across all of it — read it before picking, add to it
-when a verdict here teaches something bigger than this workflow.
+when a verdict here teaches something bigger than this engine.
 
 ## The run
 
@@ -176,12 +176,12 @@ preference: `references/anti-slop-writing.md` and the Rules section below.
 ### 2. Get the arm
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --workflow social
+python3 ~/.agents/skills/engine-loop/scripts/assign_arm.py --engine social
 ```
 
 Good variables here: how the post opens, whether it tells a story or states a claim, one-liner versus paragraphs, ends on a question versus ends flat. If it returns `write_template`, write that template from the hypothesis and use it.
 
-**On a fresh workflow this returns `use_template` and that's correct** — the
+**On a fresh engine this returns `use_template` and that's correct** — the
 starter experiments ship paused on purpose. Ship one format until the user is
 happy with the format, then start testing. `engine-loop/references/ab-testing.md`
 → R0 has the three conditions for flipping an experiment live.
@@ -233,7 +233,7 @@ The template's header names which slots are block-fed; everything else is free:
 template, so a blocks file at that level gets handed out as an arm and quietly
 corrupts a verdict. The subfolder is invisible to the loop, exactly like
 `losers/`. The full format, and the two rotation rules, are in
-`templates/blocks/README.md` in the workspace.
+`templates/blocks/README.md` in the home.
 
 Three things to hold to:
 
@@ -246,7 +246,7 @@ Three things to hold to:
   pre-built parts is a mail merge and readers can tell. If every slot is
   pre-built, the template has stopped being a template
 
-Skip all of this if nothing has settled yet. A workflow in its first fortnight
+Skip all of this if nothing has settled yet. An engine in its first fortnight
 should be writing posts, not building a parts library.
 
 ### 3b. Pick an image — optional
@@ -283,7 +283,7 @@ without being asked.
 Use the arm and template `assign_arm.py` returned — for example, when it picks the question opener:
 
 ```bash
-python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --workflow social --channel linkedin \
+python3 ~/.agents/skills/engine-loop/scripts/runlog.py new --engine social --channel linkedin \
   --experiment exp-003 --arm question --template post-question.txt
 ```
 
@@ -344,7 +344,7 @@ voice is right, schedule the drafting:
 | Label | When | What |
 |---|---|---|
 | `engine-metrics-social` | daily | read each published post's numbers off the platform in the browser and record them. Daily because the 72h window clears on a rolling basis — a weekly-only job always reads a few late |
-| **`engine-social-subjects`** | **daily** | **the daily twelve — 4 Reddit, 4 RSS, 4 variations of their references — then rate all twelve against `sources.json` → `rating_criteria` and keep exactly one. The other eleven are killed in place, with their scores.** The one job that keeps this workflow from going generic; recommend it by default |
+| **`engine-social-subjects`** | **daily** | **the daily twelve — 4 Reddit, 4 RSS, 4 variations of their references — then rate all twelve against `sources.json` → `rating_criteria` and keep exactly one. The other eleven are killed in place, with their scores.** The one job that keeps this engine from going generic; recommend it by default |
 | `engine-social-weekly` | weekly | draft the batch from `inputs/queue/`, run the anti-slop pass, leave them for review |
 
 **It drafts; it never posts.** LinkedIn and X drafts go to the user, and Bluesky
@@ -365,7 +365,7 @@ write and ship one without installing anything. Install these when you want more
 | `bluesky-post-manage` | Bluesky chains, images, multi-account, delete |
 | `app-thread-generate` + `app-thread-backstory` | a worked **write-then-post** pipeline: research the material, write it as hook plus beats, keep a backlog, post the chain, mark it done. Take the shape and swap the backlog path and brand for the user's |
 
-When a verdict here teaches you something bigger than this workflow — a hook
+When a verdict here teaches you something bigger than this engine — a hook
 style, an audience truth — add one line to `shared/insights.md`; a reusable
 asset (winning image, proof point) goes to `shared/assets/`. Siblings learn
 from it on their next pass.
