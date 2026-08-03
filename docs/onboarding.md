@@ -19,6 +19,37 @@ Two rules over everything below:
 
 ---
 
+## Write for agents, not machines
+
+Applies to anything you write here: the user's `AGENTS.md`, their `brand.md`,
+an engine's templates and config, and this repo. It is read and used by capable
+agents, so write policies, modular instructions and templates, not rigid
+systems, and don't over-specify what an agent can infer from context. Prefer
+intent, boundaries and defaults over step-by-step procedure: leave room for
+judgment, suggest sensible defaults, and involve the user whenever a decision
+depends on their goals, preferences or context. Explain why something is
+recommended rather than promoting the recommendation to a rule.
+
+| Instead of | Write |
+|---|---|
+| Never do X | Avoid X unless the situation calls for it |
+| Do these in order | The order below is the default one |
+| Confirm the paths in steps 2 and 3 | The paths in steps 2 and 3 are worth confirming, because… |
+| You need X | X is useful when… |
+| Use X | X is the default |
+| You must X | X is expected when relevant |
+| Do not X | Avoid X unless the situation calls for it |
+
+**Safety rules stay hard.** None of the above applies to safety, damage control
+or destructive actions. When a rule exists to prevent data loss, an
+irreversible action or real damage, keep it explicit and absolute. The current
+set: nothing sends or publishes without the user's yes, no invented facts about
+a person and no invented metrics, no images that function as proof, no
+contacting someone twice or after a no, `.env` values are never read, and a
+losing template is retired to `losers/` rather than deleted.
+
+---
+
 ## Step 0. Say what is about to happen
 
 Before creating anything, tell them, in this order:
@@ -88,9 +119,9 @@ Three answers, three behaviours:
 
 Two things you settle without asking:
 
-- **Never scaffold into a bad home for data.** If the cwd is the home directory
-  itself, `~/Downloads`, a temp directory, or the `~/.gtm-engine` clone, use
-  `~/gtm/engines/` and say why in one line.
+- **Avoid scaffolding somewhere that isn't a durable home for data.** If the
+  cwd is the home directory itself, `~/Downloads`, a temp directory, or the
+  `~/.gtm-engine` clone, use `~/gtm/engines/` and say why in one line.
 - **Engine names are unique across every project**, because `engines.json` is
   keyed on them. Two engines cannot both be called `outreach`. The scaffolder
   refuses rather than overwrite, so pass `--project <name>` and let it name the
