@@ -111,7 +111,7 @@ downscale-upscale cycle, a speed wobble, fresh metadata.
 Target **≥75% of the frame changed** by that combination — measure it, don't
 estimate it.
 
-`benyki/skills/video-duplicate-transformer` ships that stack with tuned presets
+`benyki/gtm-skills/video-duplicate-transformer` ships that stack with tuned presets
 (1, 5 or 15 variations from one source) and is the shortest path here; install
 it per [`docs/additional-skills.md`](../../../docs/additional-skills.md). The
 manual version is `references/looks.md` — stack `soft-downup` + `grain` +

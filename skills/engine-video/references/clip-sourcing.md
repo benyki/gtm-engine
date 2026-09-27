@@ -121,7 +121,7 @@ Any of these can be installed when the run needs it — download the folder into
 [`docs/additional-skills.md`](../../../docs/additional-skills.md). Copy the whole
 skill; don't cherry-pick a script out of one.
 
-| Skill (`benyki/skills/…`) | What it saves you |
+| Skill (`benyki/gtm-skills/…`) | What it saves you |
 |---|---|
 | `yt-dlp` | search syntax, format selection, audio extraction |
 | `pexel-video-downloader` | Pexels search → portrait download in one call |

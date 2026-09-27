@@ -5,7 +5,7 @@ normal path for `engine-social` research, not a workaround: LinkedIn and X show
 what you need behind your own login, and Reddit needs no account at all.
 
 Requires `agent-browser` (or an equivalent browser MCP). Prefer a few durable
-commands over memorizing the whole CLI — full skill: `benyki/skills/agent-browser`
+commands over memorizing the whole CLI — full skill: `benyki/gtm-skills/agent-browser`
 or `agent-browser skills get core --full`.
 
 ## Pattern (every research session)

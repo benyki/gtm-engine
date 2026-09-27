@@ -26,7 +26,7 @@ Later, when you need it:
 | [`docs/changelog.md`](docs/changelog.md) | What changed, and what an agent working with an older layout has to know |
 | [`docs/scheduling.md`](docs/scheduling.md) | Every scheduler you should have: one metric job per engine, one weekly job for the home, and the optional content jobs |
 | [`skills/engine-video/references/posting-options.md`](skills/engine-video/references/posting-options.md) | Video posting: manual, Upload Post, or Buffer |
-| [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/skills`](https://github.com/benyki/skills): download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
+| [`docs/additional-skills.md`](docs/additional-skills.md) | Toolbox skills from [`benyki/gtm-skills`](https://github.com/benyki/gtm-skills): download into `~/.agents/skills`, symlink to Claude / Codex / Cursor |
 | [`docs/stay-on-top-content.md`](docs/stay-on-top-content.md) | Channels and podcasts worth following, plus the seed list for `engine-social`'s RSS subjects |
 | [`docs/bootcamp.md`](docs/bootcamp.md) | Running this as a workshop: what to ask participants for beforehand, the session shape, guiding beginners |
 

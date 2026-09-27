@@ -111,7 +111,7 @@ competitor's blog after swapping the product name, rewrite it from
 digressions and edge come from `inputs/best/`, and sanding those off is the
 failure mode, not the goal.
 
-If `benyki/skills/no-ai-slop-writting` is installed, use it instead — same pass,
+If `benyki/gtm-skills/no-ai-slop-writting` is installed, use it instead — same pass,
 full pattern list and an eval set. The reference has the one-line install.
 
 ### 5. Log it
@@ -193,5 +193,5 @@ approved folder themselves. Catalogue and rules:
 ## Going further
 
 - `references/advanced.md` — site that generates from `runs/`
-- Optional: `benyki/skills/clarity-api-seo`, `benyki/skills/agent-browser` —
+- Optional: `benyki/gtm-skills/clarity-api-seo`, `benyki/gtm-skills/agent-browser` —
   `docs/additional-skills.md`

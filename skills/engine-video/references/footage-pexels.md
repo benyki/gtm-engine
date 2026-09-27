@@ -48,5 +48,5 @@ Embed the query in the slug so the next agent knows why the clip was pulled.
 
 ## Optional skill
 
-Full helper script: `benyki/skills/pexel-video-downloader` — if installed, point
+Full helper script: `benyki/gtm-skills/pexel-video-downloader` — if installed, point
 `--output` at `shared/assets/pexels` (never `~/runs/…`).

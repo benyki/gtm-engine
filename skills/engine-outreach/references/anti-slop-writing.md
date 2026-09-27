@@ -6,7 +6,7 @@ rendered emails still read like a robot, because the slop arrives in the parts
 you filled in per person.
 
 This is the **short version, tuned for email**. The full editor lives in
-`benyki/skills/no-ai-slop-writting` (complete banned-word list, ~20 named
+`benyki/gtm-skills/no-ai-slop-writting` (complete banned-word list, ~20 named
 patterns with worked rewrites, a detect mode, an eval set). If it isn't
 installed, install it and use it instead of this page — it's one download and
 it's better:
@@ -14,7 +14,7 @@ it's better:
 ```bash
 mkdir -p ~/.agents/skills
 TMP=$(mktemp -d)
-git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/skills.git "$TMP"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/gtm-skills.git "$TMP"
 git -C "$TMP" sparse-checkout set no-ai-slop-writting
 rm -rf ~/.agents/skills/no-ai-slop-writting
 mv "$TMP/no-ai-slop-writting" ~/.agents/skills/no-ai-slop-writting && rm -rf "$TMP"

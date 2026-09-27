@@ -310,7 +310,7 @@ Four checks the reference expands on, and any failure is a rewrite:
 - **the read-aloud test** — anywhere you stumble is a line to cut
 - **the reply test** — is the ask answerable in one sentence, on a phone?
 
-If `benyki/skills/no-ai-slop-writting` is installed, use it instead — it's the
+If `benyki/gtm-skills/no-ai-slop-writting` is installed, use it instead — it's the
 same pass with the full pattern list. The reference has the one-line install.
 
 **Only then** create it as a **draft in the user's mail system** (Gmail, Outlook

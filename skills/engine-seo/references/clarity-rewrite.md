@@ -4,7 +4,7 @@ Use Microsoft Clarity (export API or dashboard) as **behavioral evidence**, not 
 ranking oracle. Turn what people do on a page into the next rewrite — don’t
 guess from impressions alone.
 
-If `benyki/skills/clarity-api-seo` is installed and `CLARITY_API_KEY` is set,
+If `benyki/gtm-skills/clarity-api-seo` is installed and `CLARITY_API_KEY` is set,
 prefer its export script. Otherwise the dashboard is enough for this checklist.
 
 ## When to run

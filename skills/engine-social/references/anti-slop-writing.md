@@ -5,14 +5,14 @@ Run this over every draft before the user sees a batch. Voice still comes from
 
 This is the **short version — what matters most in short-form**, where one bad
 first line kills the post. The full editor lives in
-`benyki/skills/no-ai-slop-writting` (complete banned-word list, ~20 named
+`benyki/gtm-skills/no-ai-slop-writting` (complete banned-word list, ~20 named
 patterns with rewrites, detect mode, eval set). If it isn't installed, install
 it and use it instead of this page:
 
 ```bash
 mkdir -p ~/.agents/skills
 TMP=$(mktemp -d)
-git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/skills.git "$TMP"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/gtm-skills.git "$TMP"
 git -C "$TMP" sparse-checkout set no-ai-slop-writting
 rm -rf ~/.agents/skills/no-ai-slop-writting
 mv "$TMP/no-ai-slop-writting" ~/.agents/skills/no-ai-slop-writting && rm -rf "$TMP"

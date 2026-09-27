@@ -4,13 +4,13 @@ Optional capabilities that pair with gtm-engine. `skills/engine-*` are the
 engines; everything below is a tool one of them can reach for. Install only
 what the run you're doing actually needs.
 
-They live in **[`benyki/skills`](https://github.com/benyki/skills)**, one folder
+They live in **[`benyki/gtm-skills`](https://github.com/benyki/gtm-skills)**, one folder
 per skill. Three layers, and only the first installs itself:
 
 | Layer | Source | Installed |
 |---|---|---|
 | Engines | this repo, `skills/engine-*` | by `install_skills.sh` |
-| Capabilities | `benyki/skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
+| Capabilities | `benyki/gtm-skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
 | Builders / one-offs | `ui-packs/` in this repo | never |
 
 An engine of type `N` maps to skill `engine-N` if it exists. Capabilities stay
@@ -23,7 +23,7 @@ doesn't have.
 mkdir -p ~/.agents/skills
 SKILL=<skill-name>
 TMP=$(mktemp -d)
-git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/skills.git "$TMP"
+git clone --depth 1 --filter=blob:none --sparse https://github.com/benyki/gtm-skills.git "$TMP"
 git -C "$TMP" sparse-checkout set "$SKILL"
 rm -rf ~/.agents/skills/"$SKILL" && mv "$TMP/$SKILL" ~/.agents/skills/"$SKILL" && rm -rf "$TMP"
 
@@ -51,7 +51,7 @@ this page is just the inventory.
 | `elevenlabs` | voiceover |
 | `ffmpeg` | render, trim, crop, concat |
 | `ffmpeg-text-overlay` | the shared text-overlay helper — read `engine-video/references/ffmpeg-text-style.md` first |
-| `launch-announcement` | day one: Reddit / HN / Product Hunt / directories, for a product with no audience. **Not in `benyki/skills` yet** |
+| `launch-announcement` | day one: Reddit / HN / Product Hunt / directories, for a product with no audience. **Not in `benyki/gtm-skills` yet** |
 | `local-secrets` | handling `.env` without leaking values into chat |
 | `music-downloader` | music beds |
 | `app-video-study` | worked example: a study or finding turned into a vertical explainer |

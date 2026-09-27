@@ -316,7 +316,7 @@ The URL is needed to read the numbers back later.
 
 Open API, sanctioned posting — **approval boundary unchanged.** App password only;
 details and minimal `AtpAgent` example in `references/bluesky-post.md`. Prefer
-`benyki/skills/bluesky-post-manage` when installed.
+`benyki/gtm-skills/bluesky-post-manage` when installed.
 
 Format: **300 graphemes** max, ≤4 images with alt text, facets via
 `RichText.detectFacets()`. Log with `--channel bluesky`; metrics `--source api`.
@@ -358,7 +358,7 @@ create one: `engine-loop/references/scheduling.md`.
 
 ## Going further
 
-Optional installs from `benyki/skills` — see `docs/additional-skills.md`:
+Optional installs from `benyki/gtm-skills` — see `docs/additional-skills.md`:
 
 Threads and X posting are covered in `references/threads-and-x.md` — enough to
 write and ship one without installing anything. Install these when you want more:

@@ -38,7 +38,7 @@ Post flow (conceptually — prefer the `upload-post` skill script if installed):
 silently deliver to inbox (`reached_active_user_cap`). Treat inbox as not-published;
 retry later or finish in the TikTok app. Details in the Upload-Post docs.
 
-Optional full skill: `benyki/skills/upload-post`.
+Optional full skill: `benyki/gtm-skills/upload-post`.
 
 ## Buffer (when they already live there)
 
@@ -52,7 +52,7 @@ Flow:
 2. Create/schedule the post to the connected channel via Buffer API / skill
 3. Record the public post URL in `runlog` when it goes live
 
-Optional: `benyki/skills/buffer` + `benyki/skills/buffer-videos`.
+Optional: `benyki/gtm-skills/buffer` + `benyki/gtm-skills/buffer-videos`.
 
 ## Manual
 

@@ -46,6 +46,6 @@ export const FadeIn = ({ children }: { children: React.ReactNode }) => {
 
 ## Optional deeper pack
 
-Install `benyki/skills/remotion-best-practices` for captions, transitions,
+Install `benyki/gtm-skills/remotion-best-practices` for captions, transitions,
 voiceover sync, 3D, etc. Keep that knowledge out of the critical path until you
 need it.

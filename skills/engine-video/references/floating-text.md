@@ -77,4 +77,4 @@ When the user wants many clips from one look (same geometry, new lines each time
 - Still one `runlog` row per published video — batches are production, not one A/B unit
 
 Full engines live in optional skills (`video-floating-text`, `video-factory-floating-text-short`
-on `benyki/skills`). This reference is enough to render without installing them.
+on `benyki/gtm-skills`). This reference is enough to render without installing them.

@@ -110,4 +110,4 @@ ffmpeg -y -ss 1.2 -i final.mp4 -frames:v 1 -q:v 2 poster.jpg
 ```
 
 For richer filters and UGC looks, see `references/looks.md`.
-For the full ffmpeg skill, install `benyki/skills/ffmpeg`.
+For the full ffmpeg skill, install `benyki/gtm-skills/ffmpeg`.

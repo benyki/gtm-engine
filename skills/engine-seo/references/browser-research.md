@@ -4,7 +4,7 @@ No Reddit or search API? Read the page in the browser. That is the normal path
 for topic mining in `engine-seo`, not a workaround.
 
 Requires `agent-browser` (or an equivalent browser MCP). Prefer a few durable
-commands over memorizing the whole CLI — full skill: `benyki/skills/agent-browser`
+commands over memorizing the whole CLI — full skill: `benyki/gtm-skills/agent-browser`
 or `agent-browser skills get core --full`.
 
 ## Pattern (every research session)

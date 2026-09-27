@@ -11,7 +11,7 @@ signal they're the wrong target, not an invitation to write filler
 
 Requires a browser the agent can drive — the extension from
 [`docs/onboarding.md`](../../../docs/onboarding.md) → *Browser control*, or `agent-browser` /
-an equivalent browser MCP. Full skill: `benyki/skills/agent-browser`.
+an equivalent browser MCP. Full skill: `benyki/gtm-skills/agent-browser`.
 
 ## Pattern
 

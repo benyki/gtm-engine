@@ -64,5 +64,5 @@ Shorter `metric_delay_hours` than LinkedIn/X is often fine.
 
 ## Optional full skill
 
-`benyki/skills/bluesky-post-manage` — threads, images, multi-account, delete,
+`benyki/gtm-skills/bluesky-post-manage` — threads, images, multi-account, delete,
 timeline. Prefer it when installed.

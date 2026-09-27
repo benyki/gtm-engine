@@ -85,4 +85,4 @@ Looks are production polish. If an experiment is about **hook copy**, keep the l
 identical across arms. If the experiment *is* the look, name the arm after it
 (`phone-filmed` vs `clean`) and hold script constant.
 
-Full filter skill: `benyki/skills/video-filter`.
+Full filter skill: `benyki/gtm-skills/video-filter`.

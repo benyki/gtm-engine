@@ -48,10 +48,10 @@ A named artist is a better brief than a genre, so if they have one, ask for it.
 Fetch what they name — a song title, an artist, or a URL. The skill route is
 better than raw `yt-dlp` when you have a *name* rather than a link:
 
-**`benyki/skills/youtube-song-download`** — takes song + optional artist,
+**`benyki/gtm-skills/youtube-song-download`** — takes song + optional artist,
 searches YouTube, picks a video inside a duration window (default 90s–10min, so
 you don't get a teaser or a two-hour DJ set), downloads and writes a tagged MP3.
-Point its output at `shared/assets/music/`. `benyki/skills/music-downloader` is
+Point its output at `shared/assets/music/`. `benyki/gtm-skills/music-downloader` is
 the broader version. Install:
 [`docs/additional-skills.md`](../../../docs/additional-skills.md).
 
@@ -72,4 +72,4 @@ yt-dlp -x --audio-format mp3 --audio-quality 0 --no-warnings \
 
 Then trim/fade with ffmpeg and mix per `references/ffmpeg-recipes.md`.
 
-Full skill: `benyki/skills/music-downloader` (point outputs at `shared/assets/music`).
+Full skill: `benyki/gtm-skills/music-downloader` (point outputs at `shared/assets/music`).

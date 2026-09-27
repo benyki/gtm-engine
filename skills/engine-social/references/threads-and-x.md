@@ -145,7 +145,7 @@ consent, and neither is a queued draft. Ask per post, then record the URL so
 
 ## Going further
 
-`benyki/skills/x-browser-post` is the full operational skill, worth installing
+`benyki/gtm-skills/x-browser-post` is the full operational skill, worth installing
 if you post to X often. It adds what's deliberately not duplicated here: a
 frozen element map with fallback queries for every control, the clipboard-paste
 image script, the staged-thread loop as runnable pseudocode, and a quirks file

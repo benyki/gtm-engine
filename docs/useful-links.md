@@ -152,14 +152,14 @@ the reference that explains when it's worth it.
 ### Additional skills (optional toolbox)
 
 Not part of the default gtm-engine install. Download from
-[`benyki/skills`](https://github.com/benyki/skills) **into** `~/.agents/skills/<name>`,
+[`benyki/gtm-skills`](https://github.com/benyki/gtm-skills) **into** `~/.agents/skills/<name>`,
 then symlink to Claude / Codex / Cursor — full steps in
 [additional-skills.md](additional-skills.md).
 
 | What | Where |
 |---|---|
-| Skills repo | <https://github.com/benyki/skills> |
-| Example skill | <https://github.com/benyki/skills/tree/main/ffmpeg> |
+| Skills repo | <https://github.com/benyki/gtm-skills> |
+| Example skill | <https://github.com/benyki/gtm-skills/tree/main/ffmpeg> |
 | Canonical install path | `~/.agents/skills/<skill-name>/` |
 
 ### Email at volume — `engine-outreach/references/advanced.md`

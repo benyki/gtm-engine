@@ -53,7 +53,7 @@ Flow:
 3. `adelay` each clip to `start * 1000` ms; `amix`
 4. Optional SFX in gaps from `shared/assets/` (never hardcode personal sound libraries)
 
-Optional full script: install `benyki/skills/elevenlabs` (`timed-multiline.sh`).
+Optional full script: install `benyki/gtm-skills/elevenlabs` (`timed-multiline.sh`).
 
 ## Alignment / captions
 

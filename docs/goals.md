@@ -27,7 +27,7 @@ Each line ends with what you have to create for it:
 | `[file <path> to create]` | doesn't exist — write it from nothing |
 | `[file <path> to fill]` | **the scaffold already put it there**, empty or header-only. Your job is real content in it |
 | `[folder <path> to create]` | a directory with real content in it, not a `.gitkeep` |
-| `[skill <name> to install]` | already exists — download it from `benyki/skills` |
+| `[skill <name> to install]` | already exists — download it from `benyki/gtm-skills` |
 | `[skill <name> to create]` | does not exist yet — write it |
 | `[check]` | nothing to create; verify the statement is true |
 

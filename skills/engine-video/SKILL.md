@@ -205,11 +205,11 @@ can use it:
 mkdir -p shared/assets/music && yt-dlp -x --audio-format mp3 --audio-quality 0 --no-warnings -o "shared/assets/music/%(title)s.%(ext)s" "URL"
 ```
 
-If `benyki/skills/youtube-song-download` is installed, use it instead — it takes
+If `benyki/gtm-skills/youtube-song-download` is installed, use it instead — it takes
 a song name and artist rather than a URL, picks a video inside a sane duration
 window (so you get the track, not a two-hour mix or a 20-second teaser), and
 writes a tagged MP3. Point its output at `shared/assets/music/`.
-`benyki/skills/music-downloader` is the broader version;
+`benyki/gtm-skills/music-downloader` is the broader version;
 [`docs/additional-skills.md`](../../docs/additional-skills.md) has the install.
 
 **The rights line has to be said, once, plainly** — and it isn't a reason to
@@ -403,6 +403,6 @@ verdicts, which is the most common way a video channel goes quiet. Catalogue:
 ## Going further
 
 - `references/advanced.md` — dedicated phone + mobilerun (read account-risk first)
-- Deeper tool skills (optional install): `benyki/skills` — `ffmpeg`, `elevenlabs`,
+- Deeper tool skills (optional install): `benyki/gtm-skills` — `ffmpeg`, `elevenlabs`,
   `video-floating-text`, `video-filter`, `upload-post`, `remotion-best-practices`,
   `music-downloader`, `pexel-video-downloader` — see `docs/additional-skills.md`
