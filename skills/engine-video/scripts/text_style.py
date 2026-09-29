@@ -200,27 +200,86 @@ def style_block(family: str, width: int, height: int, weight: int) -> str:
 
 # --- probe -------------------------------------------------------------------
 
+# fontselect: (requested_family, weight, italic) -> matched_name, index, tail
+#
+# `tail` is a real filesystem path on the backends that have one to give
+# (fontconfig on Linux, CoreText on macOS) — there, comparing its resolved
+# parent against the fonts dir is authoritative. On Windows (GDI/DirectWrite)
+# libass has no path to report at all: `matched_name` and `tail` are just the
+# same font name repeated, e.g. `-> ArialMT, 0, ArialMT`. On that backend we
+# instead match the reported name against the family names and filenames our
+# own fonts dir actually declares (from `dir_families`), which is the only
+# signal available.
 SELECT_RE = re.compile(r"fontselect: \((.+?), (\d+), \d+\) -> (.+?), (-?\d+), (.+)$")
+_WIN_ABS_RE = re.compile(r"^[A-Za-z]:[\\/]|^\\\\")
+
+
+def _is_real_path(s: str) -> bool:
+    return s.startswith("/") or bool(_WIN_ABS_RE.match(s))
+
+
+def _normalize(s: str) -> str:
+    """Fold away spacing/casing differences between how a name-only backend
+    reports a font and how the file itself declares its family or is named
+    (`TikTok Sans 12pt` vs `TikTokSans12pt-Bold` vs a filename stem)."""
+    return re.sub(r"[\s_-]+", "", s).casefold()
+
+
+def _known_identifiers(fonts: Path) -> set[str]:
+    ids: set[str] = set()
+    for fam, files in dir_families(fonts).items():
+        ids.add(_normalize(fam))
+        for fn in files:
+            ids.add(_normalize(Path(fn).stem))
+    return ids
+
+
+def filtergraph_path(p: Path) -> str:
+    """Render a path for embedding in an ffmpeg -vf filtergraph value.
+
+    A bare Windows absolute path (`C:\\Users\\...`) breaks ffmpeg's
+    filtergraph parser even inside single quotes — the drive-letter colon
+    still splits filter options, so libass silently gets no fontsdir/filename
+    and substitutes a system font with no error. Prefer a path relative to
+    the cwd, which has no drive letter to collide with. When that's not
+    reachable (cwd and the path are on different drives), fall back to an
+    absolute path with forward slashes and the colon escaped as `\\:`, per
+    ffmpeg's own filtergraph escaping rules.
+    """
+    p = p.resolve()
+    try:
+        rel = os.path.relpath(p, Path.cwd())
+    except ValueError:
+        rel = None
+    if rel is not None:
+        return rel.replace("\\", "/")
+    return str(p).replace("\\", "/").replace(":", "\\:")
 
 
 def probe(video: Path, ass: Path, fonts: Path) -> int:
     ffmpeg = os.environ.get("FFMPEG_BIN", "ffmpeg")
+    ass_arg = filtergraph_path(ass)
+    fonts_arg = filtergraph_path(fonts)
     cmd = [ffmpeg, "-y", "-loglevel", "debug", "-i", str(video),
-           "-vf", f"subtitles=filename='{ass}':fontsdir='{fonts}'",
+           "-vf", f"subtitles=filename='{ass_arg}':fontsdir='{fonts_arg}'",
            "-frames:v", "1", "-f", "null", "-"]
     try:
         res = subprocess.run(cmd, capture_output=True, text=True)
     except FileNotFoundError:
         sys.exit(f"error: {ffmpeg} not found — install ffmpeg or set FFMPEG_BIN")
+    known = _known_identifiers(fonts)
     picks, bad = [], False
     for line in res.stderr.splitlines():
         m = SELECT_RE.search(line)
         if not m:
             continue
-        requested, weight, path, _idx, name = m.groups()
-        ours = not path.startswith("/") or Path(path).resolve().parent == fonts.resolve()
+        requested, weight, matched, _idx, tail = m.groups()
+        if _is_real_path(tail):
+            ours = Path(tail).resolve().parent == fonts.resolve()
+        else:
+            ours = _normalize(matched) in known or _normalize(tail) in known
         picks.append({"requested": requested, "weight": int(weight),
-                      "got": name, "from": path, "ours": ours})
+                      "got": tail, "from": matched, "ours": ours})
         bad = bad or not ours
     if not picks:
         print("no font selection logged — is the .ass path right, and does this "
