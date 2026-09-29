@@ -17,13 +17,26 @@ set -uo pipefail
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 GTM="${1:-}"
 
+# `python3` isn't on every machine (Windows often only has `python`).
+PYTHON="${PYTHON:-}"
+if [[ -z "$PYTHON" ]]; then
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 \
+       && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' 2>/dev/null; then
+      PYTHON="$candidate"
+      break
+    fi
+  done
+  [[ -n "$PYTHON" ]] || { echo "error: python 3 is not installed" >&2; exit 1; }
+fi
+
 # Plain string, not an array: macOS still ships bash 3.2, where an empty
 # array expanded under `set -u` is an unbound-variable error.
 run() {
   if [[ -n "$GTM" ]]; then
-    python3 "$HERE/$1" --home "$GTM"
+    "$PYTHON" "$HERE/$1" --home "$GTM"
   else
-    python3 "$HERE/$1"
+    "$PYTHON" "$HERE/$1"
   fi
 }
 

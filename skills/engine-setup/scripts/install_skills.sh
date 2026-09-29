@@ -40,6 +40,19 @@ SKILLS_SRC="$REPO_ROOT/skills"
 ENGINES_PY="$SCRIPT_DIR/engines.py"
 CANON="$HOME/.agents/skills"
 
+# `install.sh` exports PYTHON when it calls this script; fall back to our own
+# detection so this script still works when run standalone.
+if [[ -z "${PYTHON:-}" ]]; then
+  for candidate in python3 python; do
+    if command -v "$candidate" >/dev/null 2>&1 \
+       && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' 2>/dev/null; then
+      PYTHON="$candidate"
+      break
+    fi
+  done
+  [[ -n "${PYTHON:-}" ]] || { echo "error: python 3 is not installed: https://www.python.org/downloads/" >&2; exit 1; }
+fi
+
 usage() {
   cat <<'EOF'
 Install gtm-engine skills for the engines you actually run.
@@ -96,7 +109,7 @@ GTM_DIR="${GTM_DIR%/}"
 # Which skills? The types of the engines registered to this home. Engines can
 # live anywhere, so engines.json is the only thing that knows they exist.
 if [[ -z "$ENGINE" ]]; then
-  ENGINE="$(python3 - "$SCRIPT_DIR" "$GTM_DIR" <<'PYEOF'
+  ENGINE="$("$PYTHON" - "$SCRIPT_DIR" "$GTM_DIR" <<'PYEOF'
 import sys, pathlib
 sys.path.insert(0, sys.argv[1])
 import engines as eng
@@ -107,7 +120,7 @@ PYEOF
 )" || ENGINE="all"
 fi
 
-SKILL_LIST="$(python3 "$ENGINES_PY" skills "$ENGINE")" || exit 1
+SKILL_LIST="$("$PYTHON" "$ENGINES_PY" skills "$ENGINE")" || exit 1
 # shellcheck disable=SC2206
 SKILLS=($SKILL_LIST)
 
