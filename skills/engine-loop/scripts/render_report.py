@@ -243,8 +243,8 @@ def render_engine(wd, days: int, tag: str) -> None:
     reports = wd / "reports"
     reports.mkdir(parents=True, exist_ok=True)
     md_path = reports / f"{slug}.md"
-    md_path.write_text("\n".join(L))
-    (reports / "latest.json").write_text(json.dumps(data, indent=2) + "\n")
+    md_path.write_text("\n".join(L), encoding="utf-8")
+    (reports / "latest.json").write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
 
     index = reports / "index.csv"
     new = not index.is_file()
