@@ -89,8 +89,20 @@ ENGINE_DIR="${ENGINE_DIR/#\~/$HOME}"
 GTM_DIR="${GTM_DIR/#\~/$HOME}"
 [[ -n "$AT" ]] && AT="${AT/#\~/$HOME}"
 
-command -v git     >/dev/null 2>&1 || die "git is not installed: https://git-scm.com/downloads"
-command -v python3 >/dev/null 2>&1 || die "python3 is not installed: https://www.python.org/downloads/"
+command -v git >/dev/null 2>&1 || die "git is not installed: https://git-scm.com/downloads"
+
+# Some systems only have `python` (no `python3` shim), and it isn't always
+# Python 3: check both names and confirm the version before trusting it.
+PYTHON=""
+for candidate in python3 python; do
+  if command -v "$candidate" >/dev/null 2>&1 \
+     && "$candidate" -c 'import sys; sys.exit(0 if sys.version_info[0] >= 3 else 1)' 2>/dev/null; then
+    PYTHON="$candidate"
+    break
+  fi
+done
+[[ -n "$PYTHON" ]] || die "python 3 is not installed: https://www.python.org/downloads/"
+export PYTHON
 
 # Running from inside a clone? Use it, don't fetch a second copy.
 SELF="${BASH_SOURCE[0]:-}"
@@ -125,7 +137,7 @@ step "2/3  Home  ->  $(tilde "$GTM_DIR")"
 say "Everything shared between your engines lives here: brand voice, accounts,"
 say "keys, assets, what previous runs taught, and engines.json, which records"
 say "where every engine folder is. Nothing in here is touched by an update."
-python3 "$SCRIPTS/scaffold.py" --home "$GTM_DIR" --engine "$ENGINE" --merge \
+"$PYTHON" "$SCRIPTS/scaffold.py" --home "$GTM_DIR" --engine "$ENGINE" --merge \
   ${AT:+--at "$AT"} ${PROJECT_NAME:+--project "$PROJECT_NAME"}
 
 step "3/3  Skills  ->  ~/.agents/skills  (+ a symlink per agent)"
