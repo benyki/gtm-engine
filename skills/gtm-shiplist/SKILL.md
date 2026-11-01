@@ -1,6 +1,6 @@
 ---
 name: gtm-shiplist
-description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). Launches today by default, or tomorrow, in a week or in a month with a roadmap first, and checks the site can show where traffic comes from unless the founder skips it. It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row, with the project's shiplist.md as the one progress tracker until it is marked done. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
+description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). Work starts today; the agent suggests launching tomorrow, in a week or in a month (a roadmap first for the longer ones), today only if asked, and checks the site can show where traffic comes from unless the founder skips it. It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row, with the project's shiplist.md as the one progress tracker until it is marked done. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
 ---
 
 # gtm-shiplist
@@ -15,9 +15,10 @@ One file, one day. [`shiplist.md`](shiplist.md) is the template. Your job as the
 
 The founder submits and posts. You prepare, draft, remind and log.
 
-**By default the launch is today**: most builders want it out now. The list also
-stretches to a roadmap plus a launch a week or a month out, but you always ask the
-founder which one (step 2).
+**The work starts today**: most builders want it out now. Suggest three launch dates
+and let the founder pick (step 2): **tomorrow** (recommended: today is prep), **in a
+week**, or **in a month** with a roadmap first. A launch today is possible, but only
+when the founder asks for it.
 
 ## The project's `shiplist.md` is the one source of truth
 
@@ -58,7 +59,7 @@ these five, because every row depends on them:
 
 | Question | Why it matters |
 |---|---|
-| When: today, tomorrow, in a week or in a month? Default today. And your timezone? | It decides the plan's length (table below) |
+| Launch tomorrow, in a week or in a month? Suggest tomorrow. And your timezone? | It decides the plan's length (table below) |
 | What shape is this launch? | It decides which rows stay (table below) |
 | Flagship: Product Hunt or Show HN? | Never both on one day |
 | The one link everyone gets? | Every row and every `?utm_source=` hangs off it |
@@ -66,10 +67,10 @@ these five, because every row depends on them:
 
 | When | How the list is shaped |
 |---|---|
-| **Today** (default) | Keep the **(today)** rows, move the rest to Cut, cut the Roadmap. An hour or two of prep, then the launch table from the current hour. Nothing that needs booking or review: no dated spots, no store review (share the web or TestFlight link). Product Hunt past 00:01 PT: launch it now with fewer hours, or schedule it tomorrow 00:01 PT as a second wave. Show HN has no queue, so it works today on a weekday morning Eastern |
-| **Tomorrow** | Today is prep: blockers, assets, accounts, drafts, Product Hunt scheduled for 00:01 PT. Cut the Roadmap |
+| **Tomorrow** (suggested) | Today is prep: blockers, assets, accounts, drafts, Product Hunt scheduled for 00:01 PT. Cut the Roadmap. Dated spots that can't land tomorrow (Uneed, Peerlist) go to Cut or a later day |
 | **In a week** | Keep the Roadmap with T-7 to T-1 dates. Book the dated spots today; queues fill up. Prefer Tue to Thu, or Mon or Fri for an easier Product Hunt rank with less traffic |
 | **In a month** | Roadmap first: what still has to ship, store review (a few days), an Android closed test (14 days), then the week plan from T-7. Use the gap to show up in the launch communities |
+| **Today** (only if the founder asks) | Keep the **(today)** rows, move the rest to Cut, cut the Roadmap. An hour or two of prep, then the launch table from the current hour. Nothing that needs booking or review: no dated spots, no store review (share the web or TestFlight link). Product Hunt past 00:01 PT: launch it now with fewer hours, or schedule it tomorrow 00:01 PT as a second wave. Show HN has no queue, so it works today on a weekday morning Eastern |
 
 | Shape | Keep | Cut |
 |---|---|---|

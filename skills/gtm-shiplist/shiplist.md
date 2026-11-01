@@ -6,10 +6,10 @@
 > This file is the one place progress lives. Read it first, update it as you go, and
 > stop when every box under **Done when** is ticked.
 
-**Launch:** <today (default) | tomorrow | in a week | in a month>, <date>  **Flagship:** <Product Hunt | Show HN>  **Founder timezone:** <tz>
+**Launch:** <tomorrow (suggested) | in a week | in a month | today, if asked>, <date>  **Flagship:** <Product Hunt | Show HN>  **Founder timezone:** <tz>
 **Link everyone gets:** <url>  **Price:** <one line, e.g. "Free, Pro $4.99/mo">  **Traffic sources:** <checked | skipped to move fast>
 
-Legend: `agent` prepares or drafts, `founder` submits or posts. **(today)** marks the rows a launch today still needs; launching today, move the rest to Cut. Times are Pacific (PT); the agent rewrites them in the founder's timezone.
+Legend: `agent` prepares or drafts, `founder` submits or posts. **(today)** marks the rows a same-day launch still needs, for when the founder asks to launch today; then move the rest to Cut. Times are Pacific (PT); the agent rewrites them in the founder's timezone.
 
 ---
 
