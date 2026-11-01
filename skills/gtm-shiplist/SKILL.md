@@ -1,6 +1,6 @@
 ---
 name: gtm-shiplist
-description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row, with the project's shiplist.md as the one progress tracker until it is marked done. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
+description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). Launches today by default, or tomorrow, in a week or in a month with a roadmap first, and checks the site can show where traffic comes from unless the founder skips it. It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row, with the project's shiplist.md as the one progress tracker until it is marked done. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
 ---
 
 # gtm-shiplist
@@ -14,6 +14,10 @@ One file, one day. [`shiplist.md`](shiplist.md) is the template. Your job as the
 5. Close it: numbers in, Status `done`
 
 The founder submits and posts. You prepare, draft, remind and log.
+
+**By default the launch is today**: most builders want it out now. The list also
+stretches to a roadmap plus a launch a week or a month out, but you always ask the
+founder which one (step 2).
 
 ## The project's `shiplist.md` is the one source of truth
 
@@ -50,14 +54,22 @@ product's work. If the repo has an `.easignore`, add `/workflows/` to it.
 listing, brand notes, pricing. Fill the Pitch block yourself from what you find.
 
 **Then ask only what is missing**, three questions at a time at most. Always confirm
-these four, because every row depends on them:
+these five, because every row depends on them:
 
 | Question | Why it matters |
 |---|---|
+| When: today, tomorrow, in a week or in a month? Default today. And your timezone? | It decides the plan's length (table below) |
 | What shape is this launch? | It decides which rows stay (table below) |
 | Flagship: Product Hunt or Show HN? | Never both on one day |
-| Date and timezone? | Tue to Thu is busiest; Mon or Fri ranks easier on Product Hunt with less traffic |
-| The one link everyone gets? | Every row and every `?ref=` hangs off it |
+| The one link everyone gets? | Every row and every `?utm_source=` hangs off it |
+| Check where traffic comes from (about 10 minutes), or skip to move fast? | Without it, the Log only has each platform's own stats |
+
+| When | How the list is shaped |
+|---|---|
+| **Today** (default) | Keep the **(today)** rows, move the rest to Cut, cut the Roadmap. An hour or two of prep, then the launch table from the current hour. Nothing that needs booking or review: no dated spots, no store review (share the web or TestFlight link). Product Hunt past 00:01 PT: launch it now with fewer hours, or schedule it tomorrow 00:01 PT as a second wave. Show HN has no queue, so it works today on a weekday morning Eastern |
+| **Tomorrow** | Today is prep: blockers, assets, accounts, drafts, Product Hunt scheduled for 00:01 PT. Cut the Roadmap |
+| **In a week** | Keep the Roadmap with T-7 to T-1 dates. Book the dated spots today; queues fill up. Prefer Tue to Thu, or Mon or Fri for an easier Product Hunt rank with less traffic |
+| **In a month** | Roadmap first: what still has to ship, store review (a few days), an Android closed test (14 days), then the week plan from T-7. Use the gap to show up in the launch communities |
 
 | Shape | Keep | Cut |
 |---|---|---|
@@ -72,12 +84,17 @@ the founder can bring it back. Rewrite every PT time in the founder's timezone
 (00:01 PT is 09:01 in Paris for most of the year). Put a real owner on each row.
 
 Show the founder the tailored list and get a yes before you start drafting. Then set
-Status to `drafting`.
+Status to `roadmap` (a week or a month out) or `drafting` (today or tomorrow).
 
 ## 3. Before the day
 
 - **Blockers first**: product live, link works on a phone, accounts logged in, dated
   spots booked. A missing one moves the date; say so early.
+- **Traffic sources, unless the founder skipped them**: find the analytics snippet in
+  the page source, open the link with `?utm_source=shiplist-test` on a phone and see
+  that visit, with its source, in the dashboard. No analytics, or the test visit never
+  shows: add one or tell the founder it's broken and let them choose, fix or skip.
+  Skipped means every row goes to Cut with "skipped to move fast", not a silent gap.
 - **Draft every copy file** from the templates named in the list, in the founder's
   voice: their brand notes, or a voice skill if they have one. Each destination
   gets its own copy: Hacker News wants no marketing at all, Reddit wants a story with
@@ -90,7 +107,7 @@ Status to `drafting`.
 ## 4. Launch day
 
 Set Status to `launch day`. Walk the table in order. At each row: hand the founder the copy, the exact link with
-its `?ref=`, and the page to paste it into. When it is done, tick it and write the
+its `?utm_source=`, and the page to paste it into. When it is done, tick it and write the
 post URL and time in the Log.
 
 - Every hour, remind the founder to answer comments, and draft the replies.
@@ -105,7 +122,7 @@ post URL and time in the Log.
 
 Set Status to `closing`. Draft the result post ("#4 on Product Hunt today, here's what
 people asked"). On Day 2, once traffic has settled, fill the Log: rank, visits per
-`ref`, signups. Then work through **Done when**:
+source (or each platform's own stats if skipped), signups. Then work through **Done when**:
 
 - Name the channel that sent the most people, and offer to make it a weekly workflow
   with `gtm`. That workflow is a new folder, not this one
