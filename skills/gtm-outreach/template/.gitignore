@@ -1,0 +1,15 @@
+# Personal data: names, addresses, research about real people
+crm.csv
+inputs/audience/*
+!inputs/audience/.gitkeep
+drafts/
+
+# Spreadsheets and exports dropped in by hand
+*.xlsx
+*.numbers
+*.vcf
+
+# Temp
+tmp/
+*.tmp
+.DS_Store

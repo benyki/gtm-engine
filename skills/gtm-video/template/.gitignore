@@ -1,0 +1,19 @@
+# Renders, voiceover and per-video working files
+runs/*/output/
+runs/*/assets/
+tmp/
+
+# Footage, voiceover audio and music, wherever they land
+*.mp4
+*.mov
+*.m4v
+*.webm
+*.mkv
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+*.ogg
+
+.DS_Store
