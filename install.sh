@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# gtm-engine install: the five skills, nothing else.
+# gtm-engine install: the six skills, nothing else.
 #
 #   curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash
 #

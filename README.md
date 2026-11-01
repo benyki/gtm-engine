@@ -16,7 +16,7 @@ and no growth team.
 curl -fsSL https://raw.githubusercontent.com/benyki/gtm-engine/main/install.sh | bash
 ```
 
-It copies five skills into `~/.agents/skills/` and links them into Claude Code,
+It copies six skills into `~/.agents/skills/` and links them into Claude Code,
 Codex and Cursor. Nothing else on your disk changes, and re-running it updates
 them. [`install.sh`](install.sh) is short: read it before you pipe anything into
 `bash`, here or anywhere else.
@@ -61,6 +61,7 @@ moves or rewrites one.
 | **`gtm-seo`** | Finds the questions your buyers ask and writes the article that answers them |
 | **`gtm-social`** | LinkedIn, X, Bluesky and other text posts in your voice |
 | **`gtm-video`** | Short vertical video: script, voiceover, footage, render |
+| **`gtm-shiplist`** | A one-day launch checklist: tailored with you, drafted ahead, walked row by row on the day |
 
 Each template skill is the craft for its channel plus a `template/` folder: the
 starter files copied into a new workflow.
