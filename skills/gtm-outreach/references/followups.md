@@ -1,0 +1,179 @@
+# Follow-ups and replies — optional, and built out of blocks
+
+## This layer is opt-in
+
+**Plenty of people should skip it.** If the volume is ten emails a week, the
+user reading their own inbox and replying in their own words beats anything an
+agent drafts — it's faster, it's better, and the reply is where a deal actually
+starts. Ask before building any of this:
+
+> *"Do you want me to draft the follow-ups and reply handling, or would you
+> rather handle replies yourself?"*
+
+If they'd rather reply themselves, the workflow is complete without this file.
+The only thing still owed is the result: when a reply lands, the CRM row gets
+`replied_at` and the batch's `result` in `log.csv` counts it. Everything else
+here is optional.
+
+Two things make it worth turning on: volume they can't keep up with, and the
+same three answers arriving over and over.
+
+---
+
+## Don't write a decision tree. Build a block library.
+
+The obvious design — *interested → template A, not interested → template B* —
+breaks in week one, because real replies don't sort into two buckets. What
+actually arrives:
+
+- interested, but wants a price first
+- interested, but "ask me in Q3"
+- not the right person, here's who is
+- already using a competitor
+- a single word: "how much?"
+- a question about one specific feature
+- a polite no with a reason
+- a polite no with no reason
+- "who gave you my email?"
+- an out-of-office
+- something none of the above covers
+
+So keep **a library of optional blocks**, not a set of finished emails. Each
+block is one short, reusable move:
+
+| Block | When it goes in |
+|---|---|
+| acknowledge the specific thing they said | always — it's what proves a person read it |
+| price / how it works | they asked, or the reply implies it |
+| one proof point | they're weighing it up |
+| the small next step | they're warm |
+| defer to a date they named | "later" replies |
+| redirect / ask for the right person | wrong person |
+| honest comparison to what they use | competitor mentioned |
+| how they got the email + opt-out | asked, or any irritation at all |
+| clean close, no pitch | a clear no |
+
+A reply is answered by **picking two or three blocks and joining them in the
+user's voice** — not by finding the matching template. That's why this is a
+library: the combinations are the point, and there are more of them than you'd
+ever pre-write.
+
+Keep it as one file per workflow — `templates/followups/blocks.md` — with each
+block a short titled section. It sits alongside the first-touch template but
+isn't a version of it: blocks are components, and `template_used` stays the
+first-touch template that started the thread.
+
+---
+
+## The library has to grow — that's the maintenance loop
+
+The first version will be wrong, and that's fine as long as it's updated. **Every
+reply that doesn't fit an existing block is the signal**:
+
+1. Answer it — with the user, in their words, however it needs answering
+2. **Add what you wrote back to the library** as a new block, or as a variant
+   note on an existing one, with one line on what triggered it
+3. When a block stops being used, mark it stale rather than deleting it
+
+Do this whenever you fill in a batch's result. Six weeks in, the library is a
+real map of what this audience actually says — which is worth more than the
+original template, and is exactly the thing a new agent picking up the workflow
+can't reconstruct.
+
+When a reply theme keeps recurring, it has stopped being a follow-up problem:
+
+- Three people asking the same objection → that objection belongs in the
+  **first-touch email**, answered before it's raised
+- The same question over and over → that's an article. Hand it to the
+  project's `gtm-seo` workflow if it runs one, and a line in the README's "What
+  we learned" either way
+- The wrong people replying → the list is the problem, not the copy
+  (`references/lead-sourcing.md`)
+
+---
+
+---
+
+## The "something new" comes out of the CRM
+
+A follow-up needs something the first email didn't have, and the row already
+holds most of it. Read `research`, `research_source` and `researched_at` before
+drafting touch two or three:
+
+- **Don't restate the observation.** They read it three weeks ago. Half a
+  sentence of callback at most, then whatever is actually new
+- **If `researched_at` is more than a few weeks old, look once more** — a new
+  post, a launch, a hire, a job change. That second look *is* the something new;
+  if there's nothing, the touch is a "bumping this" and shouldn't go
+- **Write what you find back into the row**, same three columns, new date. Touch
+  three reads touch two's work instead of starting over
+- **A job change isn't a follow-up, it's a new conversation** — new company, new
+  problem, often a better one. Update `company` and `email`, note the move, and
+  treat it as a first touch
+
+---
+
+## Who to chase first: the click
+
+If the workflow is tracking clicks on its one link
+(`references/first-touch.md` → §2), it has a third state beyond replied and
+silent: **clicked but hasn't replied.** That person opened the thing, went and
+looked, and didn't write back — which is much closer to interested than to no.
+
+- Chase them **before** the silent ones, and it's fine for the follow-up to
+  reference what they looked at. It reads as attentive, not creepy, as long as
+  it's the thing you sent them
+- **Opens don't count.** Privacy-protecting mail clients prefetch images, so a
+  large share of "opens" are machines. Ignore that column and never sort on it
+- No click tracking? Nothing is lost — the sequence runs on time and replies
+  alone. This is a nice-to-have, not a prerequisite
+
+---
+
+## The trap that only shows up when this is scheduled
+
+**A draft doesn't change the thread.** Marking something as handled by creating a
+draft is invisible to the mailbox — the thread still has an inbound message as its
+last message tomorrow, and the day after. So an unattended reply-handling job that
+looks only at the mailbox will draft the same reply to the same person **every
+single day**, and the user finds twelve near-identical drafts sitting in their
+account.
+
+**One inbound message = at most one draft, ever.** Before drafting a reply, skip
+the thread when either is true:
+
+- the CRM row already says `replied` / `closed` and nothing newer has come in
+- a draft to that address already exists — list the drafts and check
+
+The same applies to sequence follow-ups: check for replies *first*, then draft, or
+you'll chase someone who already answered.
+
+---
+
+## Rules that don't change
+
+- **Drafts only.** Replies to real people go out when a human clicks send. Same
+  boundary as the first touch, and it doesn't relax because the conversation is
+  warm — this is the point where a wrong send costs the most
+- **Build on the email they actually got.** If the first-touch template changed
+  since, the follow-up still answers the version in that row's `template_used`.
+  Mix versions mid-thread and you no longer know which message earned the reply
+- **Stop when someone replies.** `replied_at` set means no further sequence
+  mail, ever. A follow-up that arrives after a reply reads as a machine, and it
+  undoes the credit the reply just earned
+- **Three touches maximum** unless the user asks otherwise
+- **A "bumping this" follow-up is worse than nothing.** New information, a
+  different angle, or don't send it
+- **Honour a no permanently.** `status=closed`, and never re-added by a future
+  import — **and it still counts as a response.** Closing someone is a CRM
+  decision; it doesn't make their reply stop existing
+
+## What the log needs from all this
+
+Unchanged, whoever writes the replies: **any** reply is `replied_at` in the CRM
+and one reply in the batch's `result` — a polite no, a "wrong person", and a
+"yes let's talk" all count the same, because the question is whether the email
+got an answer. Only a **closed sequence with no reply at all** is silence, and
+silence is a real result too. Whether the answers were any *good* (calls booked,
+deals opened) goes next to the count in the same cell, `4 replies / 20, 1 call`,
+not in place of it.

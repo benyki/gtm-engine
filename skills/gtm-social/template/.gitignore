@@ -1,0 +1,20 @@
+# Heavy: images and video stay on this machine. The text is what goes in git.
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.heic
+*.mp4
+*.mov
+
+# Not yours: other people's posts, kept for reference only
+inputs/swipe/
+
+# Personal and temp
+.env
+.env.*
+!.env.example
+node_modules/
+tmp/
+.DS_Store

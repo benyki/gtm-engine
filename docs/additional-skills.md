@@ -1,7 +1,7 @@
 # Additional skills
 
-Optional capabilities that pair with gtm-engine. `skills/engine-*` are the
-engines; everything below is a tool one of them can reach for. Install only
+Optional capabilities that pair with gtm-engine. `skills/gtm-*` are the
+templates; everything below is a tool one of them can reach for. Install only
 what the run you're doing actually needs.
 
 They live in **[`benyki/gtm-skills`](https://github.com/benyki/gtm-skills)**, one folder
@@ -9,12 +9,11 @@ per skill. Three layers, and only the first installs itself:
 
 | Layer | Source | Installed |
 |---|---|---|
-| Engines | this repo, `skills/engine-*` | by `install_skills.sh` |
+| Templates | this repo, `skills/gtm*` | by `install.sh` |
 | Capabilities | `benyki/gtm-skills` → `~/.agents/skills/<name>` | on demand, when a step needs one |
 | Builders / one-offs | `ui-packs/` in this repo | never |
 
-An engine of type `N` maps to skill `engine-N` if it exists. Capabilities stay
-off that map — nothing pulls them but an `engine-*` step that needs a tool it
+Nothing installs a capability but a template step that needs a tool it
 doesn't have.
 
 ## Install one
@@ -37,7 +36,7 @@ to update. Never `cp -R` into an agent folder.
 
 ## The list
 
-Alphabetical. Each `engine-*` skill points at the ones its own steps can use —
+Alphabetical. Each `gtm-*` skill points at the ones its own steps can use —
 this page is just the inventory.
 
 | Skill | |
@@ -50,7 +49,7 @@ this page is just the inventory.
 | `clarity-api-seo` | Microsoft Clarity — free behavioural data on your own pages. Needs `CLARITY_API_KEY` |
 | `elevenlabs` | voiceover |
 | `ffmpeg` | render, trim, crop, concat |
-| `ffmpeg-text-overlay` | the shared text-overlay helper — read `engine-video/references/ffmpeg-text-style.md` first |
+| `ffmpeg-text-overlay` | the shared text-overlay helper — read `gtm-video/references/ffmpeg-text-style.md` first |
 | `launch-announcement` | day one: Reddit / HN / Product Hunt / directories, for a product with no audience. **Not in `benyki/gtm-skills` yet** |
 | `local-secrets` | handling `.env` without leaking values into chat |
 | `music-downloader` | music beds |
@@ -80,4 +79,4 @@ so in its own `CREDITS.md` with links — read the originals, they go further th
 gtm-engine needs.
 
 `prospect-finder` ← [`growthenginenowoslawski/coldoutboundskills`](https://github.com/growthenginenowoslawski/coldoutboundskills)
-(MIT) · [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0)
+(MIT), [`gtmagents/gtm-agents`](https://github.com/gtmagents/gtm-agents) (Apache-2.0)

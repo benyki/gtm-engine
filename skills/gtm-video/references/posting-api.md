@@ -1,0 +1,56 @@
+# Posting APIs — Upload Post + Buffer (how-to)
+
+Decision table: `references/posting-options.md`.
+This file is the **how** after the user picks a mode and approves the upload.
+
+Always finish by adding the video's row to `log.csv` in the workflow folder,
+with the public URL as `link`.
+
+Never post without an explicit yes.
+
+## Upload Post (best default for video)
+
+- Key: `UPLOADPOST_API_KEY` in the project's own env (name in `.env.example`)
+- Accepts a **local file** (multipart) — no public URL required
+- Docs: https://docs.upload-post.com/
+
+```bash
+set -a; . <repo>/.env; set +a   # the project's env: load it, never print it
+
+# List profiles (usernames are case-sensitive)
+curl -sS https://api.upload-post.com/api/uploadposts/users \
+  -H "Authorization: Apikey $UPLOADPOST_API_KEY"
+```
+
+Post flow (conceptually — prefer the `upload-post` skill script if installed):
+
+1. `--file runs/<run_id>/output/final.mp4`
+2. `--user <profile-username>`
+3. platform(s), caption, optional `--aigc` if the content is AI-disclosed
+4. Confirm the response is a **real public URL**, not inbox/draft fallback
+5. Add the row to `log.csv` with that URL
+
+**Inbox trap:** Upload-Post's shared TikTok app can hit a daily active-user cap and
+silently deliver to inbox (`reached_active_user_cap`). Treat inbox as not-published;
+retry later or finish in the TikTok app. Details in the Upload-Post docs.
+
+Optional full skill: `benyki/gtm-skills/upload-post`.
+
+## Buffer (when they already live there)
+
+- Key: `BUFFER_ACCESS_TOKEN` (or as named in `.env.example`)
+- **Needs the media at a public HTTPS URL** — Buffer does not take local files
+- Stronger for text; workable for video if you host the mp4 first
+
+Flow:
+
+1. Host `final.mp4` (signed URL, short TTL preferred)
+2. Create/schedule the post to the connected channel via Buffer API / skill
+3. Add the public post URL to `log.csv` when it goes live
+
+Optional: `benyki/gtm-skills/buffer` + `benyki/gtm-skills/buffer-videos`.
+
+## Manual
+
+User uploads from `runs/<run_id>/output/final.mp4`, pastes the URL, you add
+the row to `log.csv`. Still valid — often correct on week one.
