@@ -132,24 +132,43 @@ because the loop only has something to say once there are runs on the board.
 awkward to change later, because moving an engine means re-registering its
 path. Ask it as a yes-or-something-else, with the default named:
 
+The default depends on where you are. **In a git repo, it is the repo's
+`workflows/` folder:**
+
+> This project keeps its recurring work in `workflows/`, so I'll put your
+> engines there, one folder each (`workflows/outreach/`), next to anything
+> already in it. Everything shared stays in `~/gtm`, so your brand voice and
+> your keys are only written once. Or would you rather have them all in
+> `~/gtm/engines/`?
+
+**Anywhere else, it is `~/gtm/engines/`:**
+
 > By default your engines go in `~/gtm/engines/`, right next to everything they
 > share. Is that what you want, or would you rather pick a folder yourself?
 
 Then, in the same message, say what picking a folder is for, so they can answer
 without knowing the system yet:
 
-> If you have several products or brands, I'd suggest an `engines/` folder
+> If you have several products or brands, I'd suggest a `workflows/` folder
 > inside each project, holding that project's engines. Everything shared still
 > lives in `~/gtm`, so your brand voice and your keys are only written once.
-> We're in `<cwd>` right now, so that would be `<cwd>/engines/`.
 
-Three answers, three behaviours:
+Four answers, four behaviours:
 
 | They say | Where engines go | How folders are named |
 |---|---|---|
-| nothing / "the default" | `~/gtm/engines/` | `engine-<type>-<project>/` when you know the project, else `<type>/` |
-| "keep them with the project" | `<cwd>/engines/` | `<type>/`, for example `outreach/` |
+| nothing / "the default", in a git repo | `<repo>/workflows/` | `<type>/`, for example `outreach/`, or a name of its own when that folder already exists |
+| nothing / "the default", elsewhere | `~/gtm/engines/` | `engine-<type>-<project>/` when you know the project, else `<type>/` |
+| "keep them with the project" | `<project>/workflows/` | `<type>/`, same as the first row |
 | a path of their own | that path | ask for a project name, then `engine-<type>-<project>/` |
+
+**`workflows/` has two rules and three defaults**, written out in engine-setup's
+`SKILL.md` (*The `workflows/` folder*). The short form: a workflow lives in
+`workflows/`, one folder per use case the project needs done regularly, in any
+domain; by default only its main files go in git, it runs as one scheduled
+task, and it is written so an agent or an outside person can run it correctly.
+**gtm-engine installs new engines alongside the workflows already there** and
+never moves, renames or merges into an existing folder.
 
 Two things you settle without asking:
 
@@ -161,14 +180,14 @@ Two things you settle without asking:
   refuses rather than overwrite, so pass `--project <name>` and let it name the
   folder `engine-<type>-<project>`.
 
-If the cwd is a git repo, say so and ask whether the engine folder should be
-committed or gitignored. Recommend committing it when the repo is theirs and
-private, gitignoring it when the repo is shared or public, because runs and
-CRM rows are their data and often personal.
+If the engines go in a git repo, the setup files go in git and the data stays
+out: runs, inputs, reports and CRM rows are their data and often personal. The
+exact `.gitignore` lines, and the `.easignore` and iOS notes, are in
+engine-setup's `SKILL.md`.
 
-If `engines/` already exists in the cwd and is not ours (a Rails project keeps
-mountable engines there), do not merge into it. Say what you found and use
-`gtm-engines/` instead.
+If they ask for `engines/` instead and one already exists in the cwd that is
+not ours (a Rails project keeps mountable engines there), do not merge into it.
+Say what you found and use `gtm-engines/` instead.
 
 ---
 
@@ -187,12 +206,12 @@ Create, in this order:
    symlinked into whichever agents are installed.
 
 ```bash
-# the default
-python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py --project acme
-
-# engines kept with the project
+# in a git repo: engines in its workflows/
 python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py \
-  --engine all --at ./engines --project acme
+  --engine all --at ./workflows --project acme
+
+# elsewhere: engines in ~/gtm/engines
+python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py --project acme
 
 ~/.gtm-engine/skills/engine-setup/scripts/install_skills.sh --home ~/gtm
 ```
@@ -242,18 +261,19 @@ End with what they can do next, and which of it you can start right now:
 
 ```
 Next:
-  · run the outreach engine on a first list of 10 people, I can do this now
-  · set up the daily metric job and the weekly report, I can do this now
-  · you: paste your API keys into ~/gtm/.env for the channels you want live
+  - run the outreach engine on a first list of 10 people, I can do this now
+  - set up the daily metric job and the weekly report, I can do this now
+  - you: paste your API keys into ~/gtm/.env for the channels you want live
 ```
 
 ---
 
 ## Adding an engine later
 
-Same two questions, much shorter: which type, and where it goes (default:
-`~/gtm/engines/`, or the project's own `engines/` if that is where their other
-engines for this project are). `scaffold.py --engine <name> --at <path>
+Same two questions, much shorter: which type, and where it goes (default: the
+project's `workflows/` in a git repo, else `~/gtm/engines/`, or wherever their
+other engines for this project already are). In `workflows/`, add it next to
+what is there under a name no existing folder holds. `scaffold.py --engine <name> --at <path>
 --project <name>` registers it and fills the gaps; install the skill for its
 type if it is missing, and stop. Never rescaffold `~/gtm/shared/`: it already
 exists and it is theirs. If this is the engine that puts them in a second

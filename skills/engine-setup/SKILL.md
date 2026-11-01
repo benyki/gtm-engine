@@ -43,6 +43,8 @@ Three separate things, and keeping them separate is the point:
 ├── published/
 └── engines/                 engines kept in one place, named
                              engine-<type>-<project>/
+<repo>/workflows/            or engines kept with a project, one folder
+                             each, next to the project's other workflows
 ~/.agents/skills/            the skills themselves (step 4)
 ~/Desktop/                   two symlinks, so neither is buried (step 5)
 ├── gtm     ->  ~/gtm
@@ -51,24 +53,32 @@ Three separate things, and keeping them separate is the point:
 
 ## Where the engines live
 
-**The default is `~/gtm/engines/`, and you ask before using it.** Not a
+**Inside a git repo the default is `<repo>/workflows/`; anywhere else it is
+`~/gtm/engines/`. Either way you ask before using it.** Not a
 required-choices screen: one question, with the answer already suggested.
+
+> This project keeps its recurring work in `workflows/`, so I'll put your
+> engines there, one folder each (`workflows/outreach/`), next to anything
+> already in it. Everything shared stays in `~/gtm`. Or would you rather have
+> them all in `~/gtm/engines/`?
+
+Outside a repo:
 
 > By default your engines go in `~/gtm/engines/`, next to everything they
 > share. If you'd rather keep this project's engines with the project, I can
-> put them in `engines/` here instead. Which do you want?
+> put them in `workflows/` there instead. Which do you want?
 
 Both are good shapes, for different people:
 
-- **`~/gtm/engines/`** (the default): everything growth-related in one place,
-  one folder to back up, nothing added to any project repo. Name the folders
-  `engine-<type>-<project>/` so it stays obvious which project each belongs
-  to, which `scaffold.py --project <name>` does for you.
-- **`<project>/engines/`**: the engines sit with the code they grow, so
+- **`<repo>/workflows/`**: the engines sit with the code they grow, so
   opening the project in Claude Code puts everything in reach. Recommend this
   when they have several products or brands. The folders are named after the
   type (`outreach/`, `seo/`), because the path already says which project it
   is.
+- **`~/gtm/engines/`**: everything growth-related in one place, one folder to
+  back up, nothing added to any project repo. Name the folders
+  `engine-<type>-<project>/` so it stays obvious which project each belongs
+  to, which `scaffold.py --project <name>` does for you.
 
 Either way `~/gtm` still holds everything shared, and every engine is recorded
 in `~/gtm/engines.json`.
@@ -77,9 +87,50 @@ Override the cwd without asking when it is a bad home for data: the home
 directory itself, `~/Downloads`, a temp directory, or the clone. Say why in one
 line and use `~/gtm/engines/`.
 
-If `engines/` already exists in the project and is not ours (Rails keeps
-mountable engines there), do not scaffold into it. Say what you found and use
-`gtm-engines/`.
+### The `workflows/` folder
+
+In a project, an engine is one workflow. **`<repo>/workflows/` is deliberately
+loose: a workflow lives there, one folder each, and covers one use case, in any
+domain (distribution, biz dev, finance, reporting, support), that the project
+needs done regularly.** Those are the only two rules.
+
+Defaults, which a workflow may break when it has a reason:
+
+- Only the main files go in git; heavy and temp files are gitignored, and kept
+  out of EAS and iOS builds.
+- One workflow is one scheduled task.
+- Agents or people outside the company run workflows, so think everything from
+  their side: they must be able to do the task correctly.
+
+**gtm-engine installs new workflows alongside the ones already there.** A
+`workflows/` that already holds other workflows, older gtm-engine folders
+included, is the normal case and not a conflict: add the engines next to them
+and leave every existing folder exactly as it is. Never move, rename or merge
+into one. The scaffolder only checks the registry, not the disk, and merges an
+engine's files into any existing folder with the same name. So list
+`workflows/` first, and if the type's name is taken, give the new engine its
+own: `--engine gtm-outreach:outreach`.
+
+For an engine, the main files are `engine.json`, `experiments.json`,
+`sources.json`, `templates/`, `AGENTS.md` and `CLAUDE.md`. Its data and media
+stay on the machine that runs it, so add these lines to the `.gitignore` the
+scaffolder writes inside the engine folder:
+
+```gitignore
+# the setup is in git; data and media stay on this machine
+/inputs/
+/runs/
+/reports/
+/crm.csv
+```
+
+If the repo has an `.easignore`, EAS reads it instead of `.gitignore`: ask, then
+add `/workflows/` to it. For an iOS app, keep `workflows/` at the repo root,
+outside the folders Xcode builds from.
+
+If they ask for `engines/` instead and one already exists that is not ours
+(Rails keeps mountable engines there), do not scaffold into it. Say what you
+found and use `gtm-engines/`.
 
 **Engine names are unique across every project**, because `engines.json` is
 keyed on them. `scaffold.py` refuses to let a second engine take a name the
@@ -149,15 +200,13 @@ engines are folders that can live anywhere and are recorded in
 > what previous runs taught. It's yours, and an update to the engine can never
 > touch it.
 
-**Then ask the one question that matters, where the engines go:**
-
-> By default your engines go in `~/gtm/engines/`, next to everything they
-> share. If you'd rather keep this project's engines with the project, I can
-> create `engines/` here instead. Which do you prefer?
+**Then ask the one question that matters, where the engines go**, in the
+words from *Where the engines live* above: `workflows/` in this repo, or
+`~/gtm/engines/` outside one.
 
 "The default" is a complete answer and the usual one. See *Where the engines
-live* above for when to recommend the project shape, and for the cwds worth
-overriding without asking.
+live* above for when to recommend each shape, the rules of `workflows/`, and
+the cwds worth overriding without asking.
 
 **Which engine to run first**, not which to install; all four get scaffolded:
 
@@ -171,12 +220,12 @@ fine answer: `seo`, `social`, `video`, or a custom name.
 Then:
 
 ```bash
-# the default: home + all four engines in ~/gtm/engines
-python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py
-
-# or, engines kept with the project they grow
+# in a git repo: home + all four engines in the repo's workflows/
 python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py \
-  --engine all --at ./engines --project acme
+  --engine all --at ./workflows --project acme
+
+# outside a repo: home + all four engines in ~/gtm/engines
+python3 ~/.gtm-engine/skills/engine-setup/scripts/scaffold.py
 ```
 
 **Scaffold all four, run one.** The folders are cheap (an `engine.json`, an
