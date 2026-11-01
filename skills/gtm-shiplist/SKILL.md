@@ -100,6 +100,12 @@ Status to `roadmap` (a week or a month out) or `drafting` (today or tomorrow).
   voice: their brand notes, or a voice skill if they have one. Each destination
   gets its own copy: Hacker News wants no marketing at all, Reddit wants a story with
   the link low, Product Hunt wants a benefit in 60 characters.
+- **Model each draft on a launch that worked there.** Before writing a destination's
+  copy, open its section in [`references/hall-of-fame.md`](references/hall-of-fame.md).
+  Part 1 has three indie launches that did well on that platform. Part 2 breaks each
+  post down: title, opening, order of the parts, where the link sits, a template. Pick
+  the one closest to this product and follow its shape, in the founder's words. Never
+  copy its sentences.
 - Run each draft through `no-ai-slop-writting` before the founder sees it. When they
   reject one, write down why and apply it to the rest.
 - Read each platform's rules page the week of the launch. Rules in
@@ -159,4 +165,5 @@ the row by hand, or install it from
 | Platforms, timing, directories, Reddit, templates | `launch-announcement` (gtm-skills) |
 | Posting tools | `x-browser-post`, `bluesky-post-manage`, `upload-post`, `buffer` (gtm-skills) |
 | Copy | `no-ai-slop-writting` (gtm-skills) |
+| Launch posts to model, per platform | [`references/hall-of-fame.md`](references/hall-of-fame.md) |
 | Others, if you have them | App Store: `appstore-release-planner`, `appstore-review-readiness`, `appstore-build`, `stores-management-expo`. Assets: `aso-appstore-screenshots`, `app-screenshots-api`, `phone-mockup-scene`. Site and data: `domain-finder`, `posthog`, `aptabase`, `revenuecat-sdk-react`, `paywall-design`. After the day: `creator-discovery`, `ads-api`, `appstore-ads-operator` |
