@@ -1,25 +1,44 @@
 ---
 name: gtm-shiplist
-description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
+description: A one-day launch shiplist for a new product. The todo list covers everything needed to ship it and share it everywhere in a single day (Product Hunt or Show HN, one subreddit, Uneed, Peerlist, Stacker News, DEV, Indie Hackers, X, LinkedIn, Bluesky, the founder's warm circle, a short video). It also tells an agent how to tailor that list with the founder, draft every piece beforehand, and walk them through the day row by row, with the project's shiplist.md as the one progress tracker until it is marked done. Use when the founder says "shiplist", "launch checklist", "launch day plan", "we ship tomorrow", "share it everywhere", "help me launch in one day", or names gtm-shiplist.
 ---
 
 # gtm-shiplist
 
-One file, one day. [`shiplist.md`](shiplist.md) is the list. Your job as the agent:
+One file, one day. [`shiplist.md`](shiplist.md) is the template. Your job as the agent:
 
-1. Copy it into the project
+1. Create the project's `shiplist.md` from it
 2. Tailor it with the founder
 3. Draft everything before the day
 4. Walk the day row by row
-5. Close the day with numbers
+5. Close it: numbers in, Status `done`
 
 The founder submits and posts. You prepare, draft, remind and log.
 
+## The project's `shiplist.md` is the one source of truth
+
+It is a todo list, and the only place progress lives, from the first question to the
+last number. No side notes, no second tracker: a task list in your chat UI can mirror
+it, but the file wins.
+
+- **Start every session by reading it**, its Status and Next lines first. A new agent,
+  or the founder on their phone, must know where things stand from that file alone
+- **Update it the moment something changes**: tick a box when the thing is really done,
+  put the post URL in the Log, move a row that won't happen to Cut with its reason,
+  rewrite Status and Next
+- **End every session by saving it**, with Next saying the very next action and who
+  owns it
+
+This is a one-off, not a recurring workflow: no schedule, and it ends. It is finished
+when every box under **Done when** is ticked and Status says `done`. After that, nothing
+more happens in this folder; ongoing work moves to a workflow of its own.
+
 ---
 
-## 1. Copy the list into the project
+## 1. Create the project's `shiplist.md`
 
-Copy `shiplist.md` to `<repo>/workflows/shiplist/shiplist.md`, and put the drafts in
+Copy the template to `<repo>/workflows/shiplist/shiplist.md`, set Status to
+`tailoring`, and put the drafts in
 `<repo>/workflows/shiplist/copy/<destination>.md`. If `workflows/shiplist/` already
 exists from an earlier launch, use `workflows/shiplist-<yyyy-mm>/` next to it; never
 move or rewrite one. Outside a git repo, use the folder where the founder keeps this
@@ -52,7 +71,8 @@ these four, because every row depends on them:
 the founder can bring it back. Rewrite every PT time in the founder's timezone
 (00:01 PT is 09:01 in Paris for most of the year). Put a real owner on each row.
 
-Show the founder the tailored list and get a yes before you start drafting.
+Show the founder the tailored list and get a yes before you start drafting. Then set
+Status to `drafting`.
 
 ## 3. Before the day
 
@@ -69,7 +89,7 @@ Show the founder the tailored list and get a yes before you start drafting.
 
 ## 4. Launch day
 
-Walk the table in order. At each row: hand the founder the copy, the exact link with
+Set Status to `launch day`. Walk the table in order. At each row: hand the founder the copy, the exact link with
 its `?ref=`, and the page to paste it into. When it is done, tick it and write the
 post URL and time in the Log.
 
@@ -81,11 +101,17 @@ post URL and time in the Log.
 - If the flagship stalls, that is normal. Keep going down the list; the rest still
   sends people.
 
-## 5. Close the day
+## 5. Close it
 
-Fill the Log: rank, visits per `ref`, signups. Draft the result post ("#4 on Product
-Hunt today, here's what people asked"). Day 2, tell the founder which channel sent the
-most people and offer to make it a weekly workflow with `gtm`.
+Set Status to `closing`. Draft the result post ("#4 on Product Hunt today, here's what
+people asked"). On Day 2, once traffic has settled, fill the Log: rank, visits per
+`ref`, signups. Then work through **Done when**:
+
+- Name the channel that sent the most people, and offer to make it a weekly workflow
+  with `gtm`. That workflow is a new folder, not this one
+- Write the relaunch date down, or "none"
+- Tick the last box, set Status to `done` with the date, and tell the founder the
+  shiplist is finished
 
 ---
 

@@ -1,5 +1,11 @@
 # Shiplist: <product>
 
+> **Status:** tailoring | drafting | launch day | closing | done (<date>)
+> **Next:** <the very next action, and who owns it>
+>
+> This file is the one place progress lives. Read it first, update it as you go, and
+> stop when every box under **Done when** is ticked.
+
 **Launch day:** <date, Tue to Thu>  **Flagship:** <Product Hunt | Show HN>  **Founder timezone:** <tz>
 **Link everyone gets:** <url>  **Price:** <one line, e.g. "Free, Pro $4.99/mo">
 
@@ -85,13 +91,18 @@ Legend: `agent` prepares or drafts, `founder` submits or posts. Times are Pacifi
 
 ---
 
-## After the day
+## Done when
 
-- [ ] `agent` Day 2: add rank, visits per `ref` and signups to the Log. Rank without traffic tells you little
-- [ ] `agent` Turn the channel that sent the most people into a weekly workflow. Skill: `gtm`
-- [ ] `agent` Creators for a consumer product. Skill: `creator-discovery`
-- [ ] `founder` Ads only once organic shows a signal. Skills: `ads-api`, `appstore-ads-operator`
-- [ ] `founder` Relaunch in 4 to 6 weeks with a new angle or a new feature
+The end of this shiplist. Tick these and it is finished; nothing more happens in this folder.
+
+- [ ] `founder` Every launch-day row is ticked or moved to Cut with its reason
+- [ ] `founder` Result post is out
+- [ ] `agent` Day 2: rank, visits per `ref` and signups are in the Log. Rank without traffic tells you little
+- [ ] `agent` Best channel named: <channel>. Weekly workflow for it: started with `gtm` in its own folder, or declined
+- [ ] `founder` Relaunch date written down (4 to 6 weeks out, a new angle or feature), or "none": <date>
+- [ ] `agent` Status above set to `done` with today's date
+
+Later, not part of this shiplist: creators for a consumer product (`creator-discovery`), ads once organic shows a signal (`ads-api`, `appstore-ads-operator`).
 
 ---
 
