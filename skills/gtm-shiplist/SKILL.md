@@ -19,11 +19,11 @@ The founder submits and posts. You prepare, draft, remind and log.
 
 ## 1. Copy the list into the project
 
-Copy `shiplist.md` to `<repo>/workflows/launch/shiplist.md`, and put the drafts in
-`<repo>/workflows/launch/copy/<destination>.md`. If `workflows/` already holds a
-launch folder, use a new name next to it; never move or rewrite one. Outside a git
-repo, use the folder where the founder keeps this product's work. If the repo has an
-`.easignore`, add `/workflows/` to it.
+Copy `shiplist.md` to `<repo>/workflows/shiplist/shiplist.md`, and put the drafts in
+`<repo>/workflows/shiplist/copy/<destination>.md`. If `workflows/shiplist/` already
+exists from an earlier launch, use `workflows/shiplist-<yyyy-mm>/` next to it; never
+move or rewrite one. Outside a git repo, use the folder where the founder keeps this
+product's work. If the repo has an `.easignore`, add `/workflows/` to it.
 
 ## 2. Tailor it with the founder (about 20 minutes)
 
