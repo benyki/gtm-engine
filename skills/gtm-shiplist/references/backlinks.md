@@ -1,7 +1,7 @@
 # Backlinks setup
 
-Easy backlinks to the landing page: high-authority sites where a free profile, page
-or post can carry a link to the product. Do them once, around launch day (the
+Easy backlinks to the landing page: high-authority sites where a profile, page or post,
+free on most of them, can carry a link to the product. Do them once, around launch day (the
 **evening, optional** row in `shiplist.md`). They help search and discovery, not
 day-one traffic.
 
@@ -10,9 +10,9 @@ matters.
 
 | Site | DR | Where the link goes |
 |---|---|---|
-| [chromewebstore.google.com](https://chromewebstore.google.com) | 99 | Website field of a Chrome extension listing. Only if the product ships an extension |
+| [chromewebstore.google.com](https://chromewebstore.google.com) | 99 | Website field of a Chrome extension listing. Only if the product ships an extension; one-time developer registration fee |
 | [pages.github.com](https://pages.github.com) | 96 | A page hosted on `<user>.github.io` (docs, changelog, a mirror) linking to the product |
-| [climate.stripe.com](https://climate.stripe.com) | 94 | The public climate page Stripe gives a business that joins Stripe Climate. Needs a Stripe account |
+| [climate.stripe.com](https://climate.stripe.com) | 94 | The public climate page Stripe gives a business that joins Stripe Climate. Needs a Stripe account, and joining means giving a share of revenue |
 | [medium.com](https://medium.com) | 94 | Profile bio, and a post about the build |
 | [behance.net](https://www.behance.net) | 92 | A project showing the product's design, plus the profile website field |
 | [about.me](https://about.me) | 92 | Profile page |
@@ -37,7 +37,7 @@ matters.
 - **Use the one link everyone gets**, with `?utm_source=<site>` so any visits show
   up per source.
 - **Skip what doesn't fit**: no extension, no Chrome Web Store; no design work to
-  show, no Behance or Dribbble. Move a skipped site to Cut with its reason.
+  show, no Behance or Dribbble.
 - **Many profile links are nofollow.** They still get the product found and indexed;
   don't spend more than a few minutes on any one site.
 - Log each live page URL under **Log** in `shiplist.md`.
