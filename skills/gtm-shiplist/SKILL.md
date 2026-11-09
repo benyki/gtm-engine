@@ -166,4 +166,5 @@ the row by hand, or install it from
 | Posting tools | `x-browser-post`, `bluesky-post-manage`, `upload-post`, `buffer` (gtm-skills) |
 | Copy | `no-ai-slop-writting` (gtm-skills) |
 | Launch posts to model, per platform | [`references/hall-of-fame.md`](references/hall-of-fame.md) |
+| Easy backlinks to the landing page | [`references/backlinks.md`](references/backlinks.md) |
 | Others, if you have them | App Store: `appstore-release-planner`, `appstore-review-readiness`, `appstore-build`, `stores-management-expo`. Assets: `aso-appstore-screenshots`, `app-screenshots-api`, `phone-mockup-scene`. Site and data: `domain-finder`, `posthog`, `aptabase`, `revenuecat-sdk-react`, `paywall-design`. After the day: `creator-discovery`, `ads-api`, `appstore-ads-operator` |
