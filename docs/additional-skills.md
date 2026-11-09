@@ -50,7 +50,7 @@ this page is just the inventory.
 | `elevenlabs` | voiceover |
 | `ffmpeg` | render, trim, crop, concat |
 | `ffmpeg-text-overlay` | the shared text-overlay helper — read `gtm-video/references/ffmpeg-text-style.md` first |
-| `launch-announcement` | day one: Reddit / HN / Product Hunt / directories, for a product with no audience. **Not in `benyki/gtm-skills` yet** |
+| `launch-announcement` | the launch reference `gtm-shiplist` reads: what Reddit, HN, Product Hunt and 107 directories want, plus the copy templates |
 | `local-secrets` | handling `.env` without leaking values into chat |
 | `music-downloader` | music beds |
 | `app-video-study` | worked example: a study or finding turned into a vertical explainer |
