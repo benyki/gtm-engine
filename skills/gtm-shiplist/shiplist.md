@@ -108,7 +108,7 @@ Launching today: start at the current hour and go down the rows in order; the ti
 | 06:00 | 9:16 demo clip | TikTok, Reels, Shorts (`upload-post` or by hand) | founder |
 | 07:00 | Promo channel only, in groups the founder really belongs to | Discord, Slack, WhatsApp groups | founder |
 | every hour | Answer every comment, first on the flagship, then Reddit | all | founder, agent drafts replies |
-| evening, optional | Directory batch: backlinks and search, not traffic. Ranked list in `launch-announcement/references/directories.md` (LaunchIgniter, Micro Launch, Foundrlist, SaaSHub, BetaList, DevHunt, Fazier, TAAFT for AI) | directories | founder |
+| evening, optional | Directory batch: backlinks and search, not traffic. Ranked list in `launch-announcement/references/directories.md` (LaunchIgniter, Micro Launch, Foundrlist, SaaSHub, BetaList, DevHunt, Fazier, TAAFT for AI). Easy profile backlinks (Medium, Crunchbase, DEV, linktr.ee...): `references/backlinks.md` in `gtm-shiplist` | directories, profiles | founder |
 | 23:00 | Fill the Log. Post the result: rank, what people said, thanks | X, LinkedIn, Bluesky | founder |
 
 **Show HN as flagship instead:** post a weekday between 08:00 and 10:00 Eastern, stay on it for the first 30 minutes, and move Product Hunt to another day. Never both on one day.
