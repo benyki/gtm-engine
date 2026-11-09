@@ -1,0 +1,15 @@
+# Generated site: dependencies, builds and caches
+site/node_modules/
+site/dist/
+site/.astro/
+site/.wrangler/
+
+# Temp
+tmp/
+*.tmp
+.DS_Store
+
+# Personal: keys stay in the project's own env setup
+.env
+.env.*
+!.env.example

@@ -3,8 +3,8 @@
 For the **organiser's agent**: you're helping someone run a session where a room
 of people install gtm-engine and ship something real before they leave. Most of
 them will be new to coding agents. Your job is the logistics and the room, not
-the install itself, which each participant's own agent handles from
-[`onboarding.md`](onboarding.md).
+the install itself, which each participant's own agent handles with the `gtm`
+skill.
 
 The one measure of a good session: **every participant leaves with one piece
 they'd actually send or publish**, and a machine that will still work on Monday.
@@ -24,7 +24,7 @@ What they need to have working:
   Worth having them test it once: ask it to create a file and see it appear.
 - **Browser control** installed and connected, since it's the piece nobody has
   by default and the one that blocks the most. *Claude in Chrome* or the
-  ChatGPT extension. `engine-social` is effectively dead without it.
+  ChatGPT extension. `gtm-social` is effectively dead without it.
 - **A Gmail their agent can reach**, if they're doing outreach. Personal
   accounts are safer here: managed Workspace accounts often block the
   connector, and finding that out at 10am costs the morning.
@@ -48,21 +48,20 @@ under time pressure.
 
 Roughly ninety minutes to a first shipped piece, if the prep landed:
 
-1. **Install**, ten minutes. Each participant tells their agent to follow
-   `onboarding.md`. The agent checks the machine, creates `~/gtm`, scaffolds the
-   engines, installs the skills.
-2. **One engine, configured properly**, twenty minutes. Outreach unless they
+1. **Install**, five minutes. The one-line installer from the README, then
+   each participant opens their project and tells their agent `run gtm`.
+2. **One workflow, set up properly**, twenty minutes. Outreach unless they
    have a reason otherwise: it needs no keys and no website, and a reply is a
-   real signal inside a week. The brand interview is the substance here.
+   real signal inside a week. The voice questions are the substance here.
 3. **Ship one thing**, the rest. A draft they'd actually send, ten researched
-   people, one post. Whatever it is, it gets a run row, so next week's numbers
-   have somewhere to land.
-4. **Schedulers**, five minutes at the end. One metric job for the engine they
-   ran, one weekly job. Without these the loop never has anything to say, and
-   the session was a demo rather than a start.
+   people, one post. Whatever it is, it gets a row in the workflow's `log.csv`,
+   so next week's result has somewhere to land.
+4. **A schedule**, five minutes at the end, for anyone who wants more next
+   week: one scheduled task for the workflow, its prompt written in the
+   workflow's README. Without it the session was a demo rather than a start.
 
-Resist a second engine in the room. Four half-configured engines produce no
-verdict anywhere, and the folders are already there for whenever they want one.
+Resist a second workflow in the room. One that shipped teaches more than two
+half set up, and the other templates are there whenever they want one.
 
 ## What eats the time
 
@@ -81,22 +80,21 @@ verdict anywhere, and the folders are already there for whenever they want one.
 
 - **Take the defaults out loud.** Say which one you took and keep going. Nobody
   in their first hour benefits from a folder-layout decision.
-- **Don't teach the architecture.** They don't need to know what `engines.json`
-  is to send an email. It's there when they ask.
+- **Don't teach the folder rules.** They don't need to know why `workflows/`
+  is shaped the way it is to send an email. It's there when they ask.
 - **Show them a draft they'd actually send** as early as possible. That's the
   moment the thing becomes real; everything before it is setup.
 - **Let them reject things.** Telling the agent why a draft is wrong is most of
   the work, and it's the habit that makes month three better than week one.
-- **Be honest about the loop.** It needs about three weeks of runs before its
-  verdicts mean anything. A session produces the first run, not the answer.
+- **Be honest about results.** A few pieces are not a verdict; it takes a few
+  weeks of shipping before the numbers say much. A session produces the first
+  piece, not the answer.
 
 ## Afterwards
 
-[`goals.md`](goals.md) is the completion checklist, written as things that
-exist on a machine rather than intentions: a file that opens, a scheduler that
-fires, a run row with a number in it. Worth sending round a week later, when the
-first metrics are due, along with a nudge to record them.
+Send a nudge a week later, when the first results are in: fill in `result`
+in `log.csv`, and write one line under "What we learned" in the workflow's
+README when something clearly worked or didn't.
 
-If a participant's setup looks broken, their agent can run
-`python3 ~/.gtm-engine/skills/engine-setup/scripts/doctor.py`, which reports
-what's missing and repairs the registry with `--fix`.
+If a participant's skills look broken, re-run the installer. The workflow
+itself is only files in their project, so there is nothing else to repair.
